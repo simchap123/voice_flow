@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceFlow - Type With Your Voice</title>
+  <meta name="description" content="AI-powered dictation that works everywhere. Press a hotkey, speak, and your words appear in any app. Powered by OpenAI Whisper." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #06080f;
+      --bg-card: #0c1020;
+      --bg-card-hover: #111630;
+      --text: #e8eaf0;
+      --text-muted: #7a7f96;
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --primary-glow: rgba(124, 58, 237, 0.3);
+      --accent: #3b82f6;
+      --border: rgba(255,255,255,0.06);
+      --radius: 16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ---- Ambient background ---- */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-glow::before {
+      content: '';
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      animation: float 8s ease-in-out infinite;
+    }
+    .bg-glow::after {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      bottom: -100px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+      animation: float 10s ease-in-out infinite reverse;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(30px); }
+    }
+
+    /* ---- Layout ---- */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 100px 0; }
+
+    /* ---- Nav ---- */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(6, 8, 15, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ---- Buttons ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      color: white;
+      box-shadow: 0 4px 24px var(--primary-glow), 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--primary-glow), 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.2);
+    }
+    .btn-sm { padding: 10px 20px; font-size: 14px; border-radius: 10px; }
+    .btn svg { width: 20px; height: 20px; }
+
+    /* ---- Hero ---- */
+    .hero {
+      padding-top: 160px;
+      padding-bottom: 80px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(124, 58, 237, 0.1);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--primary-light);
+      margin-bottom: 28px;
+    }
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .hero-note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .hero-note svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+
+    /* ---- Demo visual ---- */
+    .demo-wrapper {
+      margin-top: 70px;
+      position: relative;
+    }
+    .demo-window {
+      max-width: 700px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    }
+    .demo-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border);
+    }
+    .demo-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .demo-dot-red { background: #ef4444; }
+    .demo-dot-yellow { background: #eab308; }
+    .demo-dot-green { background: #22c55e; }
+    .demo-body {
+      padding: 40px;
+      text-align: left;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .demo-mic {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 0 var(--primary-glow);
+      animation: mic-pulse 2s ease-in-out infinite;
+    }
+    @keyframes mic-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 var(--primary-glow); }
+      50% { box-shadow: 0 0 0 20px rgba(124, 58, 237, 0); }
+    }
+    .demo-mic svg { width: 28px; height: 28px; color: white; }
+    .demo-waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 40px;
+    }
+    .demo-waveform .bar {
+      width: 4px;
+      background: linear-gradient(to top, var(--primary), var(--primary-light));
+      border-radius: 2px;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+    @keyframes wave {
+      0%, 100% { height: 8px; }
+      50% { height: 36px; }
+    }
+    .demo-text {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 400px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .demo-text .typed {
+      color: var(--text);
+      border-right: 2px solid var(--primary);
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { border-color: transparent; } }
+
+    /* ---- How it works ---- */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .step-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(124, 58, 237, 0.2);
+      transform: translateY(-4px);
+    }
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(124, 58, 237, 0.12);
+      color: var(--primary-light);
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .step-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .step-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ---- Features ---- */
+    .section-header { text-align: center; margin-bottom: 48px; }
+    .section-header h2 {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .section-header p { font-size: 16px; color: var(--text-muted); max-width: 500px; margin: 0 auto; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(124, 58, 237, 0.15);
+    }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(124, 58, 237, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .feature-icon svg { width: 22px; height: 22px; color: var(--primary-light); }
+    .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ---- Download / CTA ---- */
+    .cta-section {
+      text-align: center;
+      padding: 80px 0 120px;
+    }
+    .cta-box {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(59,130,246,0.08));
+      border: 1px solid rgba(124, 58, 237, 0.15);
+      border-radius: 24px;
+      padding: 64px 40px;
+    }
+    .cta-box h2 {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .cta-box p {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-box .btn-primary { font-size: 18px; padding: 18px 40px; border-radius: 14px; }
+    .platform-note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ---- Footer ---- */
+    footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 768px) {
+      .steps-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .hero { padding-top: 120px; }
+      section { padding: 60px 0; }
+      .cta-box { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+      </div>
+      VoiceFlow
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#download" class="btn btn-primary btn-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Download
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Now available for Windows
+    </div>
+    <h1>Type with your <span class="gradient">voice</span></h1>
+    <p>Press a hotkey from any app, speak naturally, and your cleaned-up text appears right where your cursor is. No switching windows. No copying. Just talk.</p>
+    <div class="hero-buttons">
+      <a href="#download" class="btn btn-primary" id="hero-download-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Download for Windows
+      </a>
+      <a href="#how-it-works" class="btn btn-outline">See How It Works</a>
+    </div>
+    <p class="hero-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Free &amp; open source. Your API key stays on your device.
+    </p>
+
+    <!-- Demo visual -->
+    <div class="demo-wrapper">
+      <div class="demo-window">
+        <div class="demo-titlebar">
+          <span class="demo-dot demo-dot-red"></span>
+          <span class="demo-dot demo-dot-yellow"></span>
+          <span class="demo-dot demo-dot-green"></span>
+        </div>
+        <div class="demo-body">
+          <div class="demo-mic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+          </div>
+          <div class="demo-waveform">
+            <div class="bar" style="animation-delay:0s;height:12px"></div>
+            <div class="bar" style="animation-delay:0.1s;height:20px"></div>
+            <div class="bar" style="animation-delay:0.2s;height:32px"></div>
+            <div class="bar" style="animation-delay:0.3s;height:24px"></div>
+            <div class="bar" style="animation-delay:0.15s;height:36px"></div>
+            <div class="bar" style="animation-delay:0.25s;height:28px"></div>
+            <div class="bar" style="animation-delay:0.05s;height:16px"></div>
+            <div class="bar" style="animation-delay:0.35s;height:30px"></div>
+            <div class="bar" style="animation-delay:0.1s;height:22px"></div>
+            <div class="bar" style="animation-delay:0.2s;height:34px"></div>
+            <div class="bar" style="animation-delay:0.3s;height:18px"></div>
+            <div class="bar" style="animation-delay:0.25s;height:26px"></div>
+            <div class="bar" style="animation-delay:0.15s;height:14px"></div>
+            <div class="bar" style="animation-delay:0.05s;height:30px"></div>
+            <div class="bar" style="animation-delay:0.35s;height:20px"></div>
+          </div>
+          <div class="demo-text">
+            <span class="typed">I wanted to schedule a meeting for tomorrow afternoon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <h2>Three steps. That's it.</h2>
+      <p>VoiceFlow runs silently in your system tray. You never leave the app you're working in.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Download &amp; Install</h3>
+        <p>Download the installer, run it, and enter your OpenAI API key. Takes 30 seconds.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>Press Your Hotkey</h3>
+        <p>From any app &mdash; Slack, VS Code, Word, Gmail, anywhere &mdash; press <kbd style="background:rgba(124,58,237,0.15);padding:2px 6px;border-radius:4px;font-size:12px;">Alt+Space</kbd> and start talking.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>Text Appears</h3>
+        <p>VoiceFlow transcribes, removes filler words, fixes grammar, and pastes the clean text right where your cursor was.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <div class="container">
+    <div class="section-header">
+      <h2>Everything you need</h2>
+      <p>Powerful dictation with AI cleanup, built for speed.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.855z"/></svg>
+        </div>
+        <h3>Works Everywhere</h3>
+        <p>Any text field, any app. Emails, documents, chat, code editors. Just press the hotkey.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.288L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.288Z"/></svg>
+        </div>
+        <h3>AI Text Cleanup</h3>
+        <p>GPT removes "um", "like", filler words, and fixes grammar &mdash; so you sound polished, not rambling.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Lightning Fast</h3>
+        <p>OpenAI Whisper transcribes in seconds. Overlay shows clear progress so you always know what's happening.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+        </div>
+        <h3>Private &amp; Secure</h3>
+        <p>Your API key is encrypted with Windows DPAPI. Audio is sent directly to OpenAI &mdash; no middleman servers.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>99+ Languages</h3>
+        <p>Whisper supports over 99 languages. Set your preferred language or let it auto-detect.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M11 19c-1.7 0-3-1.3-3-3v-2h8v2c0 1.7-1.3 3-3 3Z"/><path d="M12 22v-3"/></svg>
+        </div>
+        <h3>Snippets</h3>
+        <p>Create trigger words like "sign off" that expand to full text blocks. Save time on repetitive phrases.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Download CTA -->
+<section id="download" class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2>Ready to start dictating?</h2>
+      <p>Download VoiceFlow, add your OpenAI API key, and you're up and running in under a minute.</p>
+      <a href="release/VoiceFlow Setup.exe" class="btn btn-primary" id="download-btn" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Download for Windows
+      </a>
+      <p class="platform-note">Windows 10/11 &bull; 64-bit &bull; Free &amp; open source</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>&copy; 2026 VoiceFlow. Built with Electron, React, and OpenAI.</p>
+  </div>
+</footer>
+
+</body>
+</html>
