@@ -12,7 +12,7 @@ export interface ElectronAPI {
   getApiKey: () => Promise<string | null>
   hasApiKey: () => Promise<boolean>
   getSettings: () => Promise<Record<string, any>>
-  setSetting: (key: string, value: any) => Promise<void>
+  setSetting: (key: string, value: any) => Promise<{ success: boolean; error?: string }>
   getHistory: () => Promise<any[]>
   setHistory: (history: any[]) => Promise<void>
   getSnippets: () => Promise<any[]>

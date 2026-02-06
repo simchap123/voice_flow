@@ -23,7 +23,7 @@ export interface ElectronAPI {
 
   // Settings
   getSettings: () => Promise<Record<string, any>>
-  setSetting: (key: string, value: any) => Promise<void>
+  setSetting: (key: string, value: any) => Promise<{ success: boolean; error?: string }>
 
   // History
   getHistory: () => Promise<any[]>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { TitleBar } from '@/components/layout/TitleBar'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { OverlayShell } from '@/components/layout/OverlayShell'
@@ -7,6 +7,8 @@ import { HistoryPage } from '@/pages/HistoryPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { SnippetsPage } from '@/pages/SnippetsPage'
 import { SettingsContext, useSettingsProvider } from '@/hooks/useSettings'
+import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from '@/components/ui/toast'
+import { useToastProvider } from '@/hooks/useToast'
 
 function MainApp() {
   const [currentPage, setCurrentPage] = useState('dictation')
@@ -44,13 +46,30 @@ function OverlayApp() {
 
 export function App() {
   const settingsValue = useSettingsProvider()
+  const { toasts, removeToast } = useToastProvider()
 
   // Detect if we're the overlay window (loaded with #/overlay hash)
   const isOverlay = window.location.hash === '#/overlay'
 
   return (
     <SettingsContext.Provider value={settingsValue}>
-      {isOverlay ? <OverlayApp /> : <MainApp />}
+      <ToastProvider duration={4000}>
+        {isOverlay ? <OverlayApp /> : <MainApp />}
+        {toasts.map(t => (
+          <Toast
+            key={t.id}
+            variant={t.variant}
+            onOpenChange={(open) => { if (!open) removeToast(t.id) }}
+          >
+            <div>
+              <ToastTitle>{t.title}</ToastTitle>
+              {t.description && <ToastDescription>{t.description}</ToastDescription>}
+            </div>
+            <ToastClose />
+          </Toast>
+        ))}
+        <ToastViewport />
+      </ToastProvider>
     </SettingsContext.Provider>
   )
 }

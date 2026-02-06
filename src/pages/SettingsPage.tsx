@@ -2,14 +2,20 @@ import { useSettings } from '@/hooks/useSettings'
 import { ApiKeyInput } from '@/components/settings/ApiKeyInput'
 import { LanguageSelect } from '@/components/settings/LanguageSelect'
 import { ThemeToggle } from '@/components/settings/ThemeToggle'
+import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { toast } from '@/hooks/useToast'
 
 export function SettingsPage() {
   const { settings, updateSetting, hasApiKey, saveApiKey } = useSettings()
+
+  const handleHotkeyChange = (hotkey: string) => {
+    updateSetting('hotkey', hotkey)
+    toast({ title: 'Hotkey updated', description: `Now using ${hotkey}`, variant: 'success' })
+  }
 
   return (
     <ScrollArea className="h-full">
@@ -30,17 +36,10 @@ export function SettingsPage() {
         <Separator />
 
         {/* Hotkey */}
-        <div className="space-y-2">
-          <Label>Global Hotkey</Label>
-          <p className="text-xs text-muted-foreground">
-            Keyboard shortcut to toggle recording from any app
-          </p>
-          <Input
-            value={settings.hotkey}
-            onChange={(e) => updateSetting('hotkey', e.target.value)}
-            placeholder="Alt+Space"
-          />
-        </div>
+        <HotkeyRecorder
+          value={settings.hotkey}
+          onChange={handleHotkeyChange}
+        />
 
         <Separator />
 
@@ -60,7 +59,7 @@ export function SettingsPage() {
 
         <Separator />
 
-        {/* Auto-copy toggle */}
+        {/* Auto-paste toggle */}
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label>Auto-paste</Label>

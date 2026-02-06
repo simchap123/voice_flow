@@ -37,6 +37,10 @@ export function createMainWindow(): BrowserWindow {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
+    // Open devtools in dev mode
+    if (VITE_DEV_SERVER_URL) {
+      mainWindow?.webContents.openDevTools({ mode: 'detach' })
+    }
   })
 
   mainWindow.on('close', (e) => {

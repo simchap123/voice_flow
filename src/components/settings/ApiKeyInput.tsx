@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { Eye, EyeOff, Check, Key } from 'lucide-react'
+import { Eye, EyeOff, Check, Key, AlertCircle, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
 interface ApiKeyInputProps {
   hasKey: boolean
-  onSave: (key: string) => Promise<void>
+  onSave: (key: string) => Promise<{ success: boolean; error?: string }>
 }
 
 export function ApiKeyInput({ hasKey, onSave }: ApiKeyInputProps) {
@@ -14,15 +14,21 @@ export function ApiKeyInput({ hasKey, onSave }: ApiKeyInputProps) {
   const [showKey, setShowKey] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSave = async () => {
     if (!key.trim()) return
     setSaving(true)
-    await onSave(key.trim())
+    setError(null)
+    const result = await onSave(key.trim())
     setSaving(false)
-    setSaved(true)
-    setKey('')
-    setTimeout(() => setSaved(false), 3000)
+    if (result.success) {
+      setSaved(true)
+      setKey('')
+      setTimeout(() => setSaved(false), 3000)
+    } else {
+      setError(result.error ?? 'Failed to save API key.')
+    }
   }
 
   return (
@@ -41,9 +47,9 @@ export function ApiKeyInput({ hasKey, onSave }: ApiKeyInputProps) {
           <Input
             type={showKey ? 'text' : 'password'}
             value={key}
-            onChange={(e) => setKey(e.target.value)}
+            onChange={(e) => { setKey(e.target.value); setError(null) }}
             placeholder={hasKey ? 'sk-...  (replace existing key)' : 'sk-...'}
-            className="pr-10"
+            className={`pr-10 ${error ? 'border-red-500/50' : ''}`}
           />
           <button
             type="button"
@@ -54,11 +60,17 @@ export function ApiKeyInput({ hasKey, onSave }: ApiKeyInputProps) {
           </button>
         </div>
         <Button onClick={handleSave} disabled={!key.trim() || saving} className="gap-1.5">
-          {saved ? <Check className="h-4 w-4" /> : null}
-          {saved ? 'Saved' : saving ? 'Saving...' : 'Save'}
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : saved ? <Check className="h-4 w-4" /> : null}
+          {saved ? 'Saved' : saving ? 'Validating...' : 'Save'}
         </Button>
       </div>
-      {hasKey && (
+      {error && (
+        <div className="flex items-center gap-1.5 text-xs text-red-400">
+          <AlertCircle className="h-3 w-3 flex-shrink-0" />
+          {error}
+        </div>
+      )}
+      {hasKey && !error && (
         <div className="flex items-center gap-1.5 text-xs text-green-500">
           <Check className="h-3 w-3" />
           API key configured

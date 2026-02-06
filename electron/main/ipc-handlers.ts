@@ -58,15 +58,22 @@ export function registerIpcHandlers() {
 
   // API Key management
   ipcMain.handle('api-key:save', async (_event, key: string) => {
-    return saveApiKey(key)
+    console.log('[VoiceFlow] IPC api-key:save received, key length:', key?.length)
+    const result = saveApiKey(key)
+    console.log('[VoiceFlow] IPC api-key:save result:', result)
+    return result
   })
 
   ipcMain.handle('api-key:get', async () => {
-    return getApiKey()
+    const key = getApiKey()
+    console.log('[VoiceFlow] IPC api-key:get, has key:', !!key)
+    return key
   })
 
   ipcMain.handle('api-key:has', async () => {
-    return hasApiKey()
+    const has = hasApiKey()
+    console.log('[VoiceFlow] IPC api-key:has:', has)
+    return has
   })
 
   // Settings
@@ -77,8 +84,10 @@ export function registerIpcHandlers() {
   ipcMain.handle('settings:set', async (_event, key: string, value: any) => {
     setSetting(key as any, value)
     if (key === 'hotkey') {
-      reregisterHotkeys()
+      const result = reregisterHotkeys()
+      return result
     }
+    return { success: true }
   })
 
   // History

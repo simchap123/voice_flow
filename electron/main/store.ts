@@ -22,10 +22,15 @@ const defaults: AppSettings = {
 }
 
 export function initStore() {
-  store = new Store({
-    defaults,
-    name: 'voiceflow-settings',
-  })
+  try {
+    store = new Store({
+      defaults,
+      name: 'voiceflow-settings',
+    })
+    console.log('[VoiceFlow] Store initialized successfully at:', (store as any).path)
+  } catch (err) {
+    console.error('[VoiceFlow] Failed to init store:', err)
+  }
 }
 
 export function getStore(): Store | null {
@@ -54,14 +59,21 @@ export function getAllSettings(): AppSettings {
 
 // Secure API key storage using OS-level encryption (DPAPI on Windows)
 export function saveApiKey(key: string): boolean {
+  console.log('[VoiceFlow] saveApiKey called, store exists:', !!store, 'encryption available:', safeStorage.isEncryptionAvailable())
+  if (!store) {
+    console.error('[VoiceFlow] Store not initialized!')
+    return false
+  }
   if (!safeStorage.isEncryptionAvailable()) {
     // Fallback: store in plain text (not ideal)
-    store?.set('openai_api_key_plain', key)
+    store.set('openai_api_key_plain', key)
+    console.log('[VoiceFlow] API key saved (plaintext fallback)')
     return false
   }
   const encrypted = safeStorage.encryptString(key)
-  store?.set('openai_api_key', encrypted.toString('base64'))
-  store?.delete('openai_api_key_plain')
+  store.set('openai_api_key', encrypted.toString('base64'))
+  store.delete('openai_api_key_plain')
+  console.log('[VoiceFlow] API key saved (encrypted)')
   return true
 }
 

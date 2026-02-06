@@ -595,7 +595,7 @@
     <div class="cta-box">
       <h2>Ready to start dictating?</h2>
       <p>Download VoiceFlow, add your OpenAI API key, and you're up and running in under a minute.</p>
-      <a href="release/VoiceFlow Setup.exe" class="btn btn-primary" id="download-btn" download>
+      <a href="#" class="btn btn-primary" id="download-btn" download>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         Download for Windows
       </a>
@@ -610,6 +610,33 @@
     <p>&copy; 2026 VoiceFlow. Built with Electron, React, and OpenAI.</p>
   </div>
 </footer>
+
+<script>
+  // Configure download URL here - update when hosting changes
+  // For GitHub Releases: https://github.com/YOUR_USERNAME/voiceflow/releases/latest/download/VoiceFlow.Setup.1.0.0.exe
+  // For local dev: ../release/VoiceFlow Setup 1.0.0.exe
+  var DOWNLOAD_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? '../release/VoiceFlow Setup 1.0.0.exe'
+    : (window.VOICEFLOW_DOWNLOAD_URL || '../release/VoiceFlow Setup 1.0.0.exe');
+
+  // Download buttons: trigger download then redirect to setup instructions
+  document.querySelectorAll('#download-btn, #hero-download-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Start the file download
+      var link = document.createElement('a');
+      link.href = DOWNLOAD_URL;
+      link.download = 'VoiceFlow Setup.exe';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      // Redirect to post-download instructions page
+      setTimeout(function() {
+        window.location.href = 'download.html';
+      }, 500);
+    });
+  });
+</script>
 
 </body>
 </html>

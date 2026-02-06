@@ -33,6 +33,10 @@ src/                    → React renderer (Vite-built)
   hooks/                → 9 custom hooks (recording, waveform, settings, history, etc.)
   lib/                  → openai.ts, audio-utils.ts, snippet-engine.ts, cn.ts
   types/                → TypeScript interfaces
+
+website/                → Marketing landing page (static HTML)
+  index.html            → Landing page with hero, features, download CTA
+  download.html         → Post-download setup instructions (3 steps + API key guide)
 ```
 
 ## Key Design Decisions
@@ -40,9 +44,18 @@ src/                    → React renderer (Vite-built)
 - **Overlay detection:** `window.location.hash === '#/overlay'` in App.tsx
 - **Text injection:** Write to clipboard → nut.js simulates Ctrl+V → restore previous clipboard
 - **API key security:** Encrypted with Electron safeStorage (DPAPI on Windows), fallback to plaintext
+- **ESM compatibility:** `"type": "module"` in package.json; electron main uses `fileURLToPath(import.meta.url)` instead of `__dirname`
 - **Audio:** MediaRecorder API in renderer, sends blob to OpenAI Whisper API
 - **AI cleanup:** GPT-4o-mini post-processes transcription (optional, toggled in settings)
 - **Snippet expansion:** Custom engine matches trigger words in transcribed text
+
+## API Key Storage (for end users)
+- Users enter their OpenAI API key in the **Settings** page of the app
+- The key is encrypted with **Electron safeStorage** (Windows DPAPI) and stored locally
+- The key never leaves the device - audio goes directly to OpenAI's API
+- No server, no middleman, no account needed
+- Path: `electron/main/store.ts` handles encryption/decryption
+- UI: `src/components/settings/ApiKeyInput.tsx` for the input field
 
 ## Recording Flow
 ```
@@ -51,10 +64,15 @@ IDLE → RECORDING → PROCESSING_STT → PROCESSING_CLEANUP → INJECTING → I
 
 ## Commands
 ```bash
-npm run dev                 # Vite dev server (no Electron)
-npm run electron:dev        # Vite + Electron with hot reload
+npm run dev                 # Vite + Electron dev server with hot reload
 npm run build               # tsc + vite build → dist/ + dist-electron/
-npm run electron:build:win  # Build Windows .exe (NSIS installer) → release/
+npm run electron:build:win  # Build Windows .exe installer → release/
+
+# Website preview
+cd website && python -m http.server 8080   # Then open http://localhost:8080
+
+# Build installer (skip code signing - no certificate)
+npx vite build && CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --win --config.win.signAndEditExecutable=false
 ```
 
 ## Dependencies (important ones)
@@ -74,16 +92,25 @@ npm run electron:build:win  # Build Windows .exe (NSIS installer) → release/
 | 6 | Transcription history | DONE | HistoryPage, electron-store persistence |
 | 7 | Settings panel | DONE | SettingsPage, all settings wired up |
 | 8 | User snippets | DONE | SnippetsPage, snippet-engine, import/export |
-| 9 | Overlay polish + animations | PARTIAL | Shell works, NO animations (no entrance/exit/transitions) |
-| 10 | Packaging | NOT BUILT | Config ready, but resources/ is EMPTY (needs icons) |
+| 9 | Overlay polish + animations | DONE | Fade in/out, mic breathe, status transitions |
+| 10 | Packaging | DONE | NSIS installer: `release/VoiceFlow Setup 1.0.0.exe` (86MB) |
+
+## Build Notes
+- electron-builder winCodeSign fails without symlink permissions on Windows
+- Fix: use `--config.win.signAndEditExecutable=false` to skip code signing
+- Installer output: `release/VoiceFlow Setup 1.0.0.exe`
+- The `release/` folder is gitignored (too large for repo)
+
+## Website / Distribution
+- Landing page: `website/index.html` - dark theme, animated demo, feature cards
+- Post-download page: `website/download.html` - 3-step setup + API key instructions
+- Download button triggers .exe download then redirects to instructions page
+- For production: deploy website/ to Vercel, host .exe on GitHub Releases
 
 ## Known Gaps
-- **No app icons** - `resources/` folder is empty. Needs icon.ico (Windows), icon.png (tray/Linux), icon.icns (Mac)
-- **No animations on overlay** - Shows/hides instantly, no fade/slide/scale transitions
-- **No git repo** - Not initialized yet
 - **No tests** - No test framework or test files
+- **No GitHub Actions** - No CI/CD pipeline for automated builds
 - **Escape key always registered** - Works correctly (only acts when recording) but registers globally
-- **Design doc outdated** - References robotjs (replaced by @nut-tree-fork/nut-js)
 
 ## Conventions
 - Path alias: `@/` → `src/`
