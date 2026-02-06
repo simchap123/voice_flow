@@ -302,9 +302,7 @@
 </div>
 
 <script>
-  var DOWNLOAD_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? '../release/VoiceFlow Setup 1.0.0.exe'
-    : (window.VOICEFLOW_DOWNLOAD_URL || '../release/VoiceFlow Setup 1.0.0.exe');
+  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest/download/VoiceFlow.Setup.1.0.0.exe';
 
   document.getElementById('retry-download').addEventListener('click', function(e) {
     e.preventDefault();

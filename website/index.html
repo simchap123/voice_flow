@@ -612,12 +612,7 @@
 </footer>
 
 <script>
-  // Configure download URL here - update when hosting changes
-  // For GitHub Releases: https://github.com/YOUR_USERNAME/voiceflow/releases/latest/download/VoiceFlow.Setup.1.0.0.exe
-  // For local dev: ../release/VoiceFlow Setup 1.0.0.exe
-  var DOWNLOAD_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? '../release/VoiceFlow Setup 1.0.0.exe'
-    : (window.VOICEFLOW_DOWNLOAD_URL || '../release/VoiceFlow Setup 1.0.0.exe');
+  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest/download/VoiceFlow.Setup.1.0.0.exe';
 
   // Download buttons: trigger download then redirect to setup instructions
   document.querySelectorAll('#download-btn, #hero-download-btn').forEach(function(btn) {
