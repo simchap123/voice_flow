@@ -56,23 +56,23 @@ export function registerIpcHandlers() {
     mainWin?.webContents.send('transcription-complete', data)
   })
 
-  // API Key management
-  ipcMain.handle('api-key:save', async (_event, key: string) => {
-    console.log('[VoiceFlow] IPC api-key:save received, key length:', key?.length)
-    const result = saveApiKey(key)
-    console.log('[VoiceFlow] IPC api-key:save result:', result)
+  // API Key management — multi-provider support
+  ipcMain.handle('api-key:save', async (_event, key: string, provider: string = 'openai') => {
+    console.log(`[VoiceFlow] IPC api-key:save for ${provider}, key length:`, key?.length)
+    const result = saveApiKey(key, provider)
+    console.log(`[VoiceFlow] IPC api-key:save result:`, result)
     return result
   })
 
-  ipcMain.handle('api-key:get', async () => {
-    const key = getApiKey()
-    console.log('[VoiceFlow] IPC api-key:get, has key:', !!key)
+  ipcMain.handle('api-key:get', async (_event, provider: string = 'openai') => {
+    const key = getApiKey(provider)
+    console.log(`[VoiceFlow] IPC api-key:get for ${provider}, has key:`, !!key)
     return key
   })
 
-  ipcMain.handle('api-key:has', async () => {
-    const has = hasApiKey()
-    console.log('[VoiceFlow] IPC api-key:has:', has)
+  ipcMain.handle('api-key:has', async (_event, provider: string = 'openai') => {
+    const has = hasApiKey(provider)
+    console.log(`[VoiceFlow] IPC api-key:has for ${provider}:`, has)
     return has
   })
 
@@ -83,7 +83,7 @@ export function registerIpcHandlers() {
 
   ipcMain.handle('settings:set', async (_event, key: string, value: any) => {
     setSetting(key as any, value)
-    if (key === 'hotkey') {
+    if (key === 'hotkey' || key === 'hotkeyMode') {
       const result = reregisterHotkeys()
       return result
     }

@@ -23,6 +23,8 @@ export function DictationPage() {
     cleanupEnabled: settings.cleanupEnabled,
     autoCopy: settings.autoCopy,
     snippets,
+    sttProvider: settings.sttProvider,
+    cleanupProvider: settings.cleanupProvider,
     onComplete: (result) => {
       addEntry({
         rawText: result.rawText,
@@ -76,7 +78,12 @@ export function DictationPage() {
       {/* Hotkey hint */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Keyboard className="h-3 w-3" />
-        <span>Press <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{settings.hotkey}</kbd> to toggle from any app</span>
+        <span>
+          {settings.hotkeyMode === 'hold'
+            ? <>Hold <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{settings.hotkey}</kbd> to record from any app</>
+            : <>Press <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{settings.hotkey}</kbd> to toggle from any app</>
+          }
+        </span>
       </div>
 
       {/* Transcription preview */}

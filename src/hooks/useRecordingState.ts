@@ -1,5 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import type { RecordingState, TranscriptionResult } from '@/types/transcription'
+import type { STTProviderType } from '@/lib/stt/types'
+import type { CleanupProviderType } from '@/lib/cleanup/types'
 import { useAudioRecorder } from './useAudioRecorder'
 import { useWhisperTranscription } from './useWhisperTranscription'
 import { useGptCleanup } from './useGptCleanup'
@@ -26,9 +28,19 @@ export function useRecordingState(options: {
   cleanupEnabled?: boolean
   autoCopy?: boolean
   snippets?: Snippet[]
+  sttProvider?: STTProviderType
+  cleanupProvider?: CleanupProviderType
   onComplete?: (result: TranscriptionResult) => void
 }): UseRecordingStateReturn {
-  const { language = 'en', cleanupEnabled = true, autoCopy = true, snippets = [], onComplete } = options
+  const {
+    language = 'en',
+    cleanupEnabled = true,
+    autoCopy = true,
+    snippets = [],
+    sttProvider = 'openai',
+    cleanupProvider = 'openai',
+    onComplete,
+  } = options
 
   const [state, setState] = useState<RecordingState>('IDLE')
   const [rawText, setRawText] = useState('')
@@ -37,8 +49,8 @@ export function useRecordingState(options: {
   const [lastResult, setLastResult] = useState<TranscriptionResult | null>(null)
 
   const recorder = useAudioRecorder()
-  const whisper = useWhisperTranscription()
-  const gpt = useGptCleanup()
+  const whisper = useWhisperTranscription(sttProvider)
+  const gpt = useGptCleanup(cleanupProvider)
   const { injectText } = useElectronBridge()
   const recordingStartTime = useRef<number>(0)
 
@@ -61,7 +73,6 @@ export function useRecordingState(options: {
     if (state !== 'RECORDING') return
 
     try {
-      // Stop recording and get audio blob
       const audioBlob = await recorder.stopRecording()
       if (!audioBlob) {
         setState('IDLE')
