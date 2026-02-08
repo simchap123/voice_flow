@@ -33,6 +33,12 @@ export interface ElectronAPI {
   getSnippets: () => Promise<any[]>
   setSnippets: (snippets: any[]) => Promise<void>
 
+  // License
+  validateLicense: (key: string) => Promise<{ valid: boolean; plan?: string; expiresAt?: string | null; error?: string }>
+  getLicenseInfo: () => Promise<{ licenseKey: string; licenseStatus: string; licensePlan: string; licenseExpiresAt: string; trialStartedAt: number; lastLicenseCheck: number }>
+  clearLicense: () => Promise<void>
+  onTrialExpired: (callback: () => void) => () => void
+
   // Notify main window
   notifyTranscriptionComplete: (data: any) => void
 }

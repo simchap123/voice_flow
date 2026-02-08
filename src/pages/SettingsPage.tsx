@@ -4,6 +4,7 @@ import { ProviderApiKeyInput } from '@/components/settings/ProviderApiKeyInput'
 import { LanguageSelect } from '@/components/settings/LanguageSelect'
 import { ThemeToggle } from '@/components/settings/ThemeToggle'
 import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
+import { LicenseInput } from '@/components/settings/LicenseInput'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
@@ -64,6 +65,11 @@ export function SettingsPage() {
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-6 p-6">
         <h1 className="text-2xl font-semibold">Settings</h1>
+
+        {/* License */}
+        <LicenseInput />
+
+        <Separator />
 
         {/* Speech Recognition Provider */}
         <div className="space-y-3">

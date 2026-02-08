@@ -9,25 +9,26 @@ System-wide AI dictation app: press a global hotkey from any app, speak, and the
 
 ```
 electron/main/          → Electron main process (Node.js)
-  index.ts              → App entry, lifecycle, window creation
+  index.ts              → App entry, lifecycle, window creation, license check on startup
   windows.ts            → Main window + overlay window (transparent, always-on-top)
-  hotkeys.ts            → Global hotkey registration (configurable, hold/toggle modes)
+  hotkeys.ts            → Global hotkey registration (configurable, hold/toggle modes) + license gate
   tray.ts               → System tray icon + context menu
-  ipc-handlers.ts       → IPC bridge: window controls, text injection, settings, history, snippets
-  store.ts              → electron-store persistence + safeStorage encryption for multi-provider API keys
+  ipc-handlers.ts       → IPC bridge: window controls, text injection, settings, history, snippets, license
+  store.ts              → electron-store persistence + safeStorage encryption + license/trial fields
   text-injection.ts     → Clipboard + nut.js paste (cross-platform: Ctrl+V / Cmd+V)
+  license.ts            → License key validation via Vercel API + canUseApp() gate + offline caching
 
 electron/preload/       → Security boundary (contextBridge)
-  index.ts              → Exposes electronAPI to renderer (multi-provider API key support)
+  index.ts              → Exposes electronAPI to renderer (API keys, license, trial events)
   types.ts              → TypeScript types for the bridge
 
 src/                    → React renderer (Vite-built)
   App.tsx               → Routes: MainApp (full UI) vs OverlayApp (hash #/overlay)
   pages/                → DictationPage, HistoryPage, SettingsPage, SnippetsPage
   components/dictation/ → MicButton, WaveformVisualizer, StatusIndicator
-  components/layout/    → TitleBar, Sidebar, OverlayShell
+  components/layout/    → TitleBar, Sidebar, OverlayShell (handles trial-expired event)
   components/history/   → History list + search
-  components/settings/  → ProviderApiKeyInput, LanguageSelect, ThemeToggle, HotkeyRecorder
+  components/settings/  → ProviderApiKeyInput, LanguageSelect, ThemeToggle, HotkeyRecorder, LicenseInput
   components/snippets/  → SnippetEditor, SnippetsList, ImportExport
   components/ui/        → shadcn/ui primitives (button, input, label, switch, etc.)
   hooks/                → Custom hooks (recording, waveform, settings, history, etc.)
@@ -46,14 +47,23 @@ src/                    → React renderer (Vite-built)
     audio-utils.ts      → Audio format conversion, duration formatting
     snippet-engine.ts   → Trigger word expansion
     cn.ts               → Tailwind class merge utility
-  types/                → TypeScript interfaces (settings, transcription, snippets)
+  types/                → TypeScript interfaces (settings, transcription, snippets, license)
+
+api/                    → Vercel serverless API functions
+  package.json          → stripe + @supabase/supabase-js dependencies
+  lib/supabase.ts       → Shared Supabase client (service_role key)
+  checkout.ts           → POST: create Stripe Checkout session (monthly/yearly/lifetime)
+  validate-license.ts   → POST: validate license key against Supabase
+  get-license.ts        → GET: retrieve license key by Stripe session ID
+  webhooks/stripe.ts    → POST: Stripe webhook handler (checkout.completed, subscription.deleted)
 
 docs/                   → Architecture documentation
   BACKEND_ARCHITECTURE.md → Supabase + Stripe backend design for monetization
 
-website/                → Marketing landing page (static HTML)
-  index.html            → Landing page with hero, features, download CTA
+website/                → Marketing landing page (static HTML, deployed to Vercel)
+  index.html            → Landing page with hero, features, pricing section, download CTA
   download.html         → Post-download setup instructions
+  success.html          → Post-payment page with license key display + copy button
 
 PRD.md                  → Product Requirements Document for v2
 ```
@@ -125,14 +135,42 @@ npx vite build && CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --win -
 | 11 | Multi-provider STT | DONE | OpenAI + Groq, pluggable architecture |
 | 12 | Configurable hotkeys + modes | DONE | Hold/toggle modes, any modifier+key combo |
 | 13 | Local whisper.cpp | PLANNED | Free offline STT, model download UI |
-| 14 | Backend + monetization | PLANNED | Supabase auth, Stripe billing, API proxy |
+| 14 | Licensing system | DONE | Stripe + Supabase + Vercel API + 7-day trial |
 
-## Monetization Plan
-- **Free:** Local whisper.cpp (offline, unlimited) — coming soon
-- **Pro ($8/mo or $39 lifetime):** Groq cloud (fast, accurate) via managed API proxy
-- **BYOK:** User provides own OpenAI/Groq key (current default)
-- Backend: Supabase (auth + DB) + Stripe (billing) + Edge Functions (API proxy)
-- See `docs/BACKEND_ARCHITECTURE.md` for full design
+## Licensing & Monetization
+- **Free trial:** 7 days from first launch, no registration needed
+- **BYOK (free forever):** User provides own OpenAI/Groq API key — no license needed
+- **Pro Monthly ($8/mo):** Stripe subscription, license key in Supabase
+- **Pro Yearly ($48/yr):** Stripe subscription, 50% savings vs monthly
+- **Lifetime ($39):** One-time Stripe payment, never expires
+- **Backend:** Vercel serverless functions (api/) + Supabase (DB) + Stripe (payments)
+- **License flow:** Purchase on website → Stripe Checkout → webhook creates key in Supabase → user enters key in Settings → app validates via /api/validate-license → cached locally for 24h
+- **Trial logic:** `trialStartedAt` stored in electron-store, `canUseApp()` checks trial OR active license
+- **Supabase project:** `xsdngjfnsszulezxvsjd` — tables: users, products, license_types, user_licenses
+
+## Licensing Architecture
+```
+Website pricing → /api/checkout → Stripe Checkout (hosted)
+  → Payment → Stripe webhook → /api/webhooks/stripe
+    → Upsert user + create license in Supabase (key auto-generated)
+    → success.html fetches key via /api/get-license?session_id=...
+
+App Settings → Enter license key → IPC license:validate
+  → electron/main/license.ts → /api/validate-license
+    → Returns { valid, plan, expiresAt } → cached in electron-store
+    → Revalidated every 24h on startup, offline-safe (uses cache)
+
+Recording gate: hotkeys.ts → canUseApp() → trial active OR license active
+  → If blocked: overlay shows lock icon for 2s
+```
+
+## Environment Variables (Vercel)
+```
+STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+STRIPE_PRICE_MONTHLY, STRIPE_PRICE_YEARLY, STRIPE_PRICE_LIFETIME
+SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+NEXT_PUBLIC_APP_URL
+```
 
 ## Conventions
 - Path alias: `@/` → `src/`

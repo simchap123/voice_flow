@@ -55,6 +55,16 @@ const api: ElectronAPI = {
   getSnippets: () => ipcRenderer.invoke('snippets:get'),
   setSnippets: (snippets: any[]) => ipcRenderer.invoke('snippets:set', snippets),
 
+  // License
+  validateLicense: (key: string) => ipcRenderer.invoke('license:validate', key),
+  getLicenseInfo: () => ipcRenderer.invoke('license:get-info'),
+  clearLicense: () => ipcRenderer.invoke('license:clear'),
+  onTrialExpired: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('trial-expired', handler)
+    return () => ipcRenderer.removeListener('trial-expired', handler)
+  },
+
   // Cross-window communication
   notifyTranscriptionComplete: (data: any) => ipcRenderer.send('transcription-complete', data),
 }

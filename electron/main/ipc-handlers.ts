@@ -13,7 +13,10 @@ import {
   setHistory,
   getSnippets,
   setSnippets,
+  getLicenseInfo,
+  clearLicense,
 } from './store'
+import { validateLicenseKey } from './license'
 
 export function registerIpcHandlers() {
   // Window controls
@@ -121,5 +124,22 @@ export function registerIpcHandlers() {
 
   ipcMain.handle('snippets:set', async (_event, snippets: any[]) => {
     setSnippets(snippets)
+  })
+
+  // License
+  ipcMain.handle('license:validate', async (_event, key: string) => {
+    console.log('[VoiceFlow] IPC license:validate, key length:', key?.length)
+    const result = await validateLicenseKey(key)
+    console.log('[VoiceFlow] IPC license:validate result:', result.valid, result.plan)
+    return result
+  })
+
+  ipcMain.handle('license:get-info', async () => {
+    return getLicenseInfo()
+  })
+
+  ipcMain.handle('license:clear', async () => {
+    clearLicense()
+    console.log('[VoiceFlow] License cleared')
   })
 }

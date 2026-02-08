@@ -6,6 +6,7 @@ import { registerHotkeys, unregisterAllHotkeys } from './hotkeys'
 import { createTray, destroyTray } from './tray'
 import { registerIpcHandlers } from './ipc-handlers'
 import { initStore } from './store'
+import { checkLicenseOnStartup } from './license'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -38,6 +39,11 @@ app.whenReady().then(async () => {
   createOverlayWindow()
   createTray()
   registerHotkeys()
+
+  // Check license validity on startup (non-blocking)
+  checkLicenseOnStartup().catch(err => {
+    console.warn('[VoiceFlow] License check on startup failed:', err.message)
+  })
 
   app.on('activate', () => {
     const mainWin = getMainWindow()

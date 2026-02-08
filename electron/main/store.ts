@@ -3,6 +3,8 @@ import Store from 'electron-store'
 
 let store: Store | null = null
 
+export type LicenseStatus = 'none' | 'active' | 'expired' | 'invalid'
+
 export interface AppSettings {
   holdHotkey: string
   toggleHotkey: string
@@ -14,6 +16,12 @@ export interface AppSettings {
   sttProvider: 'local' | 'groq' | 'openai' | 'deepgram'
   localModelSize: 'tiny' | 'base' | 'small' | 'medium'
   cleanupProvider: 'groq' | 'openai' | 'none'
+  licenseKey: string
+  licenseStatus: LicenseStatus
+  licensePlan: string
+  licenseExpiresAt: string
+  trialStartedAt: number
+  lastLicenseCheck: number
 }
 
 const defaults: AppSettings = {
@@ -27,6 +35,12 @@ const defaults: AppSettings = {
   sttProvider: 'openai',
   localModelSize: 'base',
   cleanupProvider: 'openai',
+  licenseKey: '',
+  licenseStatus: 'none',
+  licensePlan: '',
+  licenseExpiresAt: '',
+  trialStartedAt: 0,
+  lastLicenseCheck: 0,
 }
 
 export function initStore() {
@@ -51,6 +65,12 @@ export function initStore() {
       store.delete('hotkey')
       store.delete('hotkeyMode')
       console.log(`[VoiceFlow] Migrated hotkey "${oldHotkey}" (mode: ${oldMode}) to new format`)
+    }
+    // Initialize trial on first launch
+    const trialStarted = store.get('trialStartedAt', 0) as number
+    if (!trialStarted) {
+      store.set('trialStartedAt', Date.now())
+      console.log('[VoiceFlow] Trial period started')
     }
   } catch (err) {
     console.error('[VoiceFlow] Failed to init store:', err)
@@ -82,6 +102,65 @@ export function getAllSettings(): AppSettings {
     sttProvider: store.get('sttProvider', defaults.sttProvider) as AppSettings['sttProvider'],
     localModelSize: store.get('localModelSize', defaults.localModelSize) as AppSettings['localModelSize'],
     cleanupProvider: store.get('cleanupProvider', defaults.cleanupProvider) as AppSettings['cleanupProvider'],
+    licenseKey: store.get('licenseKey', defaults.licenseKey) as string,
+    licenseStatus: store.get('licenseStatus', defaults.licenseStatus) as LicenseStatus,
+    licensePlan: store.get('licensePlan', defaults.licensePlan) as string,
+    licenseExpiresAt: store.get('licenseExpiresAt', defaults.licenseExpiresAt) as string,
+    trialStartedAt: store.get('trialStartedAt', defaults.trialStartedAt) as number,
+    lastLicenseCheck: store.get('lastLicenseCheck', defaults.lastLicenseCheck) as number,
+  }
+}
+
+// License helpers
+export function getLicenseInfo() {
+  return {
+    licenseKey: getSetting('licenseKey'),
+    licenseStatus: getSetting('licenseStatus'),
+    licensePlan: getSetting('licensePlan'),
+    licenseExpiresAt: getSetting('licenseExpiresAt'),
+    trialStartedAt: getSetting('trialStartedAt'),
+    lastLicenseCheck: getSetting('lastLicenseCheck'),
+  }
+}
+
+export function saveLicenseResult(result: {
+  licenseKey: string
+  status: LicenseStatus
+  plan: string
+  expiresAt: string
+}) {
+  setSetting('licenseKey', result.licenseKey)
+  setSetting('licenseStatus', result.status)
+  setSetting('licensePlan', result.plan)
+  setSetting('licenseExpiresAt', result.expiresAt)
+  setSetting('lastLicenseCheck', Date.now())
+}
+
+export function clearLicense() {
+  setSetting('licenseKey', '')
+  setSetting('licenseStatus', 'none')
+  setSetting('licensePlan', '')
+  setSetting('licenseExpiresAt', '')
+  setSetting('lastLicenseCheck', 0)
+}
+
+export function getTrialInfo(): { daysLeft: number; isExpired: boolean } {
+  const trialStartedAt = getSetting('trialStartedAt')
+  if (!trialStartedAt) {
+    return { daysLeft: 7, isExpired: false }
+  }
+  const elapsed = Date.now() - trialStartedAt
+  const daysUsed = elapsed / (1000 * 60 * 60 * 24)
+  const daysLeft = Math.max(0, Math.ceil(7 - daysUsed))
+  return { daysLeft, isExpired: daysLeft <= 0 }
+}
+
+export function ensureTrialStarted() {
+  if (!store) return
+  const existing = store.get('trialStartedAt', 0) as number
+  if (!existing) {
+    store.set('trialStartedAt', Date.now())
+    console.log('[VoiceFlow] Trial started')
   }
 }
 

@@ -1,6 +1,12 @@
 {
-  "installCommand": "echo skip",
+  "installCommand": "npm install --prefix api",
   "buildCommand": "echo skip",
   "outputDirectory": "website",
-  "framework": null
+  "framework": null,
+  "functions": {
+    "api/**/*.ts": {}
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ]
 }

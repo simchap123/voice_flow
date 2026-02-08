@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Successful - VoiceFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #06080f;
+      --bg-card: #0c1020;
+      --text: #e8eaf0;
+      --text-muted: #7a7f96;
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --primary-glow: rgba(124, 58, 237, 0.3);
+      --accent: #3b82f6;
+      --border: rgba(255,255,255,0.06);
+      --radius: 16px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px 40px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+    }
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(34, 197, 94, 0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .success-icon svg { width: 32px; height: 32px; color: #22c55e; }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+    .license-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .license-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .license-key {
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      word-break: break-all;
+      color: var(--primary-light);
+      min-height: 24px;
+    }
+    .plan-info {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      color: white;
+      box-shadow: 0 4px 24px var(--primary-glow);
+      transition: all 0.2s ease;
+      margin-bottom: 24px;
+    }
+    .copy-btn:hover { transform: translateY(-2px); }
+    .copy-btn:active { transform: translateY(0); }
+    .copy-btn svg { width: 18px; height: 18px; }
+    .instructions {
+      text-align: left;
+      background: rgba(124, 58, 237, 0.05);
+      border: 1px solid rgba(124, 58, 237, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .instructions h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .instructions ol {
+      font-size: 14px;
+      color: var(--text-muted);
+      padding-left: 20px;
+    }
+    .instructions li { margin-bottom: 6px; }
+    .instructions strong { color: var(--text); }
+    .loading {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+    .loading .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: -4px;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-msg { color: #ef4444; font-size: 14px; }
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .back-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>Payment Successful!</h1>
+    <p class="subtitle">Thank you for purchasing VoiceFlow Pro.</p>
+
+    <div id="content">
+      <div class="loading">
+        <span class="spinner"></span> Retrieving your license key...
+      </div>
+    </div>
+
+    <a href="/" class="back-link">Back to VoiceFlow</a>
+  </div>
+
+  <script>
+    async function fetchLicense() {
+      var content = document.getElementById('content');
+      var params = new URLSearchParams(window.location.search);
+      var sessionId = params.get('session_id');
+
+      if (!sessionId) {
+        content.innerHTML = '<p class="error-msg">No session ID found. If you completed payment, check your email for your license key.</p>';
+        return;
+      }
+
+      var attempts = 0;
+      var maxAttempts = 10;
+
+      async function tryFetch() {
+        try {
+          var resp = await fetch('/api/get-license?session_id=' + encodeURIComponent(sessionId));
+          var data = await resp.json();
+
+          if (data.licenseKey) {
+            content.innerHTML =
+              '<div class="license-box">' +
+                '<div class="license-label">Your License Key</div>' +
+                '<div class="license-key" id="license-key">' + escapeHtml(data.licenseKey) + '</div>' +
+                '<div class="plan-info">Plan: ' + escapeHtml(data.plan) + (data.expiresAt ? ' &bull; Expires: ' + new Date(data.expiresAt).toLocaleDateString() : ' &bull; Never expires') + '</div>' +
+              '</div>' +
+              '<button class="copy-btn" onclick="copyKey()">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
+                '<span id="copy-text">Copy License Key</span>' +
+              '</button>' +
+              '<div class="instructions">' +
+                '<h3>How to activate:</h3>' +
+                '<ol>' +
+                  '<li>Open <strong>VoiceFlow</strong> on your computer</li>' +
+                  '<li>Go to <strong>Settings</strong></li>' +
+                  '<li>Paste your license key in the <strong>License</strong> section</li>' +
+                  '<li>Click <strong>Activate</strong></li>' +
+                '</ol>' +
+              '</div>';
+            return;
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            content.innerHTML = '<div class="loading"><span class="spinner"></span> Retrieving your license key... (attempt ' + (attempts + 1) + ')</div>';
+            setTimeout(tryFetch, 2000);
+          } else {
+            content.innerHTML = '<p class="error-msg">License is still being processed. Please check back in a moment or contact support.</p>';
+          }
+        } catch (err) {
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(tryFetch, 2000);
+          } else {
+            content.innerHTML = '<p class="error-msg">Failed to retrieve license. Please contact support.</p>';
+          }
+        }
+      }
+
+      tryFetch();
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function copyKey() {
+      var key = document.getElementById('license-key').textContent;
+      navigator.clipboard.writeText(key).then(function() {
+        var btn = document.getElementById('copy-text');
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = 'Copy License Key'; }, 2000);
+      });
+    }
+
+    fetchLicense();
+  </script>
+</body>
+</html>

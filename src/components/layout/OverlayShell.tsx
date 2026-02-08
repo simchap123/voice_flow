@@ -1,13 +1,23 @@
-import { useEffect } from 'react'
-import { Mic, Loader2, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Mic, Loader2, X, Lock } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
 import { useSnippets } from '@/hooks/useSnippets'
 
 export function OverlayShell() {
+  const [trialExpired, setTrialExpired] = useState(false)
   const { settings, hasApiKey, isLoaded } = useSettings()
   const { snippets } = useSnippets()
+
+  // Listen for trial-expired event from main process
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onTrialExpired?.(() => {
+      setTrialExpired(true)
+      setTimeout(() => setTrialExpired(false), 2000)
+    })
+    return () => cleanup?.()
+  }, [])
 
   const recording = useRecordingState({
     language: settings.language,
@@ -62,7 +72,9 @@ export function OverlayShell() {
       <div
         className={`flex h-12 w-12 items-center justify-center rounded-full bg-black/90 border border-white/10 shadow-lg ${animClass}`}
       >
-        {hasError ? (
+        {trialExpired ? (
+          <Lock className="h-5 w-5 text-yellow-400" />
+        ) : hasError ? (
           <X className="h-5 w-5 text-red-400" />
         ) : isProcessing ? (
           <Loader2 className="h-5 w-5 text-white/80 animate-spin" />

@@ -2,259 +2,225 @@
 
 ## Overview
 
-The backend enables monetization (Pro tier) and managed cloud transcription so users don't need their own API keys. The free tier (local processing) works without any backend at all.
+The backend enables monetization via license-key-based payments. No user registration or passwords needed — users purchase a license through Stripe, receive a key, and enter it in the desktop app. A 7-day free trial is built into the app locally.
 
 ## Stack
 
 | Component | Technology | Why |
 |-----------|-----------|-----|
-| Auth | Supabase Auth | Free tier (50K MAU), built-in email + Google OAuth, JWT tokens |
-| Database | Supabase Postgres | Comes with auth, row-level security, realtime |
-| Billing | Stripe | Industry standard, Checkout hosted pages, webhooks |
-| API Proxy | Supabase Edge Functions (Deno) | Serverless, auto-scaling, no server management |
-| Hosting | Vercel (website) + Supabase (backend) | Both free tiers are generous |
+| Database | Supabase Postgres | Row-level security, auto-generated license keys, managed |
+| Billing | Stripe | Checkout hosted pages, webhooks, subscriptions + one-time |
+| API | Vercel Serverless Functions | Auto-scaling, zero config, co-located with website |
+| Hosting | Vercel (website + API) | Static website + serverless functions in one deploy |
+| Desktop | Electron (license validation) | Uses `net` module to call Vercel API |
 
-## Database Schema
+## Database Schema (Supabase)
+
+**Project ID:** `xsdngjfnsszulezxvsjd`
+
+### Tables
 
 ```sql
--- profiles: extends Supabase auth.users
-CREATE TABLE profiles (
-  id UUID REFERENCES auth.users PRIMARY KEY,
-  email TEXT NOT NULL,
-  plan TEXT NOT NULL DEFAULT 'free',           -- 'free', 'pro', 'lifetime'
-  stripe_customer_id TEXT,
-  stripe_subscription_id TEXT,
-  words_used_this_period INTEGER DEFAULT 0,
-  period_start TIMESTAMPTZ DEFAULT NOW(),
+-- users: minimal user record keyed by email
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  external_id TEXT UNIQUE,
+  email TEXT UNIQUE NOT NULL,
+  display_name TEXT,
+  avatar_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Row Level Security: users can only read/update their own profile
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users read own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users update own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
-
--- usage_logs: track API usage for billing/limits
-CREATE TABLE usage_logs (
+-- products: the VoiceFlow product
+CREATE TABLE products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES profiles(id) NOT NULL,
-  words INTEGER NOT NULL,
-  provider TEXT NOT NULL,        -- 'groq-stt', 'groq-cleanup'
-  duration_ms INTEGER,
+  slug TEXT UNIQUE NOT NULL,        -- 'voiceflow'
+  name TEXT NOT NULL,
+  description TEXT,
+  is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-ALTER TABLE usage_logs ENABLE ROW LEVEL SECURITY;
+-- license_types: pricing tiers
+CREATE TABLE license_types (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID REFERENCES products(id),
+  slug TEXT NOT NULL,               -- 'free', 'pro_monthly', 'pro_yearly', 'lifetime'
+  name TEXT NOT NULL,
+  price_cents INTEGER DEFAULT 0,    -- 0, 800, 4800, 3900
+  duration_days INTEGER,            -- 30, 365, NULL (lifetime)
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-CREATE POLICY "Users read own logs" ON usage_logs
-  FOR SELECT USING (auth.uid() = user_id);
+-- user_licenses: issued licenses
+CREATE TABLE user_licenses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  product_id UUID REFERENCES products(id),
+  license_type_id UUID REFERENCES license_types(id),
+  license_key TEXT UNIQUE DEFAULT encode(gen_random_bytes(24), 'hex'),
+  status TEXT DEFAULT 'active' CHECK (status IN ('active','expired','cancelled','suspended')),
+  starts_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ,
+  auto_renew BOOLEAN DEFAULT false,
+  stripe_subscription_id TEXT,
+  stripe_customer_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
--- Auto-create profile on signup
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO profiles (id, email)
-  VALUES (NEW.id, NEW.email);
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-
--- Reset word counts monthly
-CREATE OR REPLACE FUNCTION reset_monthly_usage()
-RETURNS void AS $$
-BEGIN
-  UPDATE profiles
-  SET words_used_this_period = 0,
-      period_start = NOW()
-  WHERE period_start < NOW() - INTERVAL '30 days';
-END;
-$$ LANGUAGE plpgsql;
+-- Indexes for fast lookups
+CREATE INDEX idx_user_licenses_license_key ON user_licenses (license_key);
+CREATE INDEX idx_user_licenses_stripe_subscription_id ON user_licenses (stripe_subscription_id) WHERE stripe_subscription_id IS NOT NULL;
+CREATE INDEX idx_user_licenses_user_id_created ON user_licenses (user_id, created_at DESC);
 ```
 
-## API Endpoints (Supabase Edge Functions)
+### Seeded Data
 
-### POST /api/transcribe
-Proxies audio to Groq Whisper API using VoiceFlow's API key.
+| License Type | Slug | Price | Duration |
+|-------------|------|-------|----------|
+| Free (BYOK) | `free` | $0 | Forever |
+| Pro Monthly | `pro_monthly` | $8/mo | 30 days |
+| Pro Yearly | `pro_yearly` | $48/yr | 365 days |
+| Lifetime | `lifetime` | $39 | Forever |
 
-```typescript
-// supabase/functions/transcribe/index.ts
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+## API Endpoints (Vercel Serverless)
 
-serve(async (req) => {
-  // 1. Validate auth token
-  const authHeader = req.headers.get('Authorization')
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    global: { headers: { Authorization: authHeader! } }
-  })
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) return new Response('Unauthorized', { status: 401 })
+All endpoints live in `api/` directory, auto-deployed by Vercel.
 
-  // 2. Check plan & usage limits
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('plan, words_used_this_period')
-    .eq('id', user.id)
-    .single()
+### POST /api/checkout
+Creates a Stripe Checkout session.
 
-  if (profile?.plan === 'free' && profile.words_used_this_period >= 2000) {
-    return new Response(JSON.stringify({
-      error: 'Free tier limit reached (2,000 words/week). Upgrade to Pro for unlimited.'
-    }), { status: 429 })
-  }
+**Request:** `{ plan: 'monthly' | 'yearly' | 'lifetime', email: string }`
+**Response:** `{ url: string }` (Stripe checkout URL)
 
-  // 3. Forward to Groq Whisper API
-  const formData = await req.formData()
-  const groqResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${GROQ_API_KEY}` },
-    body: formData,
-  })
+- Uses `stripe.checkout.sessions.create()`
+- Mode: `subscription` for monthly/yearly, `payment` for lifetime
+- Includes plan in session metadata for webhook processing
 
-  const result = await groqResponse.json()
+### POST /api/webhooks/stripe
+Handles Stripe webhook events with signature verification.
 
-  // 4. Log usage
-  const wordCount = result.text?.split(/\s+/).length ?? 0
-  await supabase.from('usage_logs').insert({
-    user_id: user.id,
-    words: wordCount,
-    provider: 'groq-stt',
-  })
+**Events handled:**
+- `checkout.session.completed` → Upserts user, looks up license type, creates license with auto-generated key
+- `customer.subscription.deleted` → Sets license status to `cancelled`
 
-  // 5. Increment usage counter
-  await supabase.rpc('increment_words', {
-    user_id: user.id,
-    word_count: wordCount,
-  })
+**Raw body parsing** required (bodyParser disabled) for Stripe signature verification.
 
-  return new Response(JSON.stringify(result), {
-    headers: { 'Content-Type': 'application/json' },
-  })
-})
+### POST /api/validate-license
+Validates a license key.
+
+**Request:** `{ licenseKey: string }`
+**Response:** `{ valid: boolean, plan?: string, planSlug?: string, expiresAt?: string, error?: string }`
+
+- Joins `user_licenses` with `license_types`
+- Checks: status = active, not expired (lifetime keys never expire)
+
+### GET /api/get-license
+Retrieves license key after Stripe payment.
+
+**Query:** `?session_id=cs_...`
+**Response:** `{ licenseKey: string, plan: string, planSlug: string, expiresAt: string | null }`
+
+- Looks up Stripe session to get customer email
+- Finds most recent license for that user
+
+## Purchase Flow
+
 ```
-
-### POST /api/cleanup
-Proxies text to Groq Llama for AI cleanup.
-
-Same pattern as transcribe — auth check, usage check, forward to Groq, log usage.
-
-### POST /api/stripe-webhook
-Handles Stripe subscription events.
-
-```typescript
-// Events to handle:
-// - checkout.session.completed → update profile.plan to 'pro' or 'lifetime'
-// - customer.subscription.updated → update plan
-// - customer.subscription.deleted → downgrade to 'free'
-// - invoice.payment_failed → notify user
-```
-
-### GET /api/usage
-Returns current usage stats for the authenticated user.
-
-```json
-{
-  "plan": "free",
-  "words_used": 1234,
-  "words_limit": 2000,
-  "period_start": "2026-02-01T00:00:00Z"
-}
-```
-
-## Stripe Configuration
-
-### Products
-- **VoiceFlow Pro Monthly**: $8/mo, recurring
-- **VoiceFlow Pro Lifetime**: $39, one-time
-
-### Checkout Flow
-1. User clicks "Upgrade to Pro" in desktop app Settings
-2. App opens Stripe Checkout URL in default browser
-3. User completes payment on Stripe's hosted page
-4. Stripe webhook fires → Edge Function updates profile.plan
-5. App polls /api/usage to detect plan change
-6. Pro features unlock in the app
-
-### Webhook Events
-```
-checkout.session.completed → Create subscription, set plan='pro'
-customer.subscription.deleted → Set plan='free'
-invoice.payment_failed → Email user, grace period
+1. User visits website → Clicks pricing card → Enters email in modal
+2. POST /api/checkout → Returns Stripe Checkout URL → Redirect
+3. User pays on Stripe's hosted page
+4. Stripe fires webhook → POST /api/webhooks/stripe
+   → Upserts user in Supabase
+   → Creates license with auto-generated 48-char hex key
+5. Stripe redirects to /success.html?session_id=cs_...
+   → Page calls GET /api/get-license?session_id=cs_...
+   → Shows license key with copy button + activation instructions
+6. User opens VoiceFlow → Settings → Pastes license key → Activate
+   → App calls POST /api/validate-license → Returns valid + plan
+   → Cached locally in electron-store for 24h
 ```
 
 ## Desktop App Integration
 
-### Auth Flow (Electron)
-```typescript
-// In Settings page:
-// 1. User clicks "Sign In" → opens Supabase auth URL in browser
-// 2. Supabase redirects to deep link: voiceflow://auth/callback?token=...
-// 3. Electron handles protocol, stores session token
-// 4. All API calls include Authorization: Bearer <token>
+### Trial System
+- 7-day free trial, no registration
+- `trialStartedAt` set in electron-store on first launch
+- `canUseApp()` returns true if trial active OR license valid
+- Trial progress bar shown in Settings
 
-// Protocol handler registration (in main process):
-app.setAsDefaultProtocolClient('voiceflow')
-
-app.on('open-url', (event, url) => {
-  // Parse token from voiceflow://auth/callback?token=...
-  const token = new URL(url).searchParams.get('token')
-  if (token) {
-    store.set('auth_token', token)
-    mainWindow.webContents.send('auth-complete', token)
-  }
-})
+### License Validation (electron/main/license.ts)
+```
+validateLicenseKey(key) → calls /api/validate-license → caches result
+checkLicenseOnStartup() → revalidates if >24h since last check
+canUseApp() → true if license active OR trial not expired
 ```
 
-### API Proxy Usage (replacing direct Groq calls for Pro users)
-```typescript
-// When user has Pro plan, route through our proxy:
-if (user.plan === 'pro') {
-  const response = await fetch('https://your-project.supabase.co/functions/v1/transcribe', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${authToken}` },
-    body: formData,
-  })
-} else {
-  // Free tier: use local whisper.cpp (no API call)
-  const text = await localWhisper.transcribe(audioBlob)
-}
+### Offline Handling
+- If network unavailable, uses cached validation result
+- Cached license status stored in electron-store
+- Grace period: keeps working with last known valid status
+
+### Recording Gate (hotkeys.ts)
+- `handleHotkeyAction()` checks `canUseApp()` before starting recording
+- If blocked: shows overlay with lock icon for 2s, then hides
+
+### IPC Bridge
+```
+license:validate  → validates key via API, stores result
+license:get-info  → returns cached license info
+license:clear     → removes stored license
+trial-expired     → event sent to overlay when recording blocked
+```
+
+## Stripe Configuration (Manual Steps)
+
+1. Create Stripe account
+2. Create 3 products/prices:
+   - VoiceFlow Pro Monthly: $8/month recurring
+   - VoiceFlow Pro Yearly: $48/year recurring
+   - VoiceFlow Lifetime: $39 one-time
+3. Set up webhook: `https://your-domain.vercel.app/api/webhooks/stripe`
+   - Events: `checkout.session.completed`, `customer.subscription.deleted`
+4. Copy Price IDs and webhook secret to Vercel env vars
+
+## Environment Variables (Vercel Dashboard)
+
+```
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_MONTHLY=price_...
+STRIPE_PRICE_YEARLY=price_...
+STRIPE_PRICE_LIFETIME=price_...
+SUPABASE_URL=https://xsdngjfnsszulezxvsjd.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
 ```
 
 ## Cost Analysis
 
-### Per-User Costs (Pro tier)
+### Per-Transaction Costs
+| Plan | Revenue | Stripe Fee (2.9% + $0.30) | Net |
+|------|---------|---------------------------|-----|
+| Monthly | $8/mo | ~$0.53 | $7.47/mo |
+| Yearly | $48/yr | ~$1.69 | $46.31/yr ($3.86/mo) |
+| Lifetime | $39 | ~$1.43 | $37.57 once |
+
+### Infrastructure Costs
 | Service | Cost | Notes |
 |---------|------|-------|
-| Groq Whisper | ~$0.04/hr | Average user: 15 min/day = $0.30/mo |
-| Groq Llama | ~$0.01/mo | Text cleanup is tiny tokens |
-| Supabase | $0/user | Free tier: 50K MAU |
-| Stripe | 2.9% + $0.30 | Per transaction |
-| **Total** | **~$0.50/user/mo** | |
-
-### Revenue per User
-- Monthly: $8/mo - $0.50 cost = **$7.50 profit/mo**
-- Lifetime: $39 - $0.50/mo (LTV ~36 months) = **~$21 profit**
-
-### Break-even
-- Supabase Pro plan ($25/mo) needed at ~100 users
-- 4 monthly subscribers cover Supabase costs
-- Everything else scales with usage (Groq pay-per-use)
+| Supabase | $0/mo | Free tier: 500MB DB, 50K MAU |
+| Vercel | $0/mo | Free tier: 100GB bandwidth, serverless |
+| Stripe | Per-transaction only | No monthly fee |
 
 ## Security
 
-- Auth tokens stored encrypted via Electron safeStorage
 - All API calls over HTTPS
-- Row-level security on all database tables
-- VoiceFlow's Groq API key never exposed to client
 - Stripe webhook signature verification
-- Rate limiting on edge functions
-- No audio stored server-side (processed and discarded)
+- Supabase service_role key only used server-side (Vercel env vars)
+- License keys are 48-char random hex (auto-generated by Postgres)
+- No passwords stored — license-key-only authentication
+- RLS enabled on all tables (service_role bypasses for API)

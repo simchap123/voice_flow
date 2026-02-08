@@ -2,6 +2,7 @@ import { globalShortcut } from 'electron'
 import { uIOhook, UiohookKey } from 'uiohook-napi'
 import { getOverlayWindow, showOverlay, hideOverlay, isOverlayReady } from './windows'
 import { getStore } from './store'
+import { canUseApp } from './license'
 
 let isRecording = false
 let isProcessing = false
@@ -61,6 +62,17 @@ function handleHotkeyAction(mode: 'hold' | 'toggle', action: 'start' | 'stop') {
   }
 
   if (action === 'start' && !isRecording) {
+    // Check license/trial before allowing recording
+    if (!canUseApp()) {
+      showOverlay()
+      setTimeout(() => {
+        overlay.webContents.send('trial-expired')
+        setTimeout(() => hideOverlay(), 2000)
+      }, 100)
+      console.log('[VoiceFlow] Recording blocked: trial expired and no active license')
+      return
+    }
+
     showOverlay()
     setTimeout(() => {
       overlay.webContents.send('start-recording')
