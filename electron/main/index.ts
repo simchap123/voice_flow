@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut } from 'electron'
+import { app, BrowserWindow, globalShortcut, session } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createMainWindow, createOverlayWindow, getMainWindow, getOverlayWindow } from './windows'
@@ -22,6 +22,15 @@ process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
   : process.env.DIST
 
 app.whenReady().then(async () => {
+  // Auto-grant microphone permission so overlay window doesn't need user interaction
+  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+    if (permission === 'media') {
+      callback(true)
+    } else {
+      callback(false)
+    }
+  })
+
   initStore()
   registerIpcHandlers()
 

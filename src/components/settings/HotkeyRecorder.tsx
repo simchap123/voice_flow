@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from 'react'
-import { Keyboard, Check, AlertCircle } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Keyboard, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
@@ -9,7 +9,7 @@ interface HotkeyRecorderProps {
 }
 
 // Map browser key event to Electron accelerator format
-function keyEventToAccelerator(e: React.KeyboardEvent): string | null {
+function keyEventToAccelerator(e: KeyboardEvent): string | null {
   const parts: string[] = []
 
   if (e.ctrlKey) parts.push('Control')
@@ -53,38 +53,44 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
   const [recording, setRecording] = useState(false)
   const [pendingKeys, setPendingKeys] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
-  const inputRef = useRef<HTMLDivElement>(null)
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    const accelerator = keyEventToAccelerator(e)
-    if (accelerator) {
-      setPendingKeys(accelerator)
-    }
-  }, [])
-
-  const handleKeyUp = useCallback(() => {
-    if (pendingKeys) {
-      onChange(pendingKeys)
-      setRecording(false)
-      setPendingKeys(null)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
-    }
-  }, [pendingKeys, onChange])
+  const captureRef = useRef<HTMLDivElement>(null)
+  // Use a ref to avoid stale closure in keyup handler
+  const pendingRef = useRef<string | null>(null)
 
   const startRecording = () => {
     setRecording(true)
     setPendingKeys(null)
-    // Focus the capture area
-    setTimeout(() => inputRef.current?.focus(), 50)
+    pendingRef.current = null
+    setTimeout(() => captureRef.current?.focus(), 50)
   }
 
   const cancelRecording = () => {
     setRecording(false)
     setPendingKeys(null)
+    pendingRef.current = null
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const accelerator = keyEventToAccelerator(e.nativeEvent)
+    if (accelerator) {
+      setPendingKeys(accelerator)
+      pendingRef.current = accelerator
+    }
+  }
+
+  const handleKeyUp = () => {
+    const current = pendingRef.current
+    if (current) {
+      onChange(current)
+      setRecording(false)
+      setPendingKeys(null)
+      pendingRef.current = null
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    }
   }
 
   return (
@@ -98,13 +104,12 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
       </p>
 
       {recording ? (
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <div
-            ref={inputRef}
+            ref={captureRef}
             tabIndex={0}
             onKeyDown={handleKeyDown}
             onKeyUp={handleKeyUp}
-            onBlur={cancelRecording}
             className="flex h-10 flex-1 items-center rounded-md border border-primary/50 bg-primary/5 px-3 text-sm font-mono outline-none ring-2 ring-primary/20 animate-pulse"
           >
             {pendingKeys ?? 'Press a key combination...'}
@@ -114,11 +119,11 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
           </Button>
         </div>
       ) : (
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <div className="flex h-10 flex-1 items-center rounded-md border border-input bg-background px-3 text-sm font-mono">
             {value}
           </div>
-          <Button variant="outline" size="sm" onClick={startRecording} className="gap-1.5">
+          <Button variant="outline" size="sm" onClick={startRecording} className="gap-1.5 shrink-0">
             {saved ? <Check className="h-3 w-3 text-green-500" /> : <Keyboard className="h-3 w-3" />}
             {saved ? 'Saved' : 'Change'}
           </Button>

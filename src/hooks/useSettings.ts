@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, createContext, useContext } from 'rea
 import type { AppSettings } from '@/types/settings'
 import { defaultSettings } from '@/types/settings'
 import { initOpenAI } from '@/lib/openai'
-import OpenAI from 'openai'
 
 const LS_SETTINGS_KEY = 'voiceflow-settings'
 const LS_API_KEY = 'voiceflow-api-key'
@@ -85,25 +84,12 @@ export function useSettingsProvider(): SettingsContextValue {
       return { success: false, error: 'Invalid API key format. Keys start with "sk-".' }
     }
 
-    // Validate with a test API call
-    try {
-      const testClient = new OpenAI({
-        apiKey: key,
-        dangerouslyAllowBrowser: true,
-      })
-      await testClient.models.list()
-    } catch (err: any) {
-      const msg = err?.status === 401
-        ? 'Invalid API key. Please check and try again.'
-        : err?.message ?? 'Failed to validate API key.'
-      return { success: false, error: msg }
-    }
-
-    // Key is valid, save it
+    // Save the key
     if (window.electronAPI) {
       try {
         await window.electronAPI.saveApiKey(key)
       } catch (err) {
+        console.error('[VoiceFlow] Failed to save API key:', err)
         return { success: false, error: 'Failed to save API key to secure storage.' }
       }
     } else {

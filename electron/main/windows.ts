@@ -65,7 +65,7 @@ export function createOverlayWindow(): BrowserWindow {
     alwaysOnTop: true,
     skipTaskbar: true,
     resizable: false,
-    focusable: false,
+    focusable: true, // Must be focusable for mic permission + MediaRecorder
     show: false,
     backgroundColor: '#00000000',
     webPreferences: {
@@ -82,7 +82,16 @@ export function createOverlayWindow(): BrowserWindow {
     overlayWindow.loadFile(path.join(DIST, 'index.html'), { hash: '/overlay' })
   }
 
+  // Track when overlay has finished loading (API key + settings ready)
+  overlayWindow.webContents.on('did-finish-load', () => {
+    console.log('[VoiceFlow] Overlay window loaded and ready')
+  })
+
   return overlayWindow
+}
+
+export function isOverlayReady(): boolean {
+  return !!(overlayWindow && !overlayWindow.isDestroyed() && !overlayWindow.webContents.isLoading())
 }
 
 export function getMainWindow(): BrowserWindow | null {

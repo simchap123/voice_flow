@@ -1,7 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { hideOverlay, getMainWindow, getOverlayWindow } from './windows'
 import { injectText } from './text-injection'
-import { setIsRecording } from './hotkeys'
+import { setIsRecording, setIsProcessing } from './hotkeys'
 import { reregisterHotkeys } from './hotkeys'
 import {
   saveApiKey,
@@ -38,9 +38,10 @@ export function registerIpcHandlers() {
   ipcMain.handle('inject-text', async (_event, text: string) => {
     hideOverlay()
     setIsRecording(false)
+    setIsProcessing(false)
 
     // Small delay for focus to return to previous app
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise(resolve => setTimeout(resolve, 150))
     return injectText(text)
   })
 
@@ -48,6 +49,7 @@ export function registerIpcHandlers() {
   ipcMain.on('hide-overlay', () => {
     hideOverlay()
     setIsRecording(false)
+    setIsProcessing(false)
   })
 
   // Notify main window of transcription results

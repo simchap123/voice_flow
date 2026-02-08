@@ -1,8 +1,9 @@
 import { globalShortcut } from 'electron'
-import { getOverlayWindow, showOverlay, hideOverlay } from './windows'
+import { getOverlayWindow, showOverlay, hideOverlay, isOverlayReady } from './windows'
 import { getStore } from './store'
 
 let isRecording = false
+let isProcessing = false
 
 export function getIsRecording(): boolean {
   return isRecording
@@ -10,6 +11,10 @@ export function getIsRecording(): boolean {
 
 export function setIsRecording(value: boolean) {
   isRecording = value
+}
+
+export function setIsProcessing(value: boolean) {
+  isProcessing = value
 }
 
 export function registerHotkeys(): { success: boolean; error?: string } {
@@ -28,15 +33,28 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   try {
     registered = globalShortcut.register(hotkey, () => {
       const overlay = getOverlayWindow()
-      if (!overlay) return
+      if (!overlay || overlay.isDestroyed()) return
+
+      // Don't allow toggling while processing (STT/cleanup/injection in progress)
+      if (isProcessing) return
+
+      // Check overlay is loaded (settings + API key ready)
+      if (!isOverlayReady()) {
+        console.warn('[VoiceFlow] Overlay not ready yet, ignoring hotkey')
+        return
+      }
 
       if (!isRecording) {
         showOverlay()
-        overlay.webContents.send('start-recording')
+        // Small delay to let overlay become visible before starting recording
+        setTimeout(() => {
+          overlay.webContents.send('start-recording')
+        }, 100)
         isRecording = true
       } else {
         overlay.webContents.send('stop-recording')
         isRecording = false
+        isProcessing = true // Prevent re-toggle during processing
       }
     })
   } catch (err: any) {
@@ -51,11 +69,12 @@ export function registerHotkeys(): { success: boolean; error?: string } {
 
   // Cancel recording with Escape
   globalShortcut.register('Escape', () => {
-    if (isRecording) {
+    if (isRecording || isProcessing) {
       const overlay = getOverlayWindow()
       overlay?.webContents.send('cancel-recording')
       hideOverlay()
       isRecording = false
+      isProcessing = false
     }
   })
 
