@@ -95,6 +95,12 @@ export function useSettingsProvider(): SettingsContextValue {
       }
 
       await initProvidersWithKeys(loadedSettings.sttProvider, loadedSettings.cleanupProvider, isElectron)
+
+      if (loadedSettings.sttProvider === 'local') {
+        const { getLocalWhisperProvider } = await import('@/lib/stt/provider-factory')
+        getLocalWhisperProvider()?.setModelSize(loadedSettings.localModelSize)
+      }
+
       setIsLoaded(true)
     }
     load()

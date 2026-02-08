@@ -1,6 +1,7 @@
 import type { STTProvider, STTProviderType } from './types'
 import { OpenAIWhisperProvider } from './openai-whisper'
 import { GroqWhisperProvider } from './groq-whisper'
+import { LocalWhisperProvider } from './local-whisper'
 
 const providers: Map<STTProviderType, STTProvider> = new Map()
 
@@ -17,8 +18,8 @@ function getOrCreateProvider(type: STTProviderType): STTProvider {
       provider = new GroqWhisperProvider()
       break
     case 'local':
-      // Local whisper.cpp provider will be added in Phase 1B
-      throw new Error('Local STT not yet available. Coming soon!')
+      provider = new LocalWhisperProvider()
+      break
     case 'deepgram':
       throw new Error('Deepgram provider not yet available. Coming soon!')
     default:
@@ -41,6 +42,11 @@ export function initSTTProvider(type: STTProviderType, apiKey: string) {
   } else if (type === 'groq') {
     ;(provider as GroqWhisperProvider).init(apiKey)
   }
+}
+
+export function getLocalWhisperProvider(): LocalWhisperProvider | null {
+  const provider = providers.get('local')
+  return provider instanceof LocalWhisperProvider ? provider : null
 }
 
 export function getAvailableProviders(): { type: STTProviderType; name: string; requiresKey: boolean }[] {

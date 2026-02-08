@@ -5,6 +5,7 @@ import { LanguageSelect } from '@/components/settings/LanguageSelect'
 import { ThemeToggle } from '@/components/settings/ThemeToggle'
 import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { LicenseInput } from '@/components/settings/LicenseInput'
+import { LocalModelManager } from '@/components/settings/LocalModelManager'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
@@ -16,7 +17,7 @@ import type { CleanupProviderType } from '@/lib/cleanup/types'
 const STT_PROVIDERS: { value: STTProviderType; label: string; description: string; disabled?: boolean }[] = [
   { value: 'openai', label: 'OpenAI Whisper', description: 'High accuracy, $0.006/min' },
   { value: 'groq', label: 'Groq Whisper', description: 'Fast & cheap, $0.04/hr' },
-  { value: 'local', label: 'Local (Coming Soon)', description: 'Free, offline, private', disabled: true },
+  { value: 'local', label: 'Local (Free, Offline)', description: 'Free, offline, private' },
 ]
 
 const CLEANUP_PROVIDERS: { value: CleanupProviderType; label: string; description: string }[] = [
@@ -105,6 +106,12 @@ export function SettingsPage() {
               </label>
             ))}
           </div>
+          {settings.sttProvider === 'local' && (
+            <LocalModelManager
+              modelSize={settings.localModelSize}
+              onModelSizeChange={(s) => updateSetting('localModelSize', s)}
+            />
+          )}
         </div>
 
         <Separator />
