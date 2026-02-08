@@ -218,6 +218,20 @@ export function getApiKey(provider: string = 'openai'): string | null {
   return null
 }
 
+export function deleteApiKey(provider: string = 'openai'): boolean {
+  if (!store) return false
+  const storeKey = `api_key_${provider}`
+  const plainKey = `api_key_${provider}_plain`
+  store.delete(storeKey)
+  store.delete(plainKey)
+  if (provider === 'openai') {
+    store.delete('openai_api_key')
+    store.delete('openai_api_key_plain')
+  }
+  console.log(`[VoiceFlow] API key deleted for ${provider}`)
+  return true
+}
+
 export function hasApiKey(provider: string = 'openai'): boolean {
   if (!store) return false
   const storeKey = `api_key_${provider}`

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, EyeOff, Check, Key, AlertCircle, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Check, Key, AlertCircle, Loader2, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -10,14 +10,24 @@ interface ProviderApiKeyInputProps {
   placeholder: string
   hasKey: boolean
   onSave: (key: string, provider: string) => Promise<{ success: boolean; error?: string }>
+  onDelete?: (provider: string) => Promise<void>
 }
 
-export function ProviderApiKeyInput({ provider, label, placeholder, hasKey, onSave }: ProviderApiKeyInputProps) {
+export function ProviderApiKeyInput({ provider, label, placeholder, hasKey, onSave, onDelete }: ProviderApiKeyInputProps) {
   const [key, setKey] = useState('')
   const [showKey, setShowKey] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [deleted, setDeleted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const handleDelete = async () => {
+    if (!onDelete) return
+    setError(null)
+    await onDelete(provider)
+    setDeleted(true)
+    setTimeout(() => setDeleted(false), 3000)
+  }
 
   const handleSave = async () => {
     if (!key.trim()) return
@@ -74,9 +84,21 @@ export function ProviderApiKeyInput({ provider, label, placeholder, hasKey, onSa
         </div>
       )}
       {hasKey && !error && (
-        <div className="flex items-center gap-1.5 text-xs text-green-500">
-          <Check className="h-3 w-3" />
-          Key configured
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs text-green-500">
+            <Check className="h-3 w-3" />
+            {deleted ? 'Key deleted' : 'Key configured'}
+          </div>
+          {onDelete && !deleted && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-400 transition-colors"
+            >
+              <Trash2 className="h-3 w-3" />
+              Delete key
+            </button>
+          )}
         </div>
       )}
     </div>

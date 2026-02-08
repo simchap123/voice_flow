@@ -42,6 +42,7 @@ const api: ElectronAPI = {
   saveApiKey: (key: string, provider: string = 'openai') => ipcRenderer.invoke('api-key:save', key, provider),
   getApiKey: (provider: string = 'openai') => ipcRenderer.invoke('api-key:get', provider),
   hasApiKey: (provider: string = 'openai') => ipcRenderer.invoke('api-key:has', provider),
+  deleteApiKey: (provider: string = 'openai') => ipcRenderer.invoke('api-key:delete', provider),
 
   // Settings
   getSettings: () => ipcRenderer.invoke('settings:get-all'),

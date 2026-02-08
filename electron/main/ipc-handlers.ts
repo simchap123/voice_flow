@@ -7,6 +7,7 @@ import {
   saveApiKey,
   getApiKey,
   hasApiKey,
+  deleteApiKey,
   getAllSettings,
   setSetting,
   getHistory,
@@ -92,6 +93,11 @@ export function registerIpcHandlers() {
     const has = hasApiKey(provider)
     console.log(`[VoiceFlow] IPC api-key:has for ${provider}:`, has)
     return has
+  })
+
+  ipcMain.handle('api-key:delete', async (_event, provider: string = 'openai') => {
+    console.log(`[VoiceFlow] IPC api-key:delete for ${provider}`)
+    return deleteApiKey(provider)
   })
 
   // Settings

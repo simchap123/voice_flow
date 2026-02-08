@@ -150,11 +150,13 @@ function registerHoldModifier(hotkey: string): { success: boolean; error?: strin
           }
         }, HOLD_THRESHOLD_MS)
       }
-    } else if (!ALL_MODIFIER_KEYCODES.has(e.keycode)) {
-      // A non-modifier key was pressed (e.g., Tab in Alt+Tab) — cancel threshold
-      if (holdThresholdTimer) {
-        clearTimeout(holdThresholdTimer)
-        holdThresholdTimer = null
+    } else {
+      // Any other key was pressed (modifier or not, e.g., Shift in Alt+Shift, Tab in Alt+Tab) — cancel threshold
+      if (holdModifierDown) {
+        if (holdThresholdTimer) {
+          clearTimeout(holdThresholdTimer)
+          holdThresholdTimer = null
+        }
         comboCancelled = true
       }
     }

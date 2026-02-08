@@ -59,6 +59,17 @@ export function SettingsPage() {
     return result
   }
 
+  const handleDeleteKey = async (provider: string) => {
+    if (window.electronAPI) {
+      await window.electronAPI.deleteApiKey(provider)
+    } else {
+      localStorage.removeItem(`voiceflow-api-key-${provider}`)
+    }
+    if (provider === 'openai') setHasOpenAIKey(false)
+    if (provider === 'groq') setHasGroqKey(false)
+    toast({ title: 'API key deleted', description: `${provider} key removed from secure storage`, variant: 'success' })
+  }
+
   const needsOpenAI = settings.sttProvider === 'openai' || settings.cleanupProvider === 'openai'
   const needsGroq = settings.sttProvider === 'groq' || settings.cleanupProvider === 'groq'
 
@@ -173,6 +184,7 @@ export function SettingsPage() {
                   placeholder="sk-..."
                   hasKey={hasOpenAIKey}
                   onSave={handleSaveKey}
+                  onDelete={handleDeleteKey}
                 />
               )}
               {needsGroq && (
@@ -182,6 +194,7 @@ export function SettingsPage() {
                   placeholder="gsk_..."
                   hasKey={hasGroqKey}
                   onSave={handleSaveKey}
+                  onDelete={handleDeleteKey}
                 />
               )}
             </div>

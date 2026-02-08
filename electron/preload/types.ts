@@ -20,6 +20,7 @@ export interface ElectronAPI {
   saveApiKey: (key: string, provider?: string) => Promise<boolean>
   getApiKey: (provider?: string) => Promise<string | null>
   hasApiKey: (provider?: string) => Promise<boolean>
+  deleteApiKey: (provider?: string) => Promise<boolean>
 
   // Settings
   getSettings: () => Promise<Record<string, any>>
