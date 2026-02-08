@@ -1,17 +1,20 @@
 import { useState, useEffect, useCallback, createContext, useContext } from 'react'
 import type { AppSettings } from '@/types/settings'
 import { defaultSettings } from '@/types/settings'
-import { initOpenAI } from '@/lib/openai'
+import { initSTTProvider } from '@/lib/stt/provider-factory'
+import { initCleanupProvider } from '@/lib/cleanup/provider-factory'
+import type { STTProviderType } from '@/lib/stt/types'
+import type { CleanupProviderType } from '@/lib/cleanup/types'
 import OpenAI from 'openai'
 
 const LS_SETTINGS_KEY = 'voiceflow-settings'
-const LS_API_KEY = 'voiceflow-api-key'
+const LS_API_KEY_PREFIX = 'voiceflow-api-key'
 
 interface SettingsContextValue {
   settings: AppSettings
   updateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void
   hasApiKey: boolean
-  saveApiKey: (key: string) => Promise<{ success: boolean; error?: string }>
+  saveApiKey: (key: string, provider?: string) => Promise<{ success: boolean; error?: string }>
   isLoaded: boolean
 }
 
@@ -23,46 +26,76 @@ export const SettingsContext = createContext<SettingsContextValue>({
   isLoaded: false,
 })
 
+// Initialize providers with their stored API keys
+async function initProvidersWithKeys(sttType: STTProviderType, cleanupType: CleanupProviderType, isElectron: boolean) {
+  const providersToInit = new Set<string>()
+  if (sttType !== 'local') providersToInit.add(sttType)
+  if (cleanupType !== 'none') providersToInit.add(cleanupType)
+
+  for (const provider of providersToInit) {
+    let apiKey: string | null = null
+
+    if (isElectron) {
+      apiKey = await window.electronAPI!.getApiKey(provider)
+    } else {
+      apiKey = localStorage.getItem(`${LS_API_KEY_PREFIX}-${provider}`)
+    }
+
+    if (apiKey) {
+      try {
+        initSTTProvider(provider as STTProviderType, apiKey)
+      } catch { /* provider might not support STT */ }
+      try {
+        initCleanupProvider(provider as CleanupProviderType, apiKey)
+      } catch { /* provider might not support cleanup */ }
+    }
+  }
+}
+
 export function useSettingsProvider(): SettingsContextValue {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings)
   const [hasApiKey, setHasApiKey] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
   const isElectron = !!window.electronAPI
 
-  // Load settings and init OpenAI on mount
   useEffect(() => {
     async function load() {
+      let loadedSettings = defaultSettings
+
       if (isElectron) {
         try {
           const stored = await window.electronAPI!.getSettings()
-          setSettings({ ...defaultSettings, ...stored })
+          loadedSettings = { ...defaultSettings, ...stored }
+          setSettings(loadedSettings)
 
-          const hasKey = await window.electronAPI!.hasApiKey()
-          setHasApiKey(hasKey)
-
-          if (hasKey) {
-            const apiKey = await window.electronAPI!.getApiKey()
-            if (apiKey) initOpenAI(apiKey)
+          // Check if the current STT provider has a key (or is local = no key needed)
+          if (loadedSettings.sttProvider === 'local') {
+            setHasApiKey(true)
+          } else {
+            const has = await window.electronAPI!.hasApiKey(loadedSettings.sttProvider)
+            setHasApiKey(has)
           }
         } catch (err) {
           console.error('[VoiceFlow] Failed to load settings:', err)
         }
       } else {
-        // Web mode: load from localStorage
         try {
           const stored = localStorage.getItem(LS_SETTINGS_KEY)
           if (stored) {
-            setSettings({ ...defaultSettings, ...JSON.parse(stored) })
+            loadedSettings = { ...defaultSettings, ...JSON.parse(stored) }
+            setSettings(loadedSettings)
           }
-          const savedKey = localStorage.getItem(LS_API_KEY)
-          if (savedKey) {
+          const savedKey = localStorage.getItem(`${LS_API_KEY_PREFIX}-${loadedSettings.sttProvider}`)
+            || localStorage.getItem(`${LS_API_KEY_PREFIX}-openai`)
+          if (savedKey || loadedSettings.sttProvider === 'local') {
             setHasApiKey(true)
-            initOpenAI(savedKey)
           }
         } catch (err) {
           console.error('[VoiceFlow] Failed to load settings from localStorage:', err)
         }
       }
+
+      await initProvidersWithKeys(loadedSettings.sttProvider, loadedSettings.cleanupProvider, isElectron)
       setIsLoaded(true)
     }
     load()
@@ -79,16 +112,24 @@ export function useSettingsProvider(): SettingsContextValue {
     window.electronAPI?.setSetting(key, value)
   }, [])
 
-  const saveApiKey = useCallback(async (key: string): Promise<{ success: boolean; error?: string }> => {
-    // Basic format check
-    if (!key.startsWith('sk-')) {
-      return { success: false, error: 'Invalid API key format. Keys start with "sk-".' }
+  const saveApiKey = useCallback(async (key: string, provider: string = 'openai'): Promise<{ success: boolean; error?: string }> => {
+    // Validate key format based on provider
+    if (provider === 'openai' && !key.startsWith('sk-')) {
+      return { success: false, error: 'Invalid API key format. OpenAI keys start with "sk-".' }
+    }
+    if (provider === 'groq' && !key.startsWith('gsk_')) {
+      return { success: false, error: 'Invalid API key format. Groq keys start with "gsk_".' }
     }
 
     // Validate with a test API call
     try {
+      const baseURL = provider === 'groq'
+        ? 'https://api.groq.com/openai/v1'
+        : undefined
+
       const testClient = new OpenAI({
         apiKey: key,
+        baseURL,
         dangerouslyAllowBrowser: true,
       })
       await testClient.models.list()
@@ -99,20 +140,22 @@ export function useSettingsProvider(): SettingsContextValue {
       return { success: false, error: msg }
     }
 
-    // Key is valid, save it
+    // Key is valid — save it
     if (window.electronAPI) {
       try {
-        await window.electronAPI.saveApiKey(key)
+        await window.electronAPI.saveApiKey(key, provider)
       } catch (err) {
         return { success: false, error: 'Failed to save API key to secure storage.' }
       }
     } else {
-      // Web mode: save to localStorage (not encrypted, but functional)
-      try { localStorage.setItem(LS_API_KEY, key) } catch {}
+      try { localStorage.setItem(`${LS_API_KEY_PREFIX}-${provider}`, key) } catch {}
     }
 
+    // Initialize the providers with the new key
+    try { initSTTProvider(provider as STTProviderType, key) } catch {}
+    try { initCleanupProvider(provider as CleanupProviderType, key) } catch {}
+
     setHasApiKey(true)
-    initOpenAI(key)
     return { success: true }
   }, [])
 

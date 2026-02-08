@@ -1,5 +1,6 @@
+import { useState, useEffect } from 'react'
 import { useSettings } from '@/hooks/useSettings'
-import { ApiKeyInput } from '@/components/settings/ApiKeyInput'
+import { ProviderApiKeyInput } from '@/components/settings/ProviderApiKeyInput'
 import { LanguageSelect } from '@/components/settings/LanguageSelect'
 import { ThemeToggle } from '@/components/settings/ThemeToggle'
 import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
@@ -8,24 +9,167 @@ import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { toast } from '@/hooks/useToast'
+import type { STTProviderType } from '@/lib/stt/types'
+import type { CleanupProviderType } from '@/lib/cleanup/types'
+
+const STT_PROVIDERS: { value: STTProviderType; label: string; description: string; disabled?: boolean }[] = [
+  { value: 'openai', label: 'OpenAI Whisper', description: 'High accuracy, $0.006/min' },
+  { value: 'groq', label: 'Groq Whisper', description: 'Fast & cheap, $0.04/hr' },
+  { value: 'local', label: 'Local (Coming Soon)', description: 'Free, offline, private', disabled: true },
+]
+
+const CLEANUP_PROVIDERS: { value: CleanupProviderType; label: string; description: string }[] = [
+  { value: 'openai', label: 'OpenAI GPT-4o-mini', description: 'Best quality cleanup' },
+  { value: 'groq', label: 'Groq Llama', description: 'Fast & cheap cleanup' },
+]
 
 export function SettingsPage() {
-  const { settings, updateSetting, hasApiKey, saveApiKey } = useSettings()
+  const { settings, updateSetting, saveApiKey } = useSettings()
+  const [hasOpenAIKey, setHasOpenAIKey] = useState(false)
+  const [hasGroqKey, setHasGroqKey] = useState(false)
+
+  useEffect(() => {
+    async function checkKeys() {
+      if (window.electronAPI) {
+        setHasOpenAIKey(await window.electronAPI.hasApiKey('openai'))
+        setHasGroqKey(await window.electronAPI.hasApiKey('groq'))
+      }
+    }
+    checkKeys()
+  }, [])
 
   const handleHotkeyChange = (hotkey: string) => {
     updateSetting('hotkey', hotkey)
     toast({ title: 'Hotkey updated', description: `Now using ${hotkey}`, variant: 'success' })
   }
 
+  const handleSaveKey = async (key: string, provider: string) => {
+    const result = await saveApiKey(key, provider)
+    if (result.success) {
+      if (provider === 'openai') setHasOpenAIKey(true)
+      if (provider === 'groq') setHasGroqKey(true)
+    }
+    return result
+  }
+
+  const needsOpenAI = settings.sttProvider === 'openai' || settings.cleanupProvider === 'openai'
+  const needsGroq = settings.sttProvider === 'groq' || settings.cleanupProvider === 'groq'
+
   return (
     <ScrollArea className="h-full">
       <div className="flex flex-col gap-6 p-6">
         <h1 className="text-2xl font-semibold">Settings</h1>
 
-        {/* API Key */}
-        <ApiKeyInput hasKey={hasApiKey} onSave={saveApiKey} />
+        {/* Speech Recognition Provider */}
+        <div className="space-y-3">
+          <Label>Speech Recognition</Label>
+          <p className="text-xs text-muted-foreground">
+            Choose how your voice is transcribed to text
+          </p>
+          <div className="grid gap-2">
+            {STT_PROVIDERS.map((p) => (
+              <label
+                key={p.value}
+                className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
+                  settings.sttProvider === p.value
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-muted-foreground/30'
+                } ${p.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="sttProvider"
+                  value={p.value}
+                  checked={settings.sttProvider === p.value}
+                  onChange={() => {
+                    if (!p.disabled) updateSetting('sttProvider', p.value)
+                  }}
+                  disabled={p.disabled}
+                  className="accent-primary"
+                />
+                <div>
+                  <div className="text-sm font-medium">{p.label}</div>
+                  <div className="text-xs text-muted-foreground">{p.description}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
 
         <Separator />
+
+        {/* AI Cleanup Provider */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>AI Text Cleanup</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Remove filler words and fix grammar
+              </p>
+            </div>
+            <Switch
+              checked={settings.cleanupEnabled}
+              onCheckedChange={(v) => updateSetting('cleanupEnabled', v)}
+            />
+          </div>
+          {settings.cleanupEnabled && (
+            <div className="grid gap-2 mt-2">
+              {CLEANUP_PROVIDERS.map((p) => (
+                <label
+                  key={p.value}
+                  className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
+                    settings.cleanupProvider === p.value
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-muted-foreground/30'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="cleanupProvider"
+                    value={p.value}
+                    checked={settings.cleanupProvider === p.value}
+                    onChange={() => updateSetting('cleanupProvider', p.value)}
+                    className="accent-primary"
+                  />
+                  <div>
+                    <div className="text-sm font-medium">{p.label}</div>
+                    <div className="text-xs text-muted-foreground">{p.description}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* API Keys — only show what's needed */}
+        {(needsOpenAI || needsGroq) && (
+          <>
+            <div className="space-y-4">
+              <Label className="text-base">API Keys</Label>
+              {needsOpenAI && (
+                <ProviderApiKeyInput
+                  provider="openai"
+                  label="OpenAI API Key"
+                  placeholder="sk-..."
+                  hasKey={hasOpenAIKey}
+                  onSave={handleSaveKey}
+                />
+              )}
+              {needsGroq && (
+                <ProviderApiKeyInput
+                  provider="groq"
+                  label="Groq API Key"
+                  placeholder="gsk_..."
+                  hasKey={hasGroqKey}
+                  onSave={handleSaveKey}
+                />
+              )}
+            </div>
+            <Separator />
+          </>
+        )}
 
         {/* Language */}
         <LanguageSelect
@@ -41,19 +185,19 @@ export function SettingsPage() {
           onChange={handleHotkeyChange}
         />
 
-        <Separator />
-
-        {/* GPT Cleanup toggle */}
+        {/* Hotkey Mode */}
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <Label>AI Text Cleanup</Label>
+            <Label>Hold to Record</Label>
             <p className="text-xs text-muted-foreground">
-              Use GPT to remove filler words and fix grammar
+              {settings.hotkeyMode === 'hold'
+                ? 'Press hotkey to start, press again to stop & paste'
+                : 'Press once to start, press again to stop & paste'}
             </p>
           </div>
           <Switch
-            checked={settings.cleanupEnabled}
-            onCheckedChange={(v) => updateSetting('cleanupEnabled', v)}
+            checked={settings.hotkeyMode === 'hold'}
+            onCheckedChange={(v) => updateSetting('hotkeyMode', v ? 'hold' : 'toggle')}
           />
         </div>
 

@@ -38,10 +38,10 @@ const api: ElectronAPI = {
     return () => ipcRenderer.removeListener('transcription-complete', handler)
   },
 
-  // API Key management (encrypted with safeStorage)
-  saveApiKey: (key: string) => ipcRenderer.invoke('api-key:save', key),
-  getApiKey: () => ipcRenderer.invoke('api-key:get'),
-  hasApiKey: () => ipcRenderer.invoke('api-key:has'),
+  // API Key management — multi-provider
+  saveApiKey: (key: string, provider: string = 'openai') => ipcRenderer.invoke('api-key:save', key, provider),
+  getApiKey: (provider: string = 'openai') => ipcRenderer.invoke('api-key:get', provider),
+  hasApiKey: (provider: string = 'openai') => ipcRenderer.invoke('api-key:has', provider),
 
   // Settings
   getSettings: () => ipcRenderer.invoke('settings:get-all'),

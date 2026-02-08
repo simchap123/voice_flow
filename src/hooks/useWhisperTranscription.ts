@@ -1,13 +1,14 @@
 import { useState, useCallback } from 'react'
-import { transcribeAudio } from '@/lib/openai'
+import { getSTTProvider } from '@/lib/stt/provider-factory'
+import type { STTProviderType } from '@/lib/stt/types'
 
-interface UseWhisperTranscriptionReturn {
+interface UseTranscriptionReturn {
   transcribe: (audioBlob: Blob, language?: string) => Promise<string>
   isTranscribing: boolean
   error: string | null
 }
 
-export function useWhisperTranscription(): UseWhisperTranscriptionReturn {
+export function useWhisperTranscription(providerType: STTProviderType = 'openai'): UseTranscriptionReturn {
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -15,7 +16,8 @@ export function useWhisperTranscription(): UseWhisperTranscriptionReturn {
     setIsTranscribing(true)
     setError(null)
     try {
-      const text = await transcribeAudio(audioBlob, language)
+      const provider = getSTTProvider(providerType)
+      const text = await provider.transcribe(audioBlob, language)
       return text
     } catch (err: any) {
       const message = err?.message ?? 'Transcription failed'
@@ -24,7 +26,7 @@ export function useWhisperTranscription(): UseWhisperTranscriptionReturn {
     } finally {
       setIsTranscribing(false)
     }
-  }, [])
+  }, [providerType])
 
   return { transcribe, isTranscribing, error }
 }

@@ -1,13 +1,14 @@
 import { useState, useCallback } from 'react'
-import { cleanupTranscription } from '@/lib/openai'
+import { getCleanupProvider } from '@/lib/cleanup/provider-factory'
+import type { CleanupProviderType } from '@/lib/cleanup/types'
 
-interface UseGptCleanupReturn {
+interface UseCleanupReturn {
   cleanup: (rawText: string) => Promise<string>
   isCleaning: boolean
   error: string | null
 }
 
-export function useGptCleanup(): UseGptCleanupReturn {
+export function useGptCleanup(providerType: CleanupProviderType = 'openai'): UseCleanupReturn {
   const [isCleaning, setIsCleaning] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -15,7 +16,8 @@ export function useGptCleanup(): UseGptCleanupReturn {
     setIsCleaning(true)
     setError(null)
     try {
-      const cleaned = await cleanupTranscription(rawText)
+      const provider = getCleanupProvider(providerType)
+      const cleaned = await provider.cleanup(rawText)
       return cleaned
     } catch (err: any) {
       const message = err?.message ?? 'Cleanup failed'
@@ -24,7 +26,7 @@ export function useGptCleanup(): UseGptCleanupReturn {
     } finally {
       setIsCleaning(false)
     }
-  }, [])
+  }, [providerType])
 
   return { cleanup, isCleaning, error }
 }
