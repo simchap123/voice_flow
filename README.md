@@ -8,6 +8,7 @@ AI-powered dictation that works everywhere. Hold a hotkey, speak, and your words
 - **Hold-to-speak** — hold Alt (or any hotkey), speak, release to inject text
 - **AI-powered cleanup** — raw transcription is cleaned up by AI for punctuation, grammar, and formatting
 - **Multi-provider STT** — choose between Groq (fast & cheap) or OpenAI Whisper
+- **Local offline mode** — whisper.cpp for free, private, offline speech-to-text (coming in v1.2)
 - **Bring Your Own Key** — your API keys are encrypted locally and never leave your device
 - **Text snippets** — define trigger words that expand into longer text
 - **Transcription history** — searchable log of all your dictations
@@ -28,9 +29,9 @@ Get the latest release from [freevoiceflow.vercel.app](https://freevoiceflow.ver
 
 ```bash
 npm install
-npm run dev          # Vite + Electron dev server with hot reload
-npm run build        # TypeScript + Vite production build
-npm run electron:build:win   # Build Windows installer
+npm run dev                 # Vite + Electron dev server with hot reload
+npm run build               # TypeScript + Vite production build
+npm run electron:build:win  # Build Windows installer
 ```
 
 ## Tech Stack
@@ -47,6 +48,14 @@ npm run electron:build:win   # Build Windows installer
 - **Pro Monthly** — $8/mo
 - **Pro Yearly** — $48/yr (save 50%)
 - **Lifetime** — $39 one-time
+
+## Documentation
+
+See the `docs/` folder for detailed documentation:
+- [Architecture](docs/ARCHITECTURE.md) — code structure, providers, recording flow
+- [Product Requirements](docs/PRD.md) — vision, pricing, phases, technical decisions
+- [Backend Architecture](docs/BACKEND_ARCHITECTURE.md) — Supabase, Stripe, Vercel API
+- [User Journey](docs/USER_JOURNEY.md) — user flows, state machine, purchase flow
 
 ## License
 
