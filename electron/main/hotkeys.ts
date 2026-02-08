@@ -72,6 +72,19 @@ function isStandaloneModifier(hotkey: string): boolean {
   return hotkey in MODIFIER_KEYCODES
 }
 
+// Suppress Windows Alt menu activation by injecting a synthetic Ctrl press/release
+// while Alt is still held. This makes the OS see "Alt+Ctrl" (a combo) instead of
+// a standalone Alt tap, preventing ribbon/menu activation in Outlook and other apps.
+async function suppressAltMenu() {
+  try {
+    const { keyboard, Key } = await import('@nut-tree-fork/nut-js')
+    await keyboard.pressKey(Key.LeftControl)
+    await keyboard.releaseKey(Key.LeftControl)
+  } catch (err) {
+    console.warn('[VoiceFlow] Failed to suppress Alt menu:', err)
+  }
+}
+
 // Core action handler for both hold and toggle modes
 function handleHotkeyAction(mode: 'hold' | 'toggle', action: 'start' | 'stop') {
   const overlay = getOverlayWindow()
@@ -132,6 +145,8 @@ function registerHoldModifier(hotkey: string): { success: boolean; error?: strin
           holdThresholdTimer = null
           if (holdModifierDown && !comboCancelled) {
             handleHotkeyAction('hold', 'start')
+            // Prevent Alt from activating menus in Outlook and other ribbon apps
+            if (hotkey === 'Alt') suppressAltMenu()
           }
         }, HOLD_THRESHOLD_MS)
       }
