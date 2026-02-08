@@ -36,13 +36,16 @@ export function registerIpcHandlers() {
 
   // Text injection
   ipcMain.handle('inject-text', async (_event, text: string) => {
-    hideOverlay()
+    console.log('[VoiceFlow] inject-text IPC received, text length:', text?.length)
+    hideOverlay(true) // instant hide so focus returns to previous app immediately
     setIsRecording(false)
     setIsProcessing(false)
 
-    // Small delay for focus to return to previous app
-    await new Promise(resolve => setTimeout(resolve, 150))
-    return injectText(text)
+    // Delay for focus to return to previous app
+    await new Promise(resolve => setTimeout(resolve, 500))
+    const result = await injectText(text)
+    console.log('[VoiceFlow] inject-text result:', result)
+    return result
   })
 
   // Hide overlay

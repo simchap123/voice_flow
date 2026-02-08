@@ -9,7 +9,7 @@ let overlayWindow: BrowserWindow | null = null
 
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 const DIST = process.env.DIST ?? path.join(__dirname, '../../dist')
-const preloadPath = path.join(__dirname, '../preload/index.js')
+const preloadPath = path.join(__dirname, '../preload/index.cjs')
 
 export function createMainWindow(): BrowserWindow {
   mainWindow = new BrowserWindow({
@@ -118,8 +118,13 @@ export function showOverlay() {
   }
 }
 
-export function hideOverlay() {
+export function hideOverlay(instant = false) {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
+    if (instant) {
+      overlayWindow.setOpacity(0)
+      overlayWindow.hide()
+      return
+    }
     // Smooth fade out
     let opacity = 1
     const fadeOut = setInterval(() => {

@@ -8,7 +8,6 @@ import { MicButton } from '@/components/dictation/MicButton'
 import { WaveformVisualizer } from '@/components/dictation/WaveformVisualizer'
 import { StatusIndicator } from '@/components/dictation/StatusIndicator'
 import { formatDuration } from '@/lib/audio-utils'
-import { getOpenAIClient } from '@/lib/openai'
 
 export function OverlayShell() {
   const { settings, hasApiKey, isLoaded } = useSettings()
@@ -18,6 +17,8 @@ export function OverlayShell() {
     language: settings.language,
     cleanupEnabled: settings.cleanupEnabled,
     autoCopy: settings.autoCopy,
+    sttProvider: settings.sttProvider,
+    cleanupProvider: settings.cleanupProvider,
     snippets,
     onComplete: (result) => {
       // Notify main window about the completed transcription
@@ -33,8 +34,7 @@ export function OverlayShell() {
   useElectronBridge({
     onStart: () => {
       // Check if API key is configured before starting
-      if (!hasApiKey || !getOpenAIClient()) {
-        // Can't record without API key - hide overlay after showing error briefly
+      if (!hasApiKey) {
         recording.cancelRecording()
         return
       }
@@ -63,7 +63,7 @@ export function OverlayShell() {
         {showNoApiKeyWarning && (
           <div className="text-center animate-fade-in">
             <div className="text-sm font-medium text-yellow-400">API Key Required</div>
-            <div className="mt-1 text-xs text-white/50">Open VoiceFlow and add your OpenAI key in Settings</div>
+            <div className="mt-1 text-xs text-white/50">Open VoiceFlow and add your API key in Settings</div>
           </div>
         )}
 

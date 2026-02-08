@@ -10,10 +10,18 @@ export async function injectText(text: string): Promise<{ success: boolean; meth
   try {
     const { keyboard, Key } = await import('@nut-tree-fork/nut-js')
 
-    // Small delay to ensure focus has returned to the previous app
-    await new Promise(resolve => setTimeout(resolve, 150))
+    // Use keyboard.type() to type text directly (works in terminals too)
+    // Falls back to Ctrl+V paste if typing fails
+    try {
+      await keyboard.type(text)
+      // Restore clipboard
+      setTimeout(() => clipboard.writeText(previousClipboard), 500)
+      return { success: true, method: 'nut-js-type' }
+    } catch {
+      console.log('[VoiceFlow] keyboard.type() failed, falling back to Ctrl+V')
+    }
 
-    // Detect platform and use correct paste shortcut
+    // Fallback: Ctrl+V paste
     const isMac = process.platform === 'darwin'
     if (isMac) {
       await keyboard.pressKey(Key.LeftSuper, Key.V)
@@ -24,13 +32,11 @@ export async function injectText(text: string): Promise<{ success: boolean; meth
     }
 
     // Restore previous clipboard after a short delay
-    setTimeout(() => {
-      clipboard.writeText(previousClipboard)
-    }, 500)
+    setTimeout(() => clipboard.writeText(previousClipboard), 500)
 
-    return { success: true, method: 'nut-js' }
+    return { success: true, method: 'nut-js-paste' }
   } catch (error) {
-    console.error('[VoiceFlow] nut-js paste failed, text is in clipboard:', error)
+    console.error('[VoiceFlow] nut-js injection failed, text is in clipboard:', error)
     // Fallback: text remains in clipboard, user can paste manually
     return { success: false, method: 'clipboard-only' }
   }

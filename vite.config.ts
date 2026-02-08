@@ -14,7 +14,7 @@ export default defineConfig({
           build: {
             outDir: 'dist-electron/main',
             rollupOptions: {
-              external: ['electron', 'electron-store', '@nut-tree-fork/nut-js'],
+              external: ['electron', 'electron-store', '@nut-tree-fork/nut-js', 'uiohook-napi'],
             },
           },
         },
@@ -27,6 +27,11 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron/preload',
+            lib: {
+              entry: 'electron/preload/index.ts',
+              formats: ['cjs'],
+              fileName: () => 'index.cjs',
+            },
             rollupOptions: {
               external: ['electron'],
             },

@@ -17,7 +17,7 @@ export interface AppSettings {
 }
 
 const defaults: AppSettings = {
-  hotkey: 'Alt+Shift+V',
+  hotkey: 'Alt',
   hotkeyMode: 'hold',
   language: 'en',
   theme: 'dark',

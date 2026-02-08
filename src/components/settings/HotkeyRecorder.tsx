@@ -8,6 +8,14 @@ interface HotkeyRecorderProps {
   onChange: (hotkey: string) => void
 }
 
+// Map standalone modifier keys
+const MODIFIER_MAP: Record<string, string> = {
+  'Alt': 'Alt',
+  'Control': 'Control',
+  'Shift': 'Shift',
+  'Meta': 'Super',
+}
+
 // Map browser key event to Electron accelerator format
 function keyEventToAccelerator(e: KeyboardEvent): string | null {
   const parts: string[] = []
@@ -17,9 +25,10 @@ function keyEventToAccelerator(e: KeyboardEvent): string | null {
   if (e.shiftKey) parts.push('Shift')
   if (e.metaKey) parts.push('Super')
 
-  // Ignore standalone modifier presses
   const key = e.key
-  if (['Control', 'Alt', 'Shift', 'Meta'].includes(key)) return null
+
+  // If it's a standalone modifier, don't add it again as the key part
+  if (key in MODIFIER_MAP) return null
 
   // Map special keys to Electron accelerator names
   const keyMap: Record<string, string> = {
@@ -43,9 +52,6 @@ function keyEventToAccelerator(e: KeyboardEvent): string | null {
   const mappedKey = keyMap[key] ?? (key.length === 1 ? key.toUpperCase() : key)
   parts.push(mappedKey)
 
-  // Require at least one modifier
-  if (parts.length < 2) return null
-
   return parts.join('+')
 }
 
@@ -54,13 +60,15 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
   const [pendingKeys, setPendingKeys] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const captureRef = useRef<HTMLDivElement>(null)
-  // Use a ref to avoid stale closure in keyup handler
   const pendingRef = useRef<string | null>(null)
+  // Track if a modifier was pressed alone (no other key)
+  const modifierOnlyRef = useRef<string | null>(null)
 
   const startRecording = () => {
     setRecording(true)
     setPendingKeys(null)
     pendingRef.current = null
+    modifierOnlyRef.current = null
     setTimeout(() => captureRef.current?.focus(), 50)
   }
 
@@ -68,11 +76,34 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
     setRecording(false)
     setPendingKeys(null)
     pendingRef.current = null
+    modifierOnlyRef.current = null
+  }
+
+  const finishRecording = (hotkey: string) => {
+    onChange(hotkey)
+    setRecording(false)
+    setPendingKeys(null)
+    pendingRef.current = null
+    modifierOnlyRef.current = null
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+    const key = e.key
+
+    // Track standalone modifier press
+    if (key in MODIFIER_MAP) {
+      modifierOnlyRef.current = MODIFIER_MAP[key]
+      setPendingKeys(MODIFIER_MAP[key])
+      return
+    }
+
+    // A non-modifier key was pressed, clear standalone modifier tracking
+    modifierOnlyRef.current = null
 
     const accelerator = keyEventToAccelerator(e.nativeEvent)
     if (accelerator) {
@@ -81,15 +112,19 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
     }
   }
 
-  const handleKeyUp = () => {
+  const handleKeyUp = (e: React.KeyboardEvent) => {
+    const key = e.key
+
+    // If a standalone modifier was released without any other key
+    if (key in MODIFIER_MAP && modifierOnlyRef.current) {
+      finishRecording(modifierOnlyRef.current)
+      return
+    }
+
+    // Regular key released
     const current = pendingRef.current
     if (current) {
-      onChange(current)
-      setRecording(false)
-      setPendingKeys(null)
-      pendingRef.current = null
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
+      finishRecording(current)
     }
   }
 
@@ -100,7 +135,7 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
         Global Hotkey
       </Label>
       <p className="text-xs text-muted-foreground">
-        Keyboard shortcut to toggle recording from any app
+        Press any key or modifier (Alt, Ctrl, Shift) to toggle recording
       </p>
 
       {recording ? (
@@ -112,7 +147,7 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
             onKeyUp={handleKeyUp}
             className="flex h-10 flex-1 items-center rounded-md border border-primary/50 bg-primary/5 px-3 text-sm font-mono outline-none ring-2 ring-primary/20 animate-pulse"
           >
-            {pendingKeys ?? 'Press a key combination...'}
+            {pendingKeys ?? 'Press any key...'}
           </div>
           <Button variant="outline" size="sm" onClick={cancelRecording}>
             Cancel
