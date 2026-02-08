@@ -1,6 +1,6 @@
 {
   "name": "voiceflow-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "dependencies": {
     "stripe": "^17.5.0",

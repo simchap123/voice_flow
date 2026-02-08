@@ -131,7 +131,7 @@ npx vite build && CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --win -
 | 7 | Settings panel | DONE | Provider selection, multi-key, hotkey config |
 | 8 | User snippets | DONE | SnippetsPage, snippet-engine, import/export |
 | 9 | Overlay polish + animations | DONE | Fade in/out, mic breathe, status transitions |
-| 10 | Packaging | DONE | NSIS installer: `release/VoiceFlow Setup 1.0.0.exe` (86MB) |
+| 10 | Packaging | DONE | NSIS installer: `release/VoiceFlow Setup 1.1.0.exe` (86MB) |
 | 11 | Multi-provider STT | DONE | OpenAI + Groq, pluggable architecture |
 | 12 | Configurable hotkeys + modes | DONE | Hold/toggle modes, any modifier+key combo |
 | 13 | Local whisper.cpp | PLANNED | Free offline STT, model download UI |
