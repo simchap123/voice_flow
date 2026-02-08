@@ -20,6 +20,7 @@ export function setIsProcessing(value: boolean) {
 export function registerHotkeys(): { success: boolean; error?: string } {
   const store = getStore()
   const hotkey = store?.get('hotkey', 'Alt+Space') as string ?? 'Alt+Space'
+  const hotkeyMode = store?.get('hotkeyMode', 'hold') as string ?? 'hold'
 
   // Validate hotkey format (must contain modifier + key)
   const parts = hotkey.split('+')
@@ -28,7 +29,9 @@ export function registerHotkeys(): { success: boolean; error?: string } {
     return { success: false, error: `Invalid hotkey format: "${hotkey}". Must be modifier+key (e.g., Alt+Space).` }
   }
 
-  // Register toggle recording hotkey
+  // Register the main recording hotkey
+  // Both hold and toggle use the same mechanism via globalShortcut
+  // (true hold-to-record with keyup detection would require uiohook-napi)
   let registered = false
   try {
     registered = globalShortcut.register(hotkey, () => {
@@ -68,17 +71,21 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   }
 
   // Cancel recording with Escape
-  globalShortcut.register('Escape', () => {
-    if (isRecording || isProcessing) {
-      const overlay = getOverlayWindow()
-      overlay?.webContents.send('cancel-recording')
-      hideOverlay()
-      isRecording = false
-      isProcessing = false
-    }
-  })
+  try {
+    globalShortcut.register('Escape', () => {
+      if (isRecording || isProcessing) {
+        const overlay = getOverlayWindow()
+        overlay?.webContents.send('cancel-recording')
+        hideOverlay()
+        isRecording = false
+        isProcessing = false
+      }
+    })
+  } catch {
+    console.warn('[VoiceFlow] Could not register Escape key (may be in use)')
+  }
 
-  console.log('[VoiceFlow] Hotkey registered:', hotkey)
+  console.log(`[VoiceFlow] Hotkey registered: ${hotkey} (mode: ${hotkeyMode})`)
   return { success: true }
 }
 

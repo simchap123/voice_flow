@@ -16,10 +16,10 @@ export interface ElectronAPI {
   hideOverlay: () => void
   onTranscriptionComplete: (callback: (data: any) => void) => () => void
 
-  // API Key
-  saveApiKey: (key: string) => Promise<boolean>
-  getApiKey: () => Promise<string | null>
-  hasApiKey: () => Promise<boolean>
+  // API Key — multi-provider
+  saveApiKey: (key: string, provider?: string) => Promise<boolean>
+  getApiKey: (provider?: string) => Promise<string | null>
+  hasApiKey: (provider?: string) => Promise<boolean>
 
   // Settings
   getSettings: () => Promise<Record<string, any>>

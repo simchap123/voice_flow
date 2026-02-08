@@ -5,20 +5,28 @@ let store: Store | null = null
 
 export interface AppSettings {
   hotkey: string
+  hotkeyMode: 'hold' | 'toggle'
   language: string
   theme: 'dark' | 'light'
   autoCopy: boolean
   cleanupEnabled: boolean
   audioInputDeviceId: string
+  sttProvider: 'local' | 'groq' | 'openai' | 'deepgram'
+  localModelSize: 'tiny' | 'base' | 'small' | 'medium'
+  cleanupProvider: 'groq' | 'openai' | 'none'
 }
 
 const defaults: AppSettings = {
   hotkey: 'Alt+Space',
+  hotkeyMode: 'hold',
   language: 'en',
   theme: 'dark',
   autoCopy: true,
   cleanupEnabled: true,
   audioInputDeviceId: 'default',
+  sttProvider: 'openai',
+  localModelSize: 'base',
+  cleanupProvider: 'openai',
 }
 
 export function initStore() {
@@ -49,54 +57,80 @@ export function getAllSettings(): AppSettings {
   if (!store) return defaults
   return {
     hotkey: store.get('hotkey', defaults.hotkey) as string,
+    hotkeyMode: store.get('hotkeyMode', defaults.hotkeyMode) as 'hold' | 'toggle',
     language: store.get('language', defaults.language) as string,
     theme: store.get('theme', defaults.theme) as 'dark' | 'light',
     autoCopy: store.get('autoCopy', defaults.autoCopy) as boolean,
     cleanupEnabled: store.get('cleanupEnabled', defaults.cleanupEnabled) as boolean,
     audioInputDeviceId: store.get('audioInputDeviceId', defaults.audioInputDeviceId) as string,
+    sttProvider: store.get('sttProvider', defaults.sttProvider) as AppSettings['sttProvider'],
+    localModelSize: store.get('localModelSize', defaults.localModelSize) as AppSettings['localModelSize'],
+    cleanupProvider: store.get('cleanupProvider', defaults.cleanupProvider) as AppSettings['cleanupProvider'],
   }
 }
 
-// Secure API key storage using OS-level encryption (DPAPI on Windows)
-export function saveApiKey(key: string): boolean {
-  console.log('[VoiceFlow] saveApiKey called, store exists:', !!store, 'encryption available:', safeStorage.isEncryptionAvailable())
+// Secure API key storage — supports multiple providers (openai, groq, deepgram)
+export function saveApiKey(key: string, provider: string = 'openai'): boolean {
+  console.log(`[VoiceFlow] saveApiKey called for ${provider}, store exists:`, !!store, 'encryption available:', safeStorage.isEncryptionAvailable())
   if (!store) {
     console.error('[VoiceFlow] Store not initialized!')
     return false
   }
+
+  const storeKey = `api_key_${provider}`
+  const plainKey = `api_key_${provider}_plain`
+
   if (!safeStorage.isEncryptionAvailable()) {
-    // Fallback: store in plain text (not ideal)
-    store.set('openai_api_key_plain', key)
-    console.log('[VoiceFlow] API key saved (plaintext fallback)')
+    store.set(plainKey, key)
+    console.log(`[VoiceFlow] API key saved for ${provider} (plaintext fallback)`)
     return false
   }
+
   const encrypted = safeStorage.encryptString(key)
-  store.set('openai_api_key', encrypted.toString('base64'))
-  store.delete('openai_api_key_plain')
-  console.log('[VoiceFlow] API key saved (encrypted)')
+  store.set(storeKey, encrypted.toString('base64'))
+  store.delete(plainKey)
+  console.log(`[VoiceFlow] API key saved for ${provider} (encrypted)`)
   return true
 }
 
-export function getApiKey(): string | null {
+export function getApiKey(provider: string = 'openai'): string | null {
   if (!store) return null
 
-  const encrypted = store.get('openai_api_key') as string | undefined
-  if (encrypted && safeStorage.isEncryptionAvailable()) {
-    try {
-      const buffer = Buffer.from(encrypted, 'base64')
-      return safeStorage.decryptString(buffer)
-    } catch {
-      return null
+  const storeKey = `api_key_${provider}`
+  const plainKey = `api_key_${provider}_plain`
+
+  // Also check legacy key location for backwards compat with v1
+  const legacyKey = provider === 'openai' ? 'openai_api_key' : null
+  const legacyPlainKey = provider === 'openai' ? 'openai_api_key_plain' : null
+
+  for (const key of [storeKey, legacyKey].filter(Boolean)) {
+    const encrypted = store.get(key!) as string | undefined
+    if (encrypted && safeStorage.isEncryptionAvailable()) {
+      try {
+        const buffer = Buffer.from(encrypted, 'base64')
+        return safeStorage.decryptString(buffer)
+      } catch {
+        continue
+      }
     }
   }
 
-  // Fallback: plain text
-  return (store.get('openai_api_key_plain') as string) ?? null
+  for (const key of [plainKey, legacyPlainKey].filter(Boolean)) {
+    const plain = store.get(key!) as string | undefined
+    if (plain) return plain
+  }
+
+  return null
 }
 
-export function hasApiKey(): boolean {
+export function hasApiKey(provider: string = 'openai'): boolean {
   if (!store) return false
-  return !!(store.get('openai_api_key') || store.get('openai_api_key_plain'))
+  const storeKey = `api_key_${provider}`
+  const plainKey = `api_key_${provider}_plain`
+  if (provider === 'openai') {
+    return !!(store.get(storeKey) || store.get(plainKey) || store.get('openai_api_key') || store.get('openai_api_key_plain'))
+  }
+  return !!(store.get(storeKey) || store.get(plainKey))
 }
 
 // History persistence
