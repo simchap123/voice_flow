@@ -38,9 +38,14 @@ export function SettingsPage() {
     checkKeys()
   }, [])
 
-  const handleHotkeyChange = (hotkey: string) => {
-    updateSetting('hotkey', hotkey)
-    toast({ title: 'Hotkey updated', description: `Now using ${hotkey}`, variant: 'success' })
+  const handleHoldHotkeyChange = (hotkey: string) => {
+    updateSetting('holdHotkey', hotkey)
+    toast({ title: 'Hold hotkey updated', description: hotkey ? `Now using ${hotkey}` : 'Disabled', variant: 'success' })
+  }
+
+  const handleToggleHotkeyChange = (hotkey: string) => {
+    updateSetting('toggleHotkey', hotkey)
+    toast({ title: 'Toggle hotkey updated', description: hotkey ? `Now using ${hotkey}` : 'Disabled', variant: 'success' })
   }
 
   const handleSaveKey = async (key: string, provider: string) => {
@@ -179,27 +184,23 @@ export function SettingsPage() {
 
         <Separator />
 
-        {/* Hotkey */}
+        {/* Hold-to-Record Hotkey */}
         <HotkeyRecorder
-          value={settings.hotkey}
-          onChange={handleHotkeyChange}
+          value={settings.holdHotkey}
+          onChange={handleHoldHotkeyChange}
+          label="Hold-to-Record Hotkey"
+          description="Hold to speak, release to stop and paste"
+          allowClear
         />
 
-        {/* Hotkey Mode */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Hold to Record</Label>
-            <p className="text-xs text-muted-foreground">
-              {settings.hotkeyMode === 'hold'
-                ? 'Press hotkey to start, press again to stop & paste'
-                : 'Press once to start, press again to stop & paste'}
-            </p>
-          </div>
-          <Switch
-            checked={settings.hotkeyMode === 'hold'}
-            onCheckedChange={(v) => updateSetting('hotkeyMode', v ? 'hold' : 'toggle')}
-          />
-        </div>
+        {/* Toggle Hotkey */}
+        <HotkeyRecorder
+          value={settings.toggleHotkey}
+          onChange={handleToggleHotkeyChange}
+          label="Toggle Hotkey"
+          description="Press once to start recording, press again to stop and paste"
+          allowClear
+        />
 
         <Separator />
 

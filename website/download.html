@@ -276,7 +276,7 @@
       <div class="step-num">3</div>
       <div class="step-content">
         <h3>Wait for it to launch &mdash; then start dictating</h3>
-        <p>VoiceFlow will appear in your system tray. Press <kbd>Alt+Space</kbd> from anywhere to start your first dictation.</p>
+        <p>VoiceFlow will appear in your system tray. Hold <kbd>Alt</kbd> from anywhere to start your first dictation &mdash; release to stop. You can also configure a toggle hotkey in Settings.</p>
       </div>
     </div>
   </div>
@@ -284,15 +284,22 @@
   <div class="api-callout">
     <div class="api-callout-header">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
-      <h3>Set up your OpenAI API key</h3>
+      <h3>Set up your API key</h3>
     </div>
-    <p>VoiceFlow uses your own OpenAI API key for transcription and text cleanup. Your key is encrypted on your device and never sent to us.</p>
+    <p>VoiceFlow uses your own API key for transcription and text cleanup. Your key is encrypted on your device and never sent to us.</p>
+    <p><strong>Groq (recommended &mdash; fast &amp; cheap):</strong></p>
+    <ol>
+      <li>Go to <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a></li>
+      <li>Create an API key and copy it</li>
+      <li>In VoiceFlow Settings, select <strong>Groq</strong> as your provider and paste the key</li>
+    </ol>
+    <p><strong>OpenAI (alternative):</strong></p>
     <ol>
       <li>Go to <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a></li>
       <li>Click <strong>"Create new secret key"</strong> and copy it</li>
-      <li>In VoiceFlow, go to <code>Settings</code> and paste your key</li>
+      <li>In VoiceFlow Settings, select <strong>OpenAI</strong> as your provider and paste the key</li>
     </ol>
-    <p>That's it! Typical usage costs a few cents per day. You can set a <a href="https://platform.openai.com/settings/organization/limits" target="_blank" rel="noopener">spending limit</a> on your OpenAI account.</p>
+    <p>That's it! Groq is ~8x cheaper than OpenAI. Typical usage costs less than a penny per day.</p>
   </div>
 
   <p class="retry">

@@ -4,8 +4,8 @@ import Store from 'electron-store'
 let store: Store | null = null
 
 export interface AppSettings {
-  hotkey: string
-  hotkeyMode: 'hold' | 'toggle'
+  holdHotkey: string
+  toggleHotkey: string
   language: string
   theme: 'dark' | 'light'
   autoCopy: boolean
@@ -17,8 +17,8 @@ export interface AppSettings {
 }
 
 const defaults: AppSettings = {
-  hotkey: 'Alt',
-  hotkeyMode: 'hold',
+  holdHotkey: 'Alt',
+  toggleHotkey: '',
   language: 'en',
   theme: 'dark',
   autoCopy: true,
@@ -36,6 +36,22 @@ export function initStore() {
       name: 'voiceflow-settings',
     })
     console.log('[VoiceFlow] Store initialized successfully at:', (store as any).path)
+
+    // Migrate old hotkey/hotkeyMode to holdHotkey/toggleHotkey
+    const oldHotkey = store.get('hotkey') as string | undefined
+    const oldMode = store.get('hotkeyMode') as string | undefined
+    if (oldHotkey) {
+      if (oldMode === 'toggle') {
+        store.set('toggleHotkey', oldHotkey)
+        store.set('holdHotkey', '')
+      } else {
+        store.set('holdHotkey', oldHotkey)
+        store.set('toggleHotkey', '')
+      }
+      store.delete('hotkey')
+      store.delete('hotkeyMode')
+      console.log(`[VoiceFlow] Migrated hotkey "${oldHotkey}" (mode: ${oldMode}) to new format`)
+    }
   } catch (err) {
     console.error('[VoiceFlow] Failed to init store:', err)
   }
@@ -56,8 +72,8 @@ export function setSetting<K extends keyof AppSettings>(key: K, value: AppSettin
 export function getAllSettings(): AppSettings {
   if (!store) return defaults
   return {
-    hotkey: store.get('hotkey', defaults.hotkey) as string,
-    hotkeyMode: store.get('hotkeyMode', defaults.hotkeyMode) as 'hold' | 'toggle',
+    holdHotkey: store.get('holdHotkey', defaults.holdHotkey) as string,
+    toggleHotkey: store.get('toggleHotkey', defaults.toggleHotkey) as string,
     language: store.get('language', defaults.language) as string,
     theme: store.get('theme', defaults.theme) as 'dark' | 'light',
     autoCopy: store.get('autoCopy', defaults.autoCopy) as boolean,

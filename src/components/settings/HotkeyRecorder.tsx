@@ -1,11 +1,14 @@
 import { useState, useRef } from 'react'
-import { Keyboard, Check } from 'lucide-react'
+import { Keyboard, Check, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
 interface HotkeyRecorderProps {
   value: string
   onChange: (hotkey: string) => void
+  label?: string
+  description?: string
+  allowClear?: boolean
 }
 
 // Map standalone modifier keys
@@ -55,7 +58,13 @@ function keyEventToAccelerator(e: KeyboardEvent): string | null {
   return parts.join('+')
 }
 
-export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
+export function HotkeyRecorder({
+  value,
+  onChange,
+  label = 'Global Hotkey',
+  description = 'Press any key or modifier (Alt, Ctrl, Shift) to set hotkey',
+  allowClear = false,
+}: HotkeyRecorderProps) {
   const [recording, setRecording] = useState(false)
   const [pendingKeys, setPendingKeys] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
@@ -85,6 +94,12 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
     setPendingKeys(null)
     pendingRef.current = null
     modifierOnlyRef.current = null
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  const handleClear = () => {
+    onChange('')
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -132,10 +147,10 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
     <div className="space-y-2">
       <Label className="flex items-center gap-2">
         <Keyboard className="h-4 w-4" />
-        Global Hotkey
+        {label}
       </Label>
       <p className="text-xs text-muted-foreground">
-        Press any key or modifier (Alt, Ctrl, Shift) to toggle recording
+        {description}
       </p>
 
       {recording ? (
@@ -156,12 +171,18 @@ export function HotkeyRecorder({ value, onChange }: HotkeyRecorderProps) {
       ) : (
         <div className="flex gap-2 items-center">
           <div className="flex h-10 flex-1 items-center rounded-md border border-input bg-background px-3 text-sm font-mono">
-            {value}
+            {value || <span className="text-muted-foreground">Not set</span>}
           </div>
           <Button variant="outline" size="sm" onClick={startRecording} className="gap-1.5 shrink-0">
             {saved ? <Check className="h-3 w-3 text-green-500" /> : <Keyboard className="h-3 w-3" />}
             {saved ? 'Saved' : 'Change'}
           </Button>
+          {allowClear && value && (
+            <Button variant="outline" size="sm" onClick={handleClear} className="gap-1.5 shrink-0">
+              <X className="h-3 w-3" />
+              Clear
+            </Button>
+          )}
         </div>
       )}
     </div>

@@ -3,8 +3,8 @@ import type { CleanupProviderType } from '@/lib/cleanup/types'
 
 export interface AppSettings {
   // Recording
-  hotkey: string
-  hotkeyMode: 'hold' | 'toggle'
+  holdHotkey: string
+  toggleHotkey: string
   language: string
   audioInputDeviceId: string
 
@@ -22,8 +22,8 @@ export interface AppSettings {
 }
 
 export const defaultSettings: AppSettings = {
-  hotkey: 'Alt',
-  hotkeyMode: 'hold',
+  holdHotkey: 'Alt',
+  toggleHotkey: '',
   language: 'en',
   audioInputDeviceId: 'default',
 

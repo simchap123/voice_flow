@@ -6,6 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 let mainWindow: BrowserWindow | null = null
 let overlayWindow: BrowserWindow | null = null
+let previousFocusedWindow: number | null = null // Track window to restore focus to
 
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 const DIST = process.env.DIST ?? path.join(__dirname, '../../dist')
@@ -53,13 +54,13 @@ export function createMainWindow(): BrowserWindow {
 }
 
 export function createOverlayWindow(): BrowserWindow {
-  const { width: screenWidth } = screen.getPrimaryDisplay().workAreaSize
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
 
   overlayWindow = new BrowserWindow({
-    width: 380,
-    height: 200,
-    x: Math.round(screenWidth / 2 - 190),
-    y: 80,
+    width: 48,
+    height: 48,
+    x: Math.round(screenWidth / 2 - 24),
+    y: screenHeight - 60,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -85,6 +86,15 @@ export function createOverlayWindow(): BrowserWindow {
   // Track when overlay has finished loading (API key + settings ready)
   overlayWindow.webContents.on('did-finish-load', () => {
     console.log('[VoiceFlow] Overlay window loaded and ready')
+    // Briefly show and hide to initialize mic permissions, then hide
+    if (overlayWindow && !overlayWindow.isDestroyed()) {
+      overlayWindow.show()
+      setTimeout(() => {
+        if (overlayWindow && !overlayWindow.isDestroyed()) {
+          overlayWindow.hide()
+        }
+      }, 100)
+    }
   })
 
   return overlayWindow
@@ -105,11 +115,11 @@ export function getOverlayWindow(): BrowserWindow | null {
 export function showOverlay() {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
     overlayWindow.setOpacity(0)
-    overlayWindow.show()
-    // Smooth fade in
+    overlayWindow.showInactive()
+    // Quick fade in
     let opacity = 0
     const fadeIn = setInterval(() => {
-      opacity = Math.min(opacity + 0.15, 1)
+      opacity = Math.min(opacity + 0.25, 1)
       if (overlayWindow && !overlayWindow.isDestroyed()) {
         overlayWindow.setOpacity(opacity)
       }

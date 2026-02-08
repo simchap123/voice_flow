@@ -78,6 +78,10 @@ export default {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
         },
+        'overlay-bounce': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
       },
       animation: {
         'pulse-ring': 'pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite',
@@ -88,6 +92,7 @@ export default {
         'mic-breathe': 'mic-breathe 2s ease-in-out infinite',
         'status-fade': 'status-fade 0.2s ease-out',
         'shimmer': 'shimmer 2s linear infinite',
+        'overlay-bounce': 'overlay-bounce 0.6s ease-in-out infinite',
       },
     },
   },

@@ -1,13 +1,9 @@
 import { useEffect } from 'react'
+import { Mic, Loader2, X } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
 import { useSnippets } from '@/hooks/useSnippets'
-import { useWaveform } from '@/hooks/useWaveform'
-import { MicButton } from '@/components/dictation/MicButton'
-import { WaveformVisualizer } from '@/components/dictation/WaveformVisualizer'
-import { StatusIndicator } from '@/components/dictation/StatusIndicator'
-import { formatDuration } from '@/lib/audio-utils'
 
 export function OverlayShell() {
   const { settings, hasApiKey, isLoaded } = useSettings()
@@ -27,8 +23,6 @@ export function OverlayShell() {
       setTimeout(() => window.electronAPI?.hideOverlay(), 300)
     },
   })
-
-  const canvasRef = useWaveform(recording.analyserNode)
 
   // Listen for hotkey commands from main process
   useElectronBridge({
@@ -54,61 +48,26 @@ export function OverlayShell() {
     }
   }, [recording.error])
 
-  const showNoApiKeyWarning = isLoaded && !hasApiKey
+  const isRecording = recording.state === 'RECORDING'
+  const isProcessing = recording.state === 'PROCESSING_STT' || recording.state === 'PROCESSING_CLEANUP' || recording.state === 'INJECTING'
+  const hasError = !!recording.error
+
+  // Determine animation class
+  let animClass = ''
+  if (isRecording) animClass = 'animate-overlay-bounce'
+  else if (isProcessing) animClass = 'animate-pulse'
 
   return (
-    <div className="flex h-full w-full items-center justify-center p-4">
-      <div className="flex w-full max-w-[360px] flex-col items-center gap-3 rounded-2xl border border-white/10 bg-black/70 p-5 shadow-2xl backdrop-blur-xl animate-overlay-enter">
-        {/* No API key warning */}
-        {showNoApiKeyWarning && (
-          <div className="text-center animate-fade-in">
-            <div className="text-sm font-medium text-yellow-400">API Key Required</div>
-            <div className="mt-1 text-xs text-white/50">Open VoiceFlow and add your API key in Settings</div>
-          </div>
-        )}
-
-        {/* Status */}
-        {!showNoApiKeyWarning && (
-          <div key={recording.state} className="animate-status-fade">
-            <StatusIndicator state={recording.state} />
-          </div>
-        )}
-
-        {/* Waveform */}
-        {recording.state === 'RECORDING' && (
-          <div className="animate-fade-in">
-            <WaveformVisualizer canvasRef={canvasRef} />
-          </div>
-        )}
-
-        {/* Duration */}
-        {recording.state === 'RECORDING' && (
-          <div className="text-sm font-mono text-white/60 animate-fade-in">
-            {formatDuration(recording.duration)}
-          </div>
-        )}
-
-        {/* Preview text */}
-        {recording.cleanedText && (
-          <div className="max-h-16 w-full overflow-hidden rounded-lg bg-white/5 p-2 text-xs text-white/70 animate-fade-in">
-            {recording.cleanedText.slice(0, 150)}
-            {recording.cleanedText.length > 150 && '...'}
-          </div>
-        )}
-
-        {/* Error */}
-        {recording.error && (
-          <div className="text-xs text-red-400 animate-fade-in">{recording.error}</div>
-        )}
-
-        {/* Mic button (fallback for click-based control) */}
-        {!showNoApiKeyWarning && (
-          <MicButton
-            state={recording.state}
-            onStart={() => recording.startRecording(settings.audioInputDeviceId)}
-            onStop={() => recording.stopRecording()}
-            compact
-          />
+    <div className="flex h-full w-full items-center justify-center p-0 m-0">
+      <div
+        className={`flex h-12 w-12 items-center justify-center rounded-full bg-black/90 border border-white/10 shadow-lg ${animClass}`}
+      >
+        {hasError ? (
+          <X className="h-5 w-5 text-red-400" />
+        ) : isProcessing ? (
+          <Loader2 className="h-5 w-5 text-white/80 animate-spin" />
+        ) : (
+          <Mic className={`h-5 w-5 ${isRecording ? 'text-red-400' : 'text-white/80'}`} />
         )}
       </div>
     </div>

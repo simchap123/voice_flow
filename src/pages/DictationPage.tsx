@@ -79,10 +79,13 @@ export function DictationPage() {
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Keyboard className="h-3 w-3" />
         <span>
-          {settings.hotkeyMode === 'hold'
-            ? <>Hold <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{settings.hotkey}</kbd> to record from any app</>
-            : <>Press <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{settings.hotkey}</kbd> to toggle from any app</>
-          }
+          {settings.holdHotkey && (
+            <>Hold <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{settings.holdHotkey}</kbd> to record</>
+          )}
+          {settings.holdHotkey && settings.toggleHotkey && ' | '}
+          {settings.toggleHotkey && (
+            <>Press <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">{settings.toggleHotkey}</kbd> to toggle</>
+          )}
         </span>
       </div>
 

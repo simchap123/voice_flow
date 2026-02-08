@@ -37,12 +37,12 @@ export function registerIpcHandlers() {
   // Text injection
   ipcMain.handle('inject-text', async (_event, text: string) => {
     console.log('[VoiceFlow] inject-text IPC received, text length:', text?.length)
-    hideOverlay(true) // instant hide so focus returns to previous app immediately
+    hideOverlay(true) // instant hide
     setIsRecording(false)
     setIsProcessing(false)
 
-    // Delay for focus to return to previous app
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // Small delay to let overlay fully hide, then paste into focused app
+    await new Promise(resolve => setTimeout(resolve, 150))
     const result = await injectText(text)
     console.log('[VoiceFlow] inject-text result:', result)
     return result
@@ -55,8 +55,18 @@ export function registerIpcHandlers() {
     setIsProcessing(false)
   })
 
-  // Notify main window of transcription results
+  // Notify main window of transcription results + save to history
   ipcMain.on('transcription-complete', (_event, data) => {
+    // Save to history directly in the store (overlay recordings)
+    const history = getHistory()
+    const entry = {
+      ...data,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    }
+    setHistory([entry, ...history])
+    console.log('[VoiceFlow] Saved transcription to history:', entry.cleanedText?.slice(0, 50))
+
+    // Also forward to main window for live UI updates
     const mainWin = getMainWindow()
     mainWin?.webContents.send('transcription-complete', data)
   })
@@ -88,7 +98,7 @@ export function registerIpcHandlers() {
 
   ipcMain.handle('settings:set', async (_event, key: string, value: any) => {
     setSetting(key as any, value)
-    if (key === 'hotkey' || key === 'hotkeyMode') {
+    if (key === 'holdHotkey' || key === 'toggleHotkey') {
       const result = reregisterHotkeys()
       return result
     }
