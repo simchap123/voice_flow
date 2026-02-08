@@ -58,11 +58,16 @@ function keyEventToAccelerator(e: KeyboardEvent): string | null {
   return parts.join('+')
 }
 
+// Build display string for currently held modifiers
+function getHeldModifiersDisplay(mods: Set<string>): string {
+  return Array.from(mods).join('+')
+}
+
 export function HotkeyRecorder({
   value,
   onChange,
   label = 'Global Hotkey',
-  description = 'Press any key or modifier (Alt, Ctrl, Shift) to set hotkey',
+  description = 'Press a key combo (e.g. Alt+J) or hold a single modifier (Alt, Ctrl, Shift)',
   allowClear = false,
 }: HotkeyRecorderProps) {
   const [recording, setRecording] = useState(false)
@@ -70,14 +75,17 @@ export function HotkeyRecorder({
   const [saved, setSaved] = useState(false)
   const captureRef = useRef<HTMLDivElement>(null)
   const pendingRef = useRef<string | null>(null)
-  // Track if a modifier was pressed alone (no other key)
-  const modifierOnlyRef = useRef<string | null>(null)
+  // Track held modifiers for combo detection
+  const heldModifiersRef = useRef<Set<string>>(new Set())
+  // Track if any non-modifier key was pressed (means user wants a combo)
+  const hadNonModifierRef = useRef(false)
 
   const startRecording = () => {
     setRecording(true)
     setPendingKeys(null)
     pendingRef.current = null
-    modifierOnlyRef.current = null
+    heldModifiersRef.current = new Set()
+    hadNonModifierRef.current = false
     setTimeout(() => captureRef.current?.focus(), 50)
   }
 
@@ -85,7 +93,8 @@ export function HotkeyRecorder({
     setRecording(false)
     setPendingKeys(null)
     pendingRef.current = null
-    modifierOnlyRef.current = null
+    heldModifiersRef.current = new Set()
+    hadNonModifierRef.current = false
   }
 
   const finishRecording = (hotkey: string) => {
@@ -93,7 +102,8 @@ export function HotkeyRecorder({
     setRecording(false)
     setPendingKeys(null)
     pendingRef.current = null
-    modifierOnlyRef.current = null
+    heldModifiersRef.current = new Set()
+    hadNonModifierRef.current = false
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -110,33 +120,45 @@ export function HotkeyRecorder({
 
     const key = e.key
 
-    // Track standalone modifier press
+    // Track modifier key press
     if (key in MODIFIER_MAP) {
-      modifierOnlyRef.current = MODIFIER_MAP[key]
-      setPendingKeys(MODIFIER_MAP[key])
+      heldModifiersRef.current.add(MODIFIER_MAP[key])
+      // Show held modifiers as pending (user can still add a key)
+      setPendingKeys(getHeldModifiersDisplay(heldModifiersRef.current) + '+...')
       return
     }
 
-    // A non-modifier key was pressed, clear standalone modifier tracking
-    modifierOnlyRef.current = null
+    // A non-modifier key was pressed — build the full combo
+    hadNonModifierRef.current = true
 
     const accelerator = keyEventToAccelerator(e.nativeEvent)
     if (accelerator) {
       setPendingKeys(accelerator)
       pendingRef.current = accelerator
+      // Immediately save combo keys (modifier+key)
+      finishRecording(accelerator)
     }
   }
 
   const handleKeyUp = (e: React.KeyboardEvent) => {
     const key = e.key
 
-    // If a standalone modifier was released without any other key
-    if (key in MODIFIER_MAP && modifierOnlyRef.current) {
-      finishRecording(modifierOnlyRef.current)
+    // If a modifier was released
+    if (key in MODIFIER_MAP) {
+      const modName = MODIFIER_MAP[key]
+
+      // If no non-modifier key was pressed, this was a standalone modifier
+      if (!hadNonModifierRef.current && heldModifiersRef.current.has(modName)) {
+        // Save as standalone modifier (e.g. just "Alt")
+        finishRecording(modName)
+        return
+      }
+
+      heldModifiersRef.current.delete(modName)
       return
     }
 
-    // Regular key released
+    // Regular key released — combo should already be saved in keyDown
     const current = pendingRef.current
     if (current) {
       finishRecording(current)

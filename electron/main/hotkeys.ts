@@ -6,7 +6,9 @@ import { canUseApp } from './license'
 
 let isRecording = false
 let isProcessing = false
+let processingTimeout: ReturnType<typeof setTimeout> | null = null
 let recordingMode: 'hold' | 'toggle' | null = null // Track which mode started recording
+const PROCESSING_TIMEOUT_MS = 30_000 // Safety: reset isProcessing after 30s
 let uiohookStarted = false
 let uiohookKeydownHandler: ((e: any) => void) | null = null
 let uiohookKeyupHandler: ((e: any) => void) | null = null
@@ -28,6 +30,27 @@ export function setIsRecording(value: boolean) {
 
 export function setIsProcessing(value: boolean) {
   isProcessing = value
+
+  // Clear any existing safety timeout
+  if (processingTimeout) {
+    clearTimeout(processingTimeout)
+    processingTimeout = null
+  }
+
+  // When processing starts, set a safety timeout to auto-reset
+  // This prevents the app from becoming permanently unresponsive
+  if (value) {
+    processingTimeout = setTimeout(() => {
+      if (isProcessing) {
+        console.warn('[VoiceFlow] Processing timeout reached (30s), resetting state')
+        isProcessing = false
+        isRecording = false
+        recordingMode = null
+        hideOverlay()
+      }
+      processingTimeout = null
+    }, PROCESSING_TIMEOUT_MS)
+  }
 }
 
 // Map modifier names to uiohook key codes
@@ -84,7 +107,7 @@ function handleHotkeyAction(mode: 'hold' | 'toggle', action: 'start' | 'stop') {
     // Only the mode that started recording can stop it
     overlay.webContents.send('stop-recording')
     isRecording = false
-    isProcessing = true
+    setIsProcessing(true) // Use setter to get safety timeout
     recordingMode = null
     console.log(`[VoiceFlow] Recording stopped (${mode} mode)`)
   }

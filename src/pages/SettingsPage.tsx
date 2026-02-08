@@ -195,7 +195,7 @@ export function SettingsPage() {
           value={settings.holdHotkey}
           onChange={handleHoldHotkeyChange}
           label="Hold-to-Record Hotkey"
-          description="Hold to speak, release to stop and paste"
+          description="Hold to speak, release to stop. Try Alt+J or Ctrl+Space to avoid conflicts with other apps"
           allowClear
         />
 
