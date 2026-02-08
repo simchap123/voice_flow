@@ -22,7 +22,7 @@ export interface AppSettings {
 }
 
 export const defaultSettings: AppSettings = {
-  hotkey: 'Alt+Space',
+  hotkey: 'Alt+Shift+V',
   hotkeyMode: 'hold',
   language: 'en',
   audioInputDeviceId: 'default',
