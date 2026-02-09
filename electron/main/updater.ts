@@ -7,10 +7,11 @@ let updateDownloaded = false
 
 export function initAutoUpdater() {
   if (!app.isPackaged) {
-    console.log('[VoiceFlow] Skipping auto-updater in dev mode')
+    console.log('[VoiceFlow] Skipping auto-updater in dev mode (run installed app to test)')
     return
   }
 
+  console.log('[VoiceFlow] Auto-updater starting, current version:', app.getVersion())
   autoUpdater.autoDownload = true
   autoUpdater.autoInstallOnAppQuit = true
 
