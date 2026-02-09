@@ -42,9 +42,19 @@ export function initAutoUpdater() {
     console.error('[VoiceFlow] Auto-updater error:', err.message)
   })
 
+  // Check on startup
   autoUpdater.checkForUpdatesAndNotify().catch((err) => {
     console.error('[VoiceFlow] Failed to check for updates:', err.message)
   })
+
+  // Re-check every 24 hours while app is running
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000
+  setInterval(() => {
+    console.log('[VoiceFlow] Periodic update check (24h)')
+    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
+      console.error('[VoiceFlow] Periodic update check failed:', err.message)
+    })
+  }, TWENTY_FOUR_HOURS)
 }
 
 export async function checkForUpdates(): Promise<{ updateAvailable: boolean; version?: string; downloaded?: boolean }> {

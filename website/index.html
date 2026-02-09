@@ -953,7 +953,15 @@
 </div>
 
 <script>
-  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest/download/VoiceFlow.Setup.1.6.0.exe';
+  // Dynamically resolve the latest .exe from GitHub Releases — never needs updating
+  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
+  fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
+    .then(function(r) { return r.json(); })
+    .then(function(release) {
+      var exe = release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
+      if (exe) DOWNLOAD_URL = exe.browser_download_url;
+    })
+    .catch(function() { /* fallback to releases page */ });
 
   // --- Element refs ---
   var gsEmail = document.getElementById('gs-email');
