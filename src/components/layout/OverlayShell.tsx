@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mic, Loader2, X, Lock, Square } from 'lucide-react'
+import { Mic, Loader2, X, Lock, Square, Settings } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
@@ -28,11 +28,8 @@ export function OverlayShell() {
     codeMode: settings.codeMode,
     snippets,
     onComplete: (result) => {
-      // Shrink overlay back before processing/hiding
       window.electronAPI?.shrinkOverlay()
-      // Notify main window about the completed transcription
       window.electronAPI?.notifyTranscriptionComplete(result)
-      // Hide overlay after injection
       setTimeout(() => window.electronAPI?.hideOverlay(), 300)
     },
   })
@@ -40,12 +37,10 @@ export function OverlayShell() {
   // Listen for hotkey commands from main process
   useElectronBridge({
     onStart: (data) => {
-      // Check if API key is configured before starting
       if (!hasApiKey) {
         recording.cancelRecording()
         return
       }
-      // Expand overlay to show controls
       window.electronAPI?.expandOverlay()
       recording.startRecording(settings.audioInputDeviceId, data?.mode)
     },
@@ -73,18 +68,18 @@ export function OverlayShell() {
   const isRecording = recording.state === 'RECORDING'
   const isProcessing = recording.state === 'PROCESSING_STT' || recording.state === 'PROCESSING_CLEANUP' || recording.state === 'INJECTING'
   const hasError = !!recording.error
+  const isIdle = !isRecording && !isProcessing && !hasError && !trialExpired
 
-  // Determine animation class for compact dot
-  let animClass = ''
-  if (isProcessing) animClass = 'animate-pulse'
-
-  // Recording: show expanded layout with controls
+  // --- RECORDING STATE: dark pill with mic + stop + cancel ---
   if (isRecording) {
     return (
-      <div className="flex h-full w-full items-center justify-center p-0 m-0">
-        <div className="flex h-12 items-center gap-2 rounded-full bg-black/90 border border-white/10 shadow-lg px-3 animate-overlay-bounce">
-          {/* Pulsing mic indicator */}
-          <Mic className="h-4 w-4 text-red-400 animate-pulse shrink-0" />
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-10 items-center gap-1.5 rounded-full bg-black/90 border border-white/10 shadow-lg px-3">
+          {/* Mic with subtle pulse — just the icon, not the whole bar */}
+          <Mic className="h-4 w-4 text-red-400 animate-mic-pulse shrink-0" />
+
+          {/* Separator */}
+          <div className="w-px h-4 bg-white/10" />
 
           {/* Stop button */}
           <button
@@ -93,10 +88,10 @@ export function OverlayShell() {
               window.electronAPI?.notifyRecordingStopped()
               recording.stopRecording()
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
             title="Stop recording"
           >
-            <Square className="h-3 w-3 text-white fill-white" />
+            <Square className="h-3 w-3 text-white/80 fill-white/80" />
           </button>
 
           {/* Cancel button */}
@@ -107,37 +102,75 @@ export function OverlayShell() {
               recording.cancelRecording()
               setTimeout(() => window.electronAPI?.hideOverlay(), 150)
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-red-500/30 transition-colors"
+            className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
             title="Cancel recording"
           >
-            <X className="h-3 w-3 text-white/70" />
+            <X className="h-3 w-3 text-white/50" />
           </button>
         </div>
       </div>
     )
   }
 
-  // Compact dot for idle/processing/error states
-  // Click opens the main window (shortcut to history, settings, etc.)
-  return (
-    <div className="flex h-full w-full items-center justify-center p-0 m-0">
-      <div
-        onClick={() => {
-          if (!isProcessing) {
-            window.electronAPI?.showMainWindow()
-          }
-        }}
-        className={`flex h-12 w-12 items-center justify-center rounded-full bg-black/90 border border-white/10 shadow-lg ${isProcessing ? '' : 'cursor-pointer hover:bg-black/70'} ${animClass}`}
-      >
-        {trialExpired ? (
-          <Lock className="h-5 w-5 text-yellow-400" />
-        ) : hasError ? (
-          <X className="h-5 w-5 text-red-400" />
-        ) : isProcessing ? (
+  // --- PROCESSING STATE: compact dot with spinner ---
+  if (isProcessing) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/90 border border-white/10 shadow-lg">
           <Loader2 className="h-5 w-5 text-white/80 animate-spin" />
-        ) : (
-          <Mic className="h-5 w-5 text-white/80" />
-        )}
+        </div>
+      </div>
+    )
+  }
+
+  // --- ERROR / TRIAL EXPIRED: compact dot ---
+  if (hasError || trialExpired) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/90 border border-white/10 shadow-lg">
+          {trialExpired ? (
+            <Lock className="h-5 w-5 text-yellow-400" />
+          ) : (
+            <X className="h-5 w-5 text-red-400" />
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // --- IDLE STATE: toolbar with mic, settings, close ---
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="flex h-9 items-center gap-0.5 rounded-full bg-black/90 border border-white/10 shadow-lg px-2.5">
+        {/* Mic icon — opens main window */}
+        <button
+          onClick={() => window.electronAPI?.showMainWindow()}
+          className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
+          title="VoiceFlow"
+        >
+          <Mic className="h-3.5 w-3.5 text-white/70" />
+        </button>
+
+        {/* Settings gear — opens main window */}
+        <button
+          onClick={() => window.electronAPI?.showMainWindow()}
+          className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
+          title="Settings"
+        >
+          <Settings className="h-3.5 w-3.5 text-white/40" />
+        </button>
+
+        {/* Separator */}
+        <div className="w-px h-3.5 bg-white/10 mx-0.5" />
+
+        {/* Close — hide overlay */}
+        <button
+          onClick={() => window.electronAPI?.hideOverlay()}
+          className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
+          title="Hide"
+        >
+          <X className="h-3 w-3 text-white/40" />
+        </button>
       </div>
     </div>
   )

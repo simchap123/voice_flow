@@ -1,4 +1,4 @@
-import { Trash2, Copy, Check, Clock, ChevronDown, ChevronUp } from 'lucide-react'
+import { Trash2, Copy, Check, Clock, ChevronDown, ChevronUp, Download } from 'lucide-react'
 import { useState } from 'react'
 import type { HistoryEntry } from '@/types/transcription'
 import { Button } from '@/components/ui/button'
@@ -44,6 +44,17 @@ export function HistoryCard({ entry, onDelete }: HistoryCardProps) {
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCopy}>
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
           </Button>
+          {entry.recordingFilename && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => window.electronAPI?.exportRecording(entry.recordingFilename!)}
+              title="Save recording"
+            >
+              <Download className="h-3 w-3" />
+            </Button>
+          )}
           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(entry.id)}>
             <Trash2 className="h-3 w-3" />
           </Button>

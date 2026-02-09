@@ -7,6 +7,7 @@ import { createTray, destroyTray } from './tray'
 import { registerIpcHandlers } from './ipc-handlers'
 import { initStore } from './store'
 import { checkLicenseOnStartup } from './license'
+import { initAutoUpdater } from './updater'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -44,6 +45,9 @@ app.whenReady().then(async () => {
   checkLicenseOnStartup().catch(err => {
     console.warn('[VoiceFlow] License check on startup failed:', err.message)
   })
+
+  // Check for updates (non-blocking)
+  initAutoUpdater()
 
   app.on('activate', () => {
     const mainWin = getMainWindow()

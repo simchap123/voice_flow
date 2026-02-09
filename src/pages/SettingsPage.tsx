@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/useToast'
 import type { STTProviderType } from '@/lib/stt/types'
 import type { CleanupProviderType } from '@/lib/cleanup/types'
@@ -29,6 +30,8 @@ export function SettingsPage() {
   const { settings, updateSetting, saveApiKey } = useSettings()
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false)
   const [hasGroqKey, setHasGroqKey] = useState(false)
+  const [updateStatus, setUpdateStatus] = useState<string | null>(null)
+  const [checkingUpdate, setCheckingUpdate] = useState(false)
 
   useEffect(() => {
     async function checkKeys() {
@@ -73,6 +76,33 @@ export function SettingsPage() {
     if (provider === 'openai') setHasOpenAIKey(false)
     if (provider === 'groq') setHasGroqKey(false)
     toast({ title: 'API key deleted', description: `${provider} key removed from secure storage`, variant: 'success' })
+  }
+
+  const handleCheckForUpdates = async () => {
+    if (!window.electronAPI) return
+    setCheckingUpdate(true)
+    setUpdateStatus(null)
+    try {
+      const result = await window.electronAPI.checkForUpdates()
+      if (result.updateAvailable) {
+        if (result.downloaded) {
+          setUpdateStatus(`Update v${result.version} ready — restart to install`)
+        } else {
+          setUpdateStatus(`Update v${result.version} available — downloading...`)
+        }
+      } else {
+        setUpdateStatus('Up to date')
+      }
+    } catch {
+      setUpdateStatus('Failed to check for updates')
+    } finally {
+      setCheckingUpdate(false)
+    }
+  }
+
+  const handleInstallUpdate = async () => {
+    if (!window.electronAPI) return
+    await window.electronAPI.installUpdate()
   }
 
   const needsOpenAI = settings.sttProvider === 'openai' || settings.cleanupProvider === 'openai'
@@ -281,6 +311,30 @@ export function SettingsPage() {
           theme={settings.theme}
           onChange={(v) => updateSetting('theme', v)}
         />
+
+        <Separator />
+
+        {/* Updates */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCheckForUpdates}
+              disabled={checkingUpdate}
+            >
+              {checkingUpdate ? 'Checking...' : 'Check for Updates'}
+            </Button>
+            {updateStatus?.includes('restart') && (
+              <Button size="sm" onClick={handleInstallUpdate}>
+                Restart & Update
+              </Button>
+            )}
+          </div>
+          {updateStatus && (
+            <p className="text-xs text-muted-foreground">{updateStatus}</p>
+          )}
+        </div>
       </div>
     </ScrollArea>
   )

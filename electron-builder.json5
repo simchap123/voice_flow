@@ -36,5 +36,10 @@
   "linux": {
     "target": ["AppImage"],
     "icon": "resources/icon.png"
+  },
+  "publish": {
+    "provider": "github",
+    "owner": "simchap123",
+    "repo": "voice_flow"
   }
 }

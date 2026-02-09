@@ -45,6 +45,7 @@ export interface ElectronAPI {
 
   // Overlay resize
   expandOverlay: () => void
+  expandOverlayIdle: () => void
   shrinkOverlay: () => void
 
   // Settings sync across windows
@@ -59,4 +60,13 @@ export interface ElectronAPI {
 
   // Notify main window
   notifyTranscriptionComplete: (data: any) => void
+
+  // Recordings
+  saveRecording: (filename: string, buffer: ArrayBuffer) => Promise<{ success: boolean; path?: string; error?: string }>
+  openRecordingsFolder: () => Promise<void>
+  exportRecording: (filename: string) => Promise<{ success: boolean }>
+
+  // Auto-update
+  checkForUpdates: () => Promise<{ updateAvailable: boolean; version?: string; downloaded?: boolean }>
+  installUpdate: () => Promise<void>
 }

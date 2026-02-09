@@ -14,7 +14,7 @@ export default defineConfig({
           build: {
             outDir: 'dist-electron/main',
             rollupOptions: {
-              external: ['electron', 'electron-store', '@nut-tree-fork/nut-js', 'uiohook-napi'],
+              external: ['electron', 'electron-store', '@nut-tree-fork/nut-js', 'uiohook-napi', 'electron-updater'],
             },
           },
         },

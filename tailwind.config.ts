@@ -80,7 +80,11 @@ export default {
         },
         'overlay-bounce': {
           '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-8px)' },
+          '50%': { transform: 'translateY(-3px)' },
+        },
+        'mic-pulse': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.6', transform: 'scale(0.9)' },
         },
       },
       animation: {
@@ -92,7 +96,8 @@ export default {
         'mic-breathe': 'mic-breathe 2s ease-in-out infinite',
         'status-fade': 'status-fade 0.2s ease-out',
         'shimmer': 'shimmer 2s linear infinite',
-        'overlay-bounce': 'overlay-bounce 0.6s ease-in-out infinite',
+        'overlay-bounce': 'overlay-bounce 1.5s ease-in-out infinite',
+        'mic-pulse': 'mic-pulse 1.2s ease-in-out infinite',
       },
     },
   },

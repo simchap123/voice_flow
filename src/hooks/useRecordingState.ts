@@ -86,6 +86,14 @@ export function useRecordingState(options: {
       const durationSecs = Math.floor((Date.now() - recordingStartTime.current) / 1000)
       const mode = recordingModeRef.current
 
+      // Save recording to disk (fire-and-forget, parallel with STT)
+      const filename = `recording-${Date.now()}.webm`
+      audioBlob.arrayBuffer().then(buffer => {
+        window.electronAPI?.saveRecording(filename, buffer).catch((err: any) =>
+          console.warn('[VoiceFlow] Failed to save recording:', err)
+        )
+      })
+
       // STT phase
       setState('PROCESSING_STT')
       const raw = await whisper.transcribe(audioBlob, language)
@@ -125,6 +133,7 @@ export function useRecordingState(options: {
         timestamp: Date.now(),
         language,
         wordCount: countWords(cleaned),
+        recordingFilename: filename,
       }
       setLastResult(result)
       onComplete?.(result)

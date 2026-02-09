@@ -13,6 +13,7 @@ export interface TranscriptionResult {
   timestamp: number
   language: string
   wordCount: number
+  recordingFilename?: string
 }
 
 export interface HistoryEntry {
@@ -23,4 +24,5 @@ export interface HistoryEntry {
   timestamp: number
   language: string
   wordCount: number
+  recordingFilename?: string
 }

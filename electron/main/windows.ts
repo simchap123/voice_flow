@@ -128,16 +128,37 @@ export function showOverlay() {
   }
 }
 
+export function showOverlayIdle() {
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    expandOverlayIdle()
+    showOverlay()
+  }
+}
+
 export function expandOverlay() {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
-    const expandedWidth = 180
-    const expandedHeight = 48
+    const expandedWidth = 160
+    const expandedHeight = 44
     overlayWindow.setBounds({
       x: Math.round(screenWidth / 2 - expandedWidth / 2),
-      y: screenHeight - 60,
+      y: screenHeight - 56,
       width: expandedWidth,
       height: expandedHeight,
+    })
+  }
+}
+
+export function expandOverlayIdle() {
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+    const idleWidth = 160
+    const idleHeight = 40
+    overlayWindow.setBounds({
+      x: Math.round(screenWidth / 2 - idleWidth / 2),
+      y: screenHeight - 52,
+      width: idleWidth,
+      height: idleHeight,
     })
   }
 }
@@ -147,7 +168,7 @@ export function shrinkOverlay() {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
     overlayWindow.setBounds({
       x: Math.round(screenWidth / 2 - 24),
-      y: screenHeight - 60,
+      y: screenHeight - 56,
       width: 48,
       height: 48,
     })

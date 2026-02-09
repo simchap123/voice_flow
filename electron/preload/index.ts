@@ -71,6 +71,7 @@ const api: ElectronAPI = {
 
   // Overlay resize
   expandOverlay: () => ipcRenderer.send('overlay:expand'),
+  expandOverlayIdle: () => ipcRenderer.send('overlay:expand-idle'),
   shrinkOverlay: () => ipcRenderer.send('overlay:shrink'),
 
   // Settings sync across windows
@@ -89,6 +90,15 @@ const api: ElectronAPI = {
 
   // Cross-window communication
   notifyTranscriptionComplete: (data: any) => ipcRenderer.send('transcription-complete', data),
+
+  // Recordings
+  saveRecording: (filename: string, buffer: ArrayBuffer) => ipcRenderer.invoke('recording:save', filename, buffer),
+  openRecordingsFolder: () => ipcRenderer.invoke('recording:open-folder'),
+  exportRecording: (filename: string) => ipcRenderer.invoke('recording:export', filename),
+
+  // Auto-update
+  checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
 }
 
 contextBridge.exposeInMainWorld('electronAPI', api)

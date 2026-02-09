@@ -1,5 +1,8 @@
-import { ipcMain, BrowserWindow, clipboard } from 'electron'
-import { hideOverlay, getMainWindow, getOverlayWindow, expandOverlay, shrinkOverlay } from './windows'
+import { ipcMain, BrowserWindow, clipboard, app, shell, dialog } from 'electron'
+import { copyFile } from 'node:fs/promises'
+import { writeFile, mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { hideOverlay, getMainWindow, getOverlayWindow, expandOverlay, expandOverlayIdle, shrinkOverlay } from './windows'
 import { injectText } from './text-injection'
 import { setIsRecording, setIsProcessing } from './hotkeys'
 import { reregisterHotkeys } from './hotkeys'
@@ -18,6 +21,7 @@ import {
   clearLicense,
 } from './store'
 import { validateLicenseKey } from './license'
+import { checkForUpdates, installUpdate } from './updater'
 
 export function registerIpcHandlers() {
   // Window controls
@@ -168,6 +172,10 @@ export function registerIpcHandlers() {
     expandOverlay()
   })
 
+  ipcMain.on('overlay:expand-idle', () => {
+    expandOverlayIdle()
+  })
+
   ipcMain.on('overlay:shrink', () => {
     shrinkOverlay()
   })
@@ -192,5 +200,47 @@ export function registerIpcHandlers() {
       main.show()
       main.focus()
     }
+  })
+
+  // Save recording audio to disk
+  const recordingsDir = join(app.getPath('userData'), 'recordings')
+  ipcMain.handle('recording:save', async (_event, filename: string, buffer: ArrayBuffer) => {
+    try {
+      await mkdir(recordingsDir, { recursive: true })
+      const filePath = join(recordingsDir, filename)
+      await writeFile(filePath, Buffer.from(buffer))
+      console.log('[VoiceFlow] Saved recording:', filePath)
+      return { success: true, path: filePath }
+    } catch (err: any) {
+      console.error('[VoiceFlow] Failed to save recording:', err)
+      return { success: false, error: err.message }
+    }
+  })
+
+  // Open recordings folder in file explorer
+  ipcMain.handle('recording:open-folder', async () => {
+    await mkdir(recordingsDir, { recursive: true })
+    await shell.openPath(recordingsDir)
+  })
+
+  // Export a recording via save dialog
+  ipcMain.handle('recording:export', async (_event, filename: string) => {
+    const srcPath = join(recordingsDir, filename)
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      defaultPath: filename,
+      filters: [{ name: 'WebM Audio', extensions: ['webm'] }],
+    })
+    if (canceled || !filePath) return { success: false }
+    await copyFile(srcPath, filePath)
+    return { success: true }
+  })
+
+  // Auto-update
+  ipcMain.handle('update:check', async () => {
+    return checkForUpdates()
+  })
+
+  ipcMain.handle('update:install', async () => {
+    installUpdate()
   })
 }
