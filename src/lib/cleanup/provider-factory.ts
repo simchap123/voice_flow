@@ -21,6 +21,8 @@ function getOrCreateProvider(type: CleanupProviderType): CleanupProvider {
         name: 'None',
         type: 'none',
         cleanup: async (text: string) => text,
+        generate: async (text: string) => text,
+        cleanupCode: async (text: string) => text,
         isAvailable: () => true,
       }
       break

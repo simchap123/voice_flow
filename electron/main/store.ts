@@ -8,6 +8,7 @@ export type LicenseStatus = 'none' | 'active' | 'expired' | 'invalid'
 export interface AppSettings {
   holdHotkey: string
   toggleHotkey: string
+  promptHotkey: string
   language: string
   theme: 'dark' | 'light'
   autoCopy: boolean
@@ -16,6 +17,7 @@ export interface AppSettings {
   sttProvider: 'local' | 'groq' | 'openai' | 'deepgram'
   localModelSize: 'tiny' | 'base' | 'small' | 'medium'
   cleanupProvider: 'groq' | 'openai' | 'none'
+  codeMode: boolean
   licenseKey: string
   licenseStatus: LicenseStatus
   licensePlan: string
@@ -27,6 +29,7 @@ export interface AppSettings {
 const defaults: AppSettings = {
   holdHotkey: 'Alt',
   toggleHotkey: '',
+  promptHotkey: '',
   language: 'en',
   theme: 'dark',
   autoCopy: true,
@@ -35,6 +38,7 @@ const defaults: AppSettings = {
   sttProvider: 'openai',
   localModelSize: 'base',
   cleanupProvider: 'openai',
+  codeMode: false,
   licenseKey: '',
   licenseStatus: 'none',
   licensePlan: '',
@@ -94,6 +98,7 @@ export function getAllSettings(): AppSettings {
   return {
     holdHotkey: store.get('holdHotkey', defaults.holdHotkey) as string,
     toggleHotkey: store.get('toggleHotkey', defaults.toggleHotkey) as string,
+    promptHotkey: store.get('promptHotkey', defaults.promptHotkey) as string,
     language: store.get('language', defaults.language) as string,
     theme: store.get('theme', defaults.theme) as 'dark' | 'light',
     autoCopy: store.get('autoCopy', defaults.autoCopy) as boolean,
@@ -102,6 +107,7 @@ export function getAllSettings(): AppSettings {
     sttProvider: store.get('sttProvider', defaults.sttProvider) as AppSettings['sttProvider'],
     localModelSize: store.get('localModelSize', defaults.localModelSize) as AppSettings['localModelSize'],
     cleanupProvider: store.get('cleanupProvider', defaults.cleanupProvider) as AppSettings['cleanupProvider'],
+    codeMode: store.get('codeMode', defaults.codeMode) as boolean,
     licenseKey: store.get('licenseKey', defaults.licenseKey) as string,
     licenseStatus: store.get('licenseStatus', defaults.licenseStatus) as LicenseStatus,
     licensePlan: store.get('licensePlan', defaults.licensePlan) as string,

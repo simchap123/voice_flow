@@ -4,6 +4,8 @@ export interface CleanupProvider {
   name: string
   type: CleanupProviderType
   cleanup(rawText: string): Promise<string>
+  generate(instructions: string): Promise<string>
+  cleanupCode(rawText: string): Promise<string>
   isAvailable(): boolean
 }
 

@@ -25,6 +25,7 @@ export function OverlayShell() {
     autoCopy: settings.autoCopy,
     sttProvider: settings.sttProvider,
     cleanupProvider: settings.cleanupProvider,
+    codeMode: settings.codeMode,
     snippets,
     onComplete: (result) => {
       // Notify main window about the completed transcription
@@ -36,13 +37,13 @@ export function OverlayShell() {
 
   // Listen for hotkey commands from main process
   useElectronBridge({
-    onStart: () => {
+    onStart: (data) => {
       // Check if API key is configured before starting
       if (!hasApiKey) {
         recording.cancelRecording()
         return
       }
-      recording.startRecording(settings.audioInputDeviceId)
+      recording.startRecording(settings.audioInputDeviceId, data?.mode)
     },
     onStop: () => recording.stopRecording(),
     onCancel: () => recording.cancelRecording(),

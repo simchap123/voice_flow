@@ -7,6 +7,7 @@ export interface AppSettings {
   // Recording
   holdHotkey: string
   toggleHotkey: string
+  promptHotkey: string
   language: string
   audioInputDeviceId: string
 
@@ -17,6 +18,7 @@ export interface AppSettings {
   // Cleanup provider
   cleanupProvider: CleanupProviderType
   cleanupEnabled: boolean
+  codeMode: boolean
 
   // UI
   theme: 'dark' | 'light'
@@ -34,6 +36,7 @@ export interface AppSettings {
 export const defaultSettings: AppSettings = {
   holdHotkey: 'Alt',
   toggleHotkey: '',
+  promptHotkey: '',
   language: 'en',
   audioInputDeviceId: 'default',
 
@@ -42,6 +45,7 @@ export const defaultSettings: AppSettings = {
 
   cleanupProvider: 'openai',
   cleanupEnabled: true,
+  codeMode: false,
 
   theme: 'dark',
   autoCopy: true,

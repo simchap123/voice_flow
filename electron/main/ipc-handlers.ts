@@ -107,7 +107,7 @@ export function registerIpcHandlers() {
 
   ipcMain.handle('settings:set', async (_event, key: string, value: any) => {
     setSetting(key as any, value)
-    if (key === 'holdHotkey' || key === 'toggleHotkey') {
+    if (key === 'holdHotkey' || key === 'toggleHotkey' || key === 'promptHotkey') {
       const result = reregisterHotkeys()
       return result
     }

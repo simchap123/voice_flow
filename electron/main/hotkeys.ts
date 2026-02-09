@@ -7,7 +7,7 @@ import { canUseApp } from './license'
 let isRecording = false
 let isProcessing = false
 let processingTimeout: ReturnType<typeof setTimeout> | null = null
-let recordingMode: 'hold' | 'toggle' | null = null // Track which mode started recording
+let recordingMode: 'hold' | 'toggle' | 'prompt' | null = null // Track which mode started recording
 const PROCESSING_TIMEOUT_MS = 30_000 // Safety: reset isProcessing after 30s
 let uiohookStarted = false
 let uiohookKeydownHandler: ((e: any) => void) | null = null
@@ -85,8 +85,8 @@ async function suppressAltMenu() {
   }
 }
 
-// Core action handler for both hold and toggle modes
-function handleHotkeyAction(mode: 'hold' | 'toggle', action: 'start' | 'stop') {
+// Core action handler for hold, toggle, and prompt modes
+function handleHotkeyAction(mode: 'hold' | 'toggle' | 'prompt', action: 'start' | 'stop') {
   const overlay = getOverlayWindow()
   if (!overlay || overlay.isDestroyed()) return
 
@@ -111,7 +111,7 @@ function handleHotkeyAction(mode: 'hold' | 'toggle', action: 'start' | 'stop') {
 
     showOverlay()
     setTimeout(() => {
-      overlay.webContents.send('start-recording')
+      overlay.webContents.send('start-recording', { mode })
     }, 100)
     isRecording = true
     recordingMode = mode
@@ -158,6 +158,17 @@ function registerHoldModifier(hotkey: string): { success: boolean; error?: strin
           holdThresholdTimer = null
         }
         comboCancelled = true
+
+        // If recording already started (threshold fired before combo key arrived), cancel it
+        if (isRecording && recordingMode === 'hold') {
+          const overlay = getOverlayWindow()
+          overlay?.webContents.send('cancel-recording')
+          hideOverlay()
+          isRecording = false
+          isProcessing = false
+          recordingMode = null
+          console.log('[VoiceFlow] Recording cancelled: combo key detected after threshold')
+        }
       }
     }
   }
@@ -246,6 +257,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   const store = getStore()
   const holdHotkey = store?.get('holdHotkey', 'Alt') as string ?? 'Alt'
   const toggleHotkey = store?.get('toggleHotkey', '') as string ?? ''
+  const promptHotkey = store?.get('promptHotkey', '') as string ?? ''
 
   if (!holdHotkey && !toggleHotkey) {
     return { success: false, error: 'No hotkeys configured.' }
@@ -312,6 +324,25 @@ export function registerHotkeys(): { success: boolean; error?: string } {
     }
   }
 
+  // Register prompt hotkey (toggle behavior: press to start, press to stop — uses 'prompt' mode)
+  if (promptHotkey) {
+    try {
+      const registered = globalShortcut.register(promptHotkey, () => {
+        console.log(`[VoiceFlow] Prompt hotkey pressed: isRecording=${isRecording}, isProcessing=${isProcessing}, recordingMode=${recordingMode}`)
+        if (!isRecording && !isProcessing) {
+          handleHotkeyAction('prompt', 'start')
+        } else if (isRecording && recordingMode === 'prompt') {
+          handleHotkeyAction('prompt', 'stop')
+        }
+      })
+      if (!registered) {
+        console.warn(`[VoiceFlow] Prompt hotkey "${promptHotkey}" already in use`)
+      }
+    } catch (err: any) {
+      console.warn(`[VoiceFlow] Failed to register prompt hotkey "${promptHotkey}": ${err.message}`)
+    }
+  }
+
   // Install combined uiohook handlers if any modifier-based hotkeys
   if (keydownHandlers.length > 0 || keyupHandlers.length > 0) {
     uiohookKeydownHandler = (e: any) => {
@@ -349,6 +380,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   const parts: string[] = []
   if (holdHotkey) parts.push(`hold: ${holdHotkey}`)
   if (toggleHotkey) parts.push(`toggle: ${toggleHotkey}`)
+  if (promptHotkey) parts.push(`prompt: ${promptHotkey}`)
   console.log(`[VoiceFlow] Hotkeys registered: ${parts.join(', ')}`)
   return { success: true }
 }

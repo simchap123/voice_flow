@@ -25,6 +25,7 @@ export function DictationPage() {
     snippets,
     sttProvider: settings.sttProvider,
     cleanupProvider: settings.cleanupProvider,
+    codeMode: settings.codeMode,
     onComplete: (result) => {
       addEntry({
         rawText: result.rawText,
@@ -40,7 +41,7 @@ export function DictationPage() {
   const canvasRef = useWaveform(recording.analyserNode)
 
   useElectronBridge({
-    onStart: () => recording.startRecording(settings.audioInputDeviceId),
+    onStart: (data) => recording.startRecording(settings.audioInputDeviceId, data?.mode),
     onStop: () => recording.stopRecording(),
     onCancel: () => recording.cancelRecording(),
   })

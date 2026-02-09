@@ -8,8 +8,8 @@ const api: ElectronAPI = {
   windowClose: () => ipcRenderer.send('window:close'),
 
   // Recording events from main process (global hotkey triggers)
-  onStartRecording: (callback: () => void) => {
-    const handler = () => callback()
+  onStartRecording: (callback: (data?: { mode?: string }) => void) => {
+    const handler = (_event: any, data?: { mode?: string }) => callback(data)
     ipcRenderer.on('start-recording', handler)
     return () => ipcRenderer.removeListener('start-recording', handler)
   },

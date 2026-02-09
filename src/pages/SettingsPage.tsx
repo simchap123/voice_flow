@@ -50,6 +50,11 @@ export function SettingsPage() {
     toast({ title: 'Toggle hotkey updated', description: hotkey ? `Now using ${hotkey}` : 'Disabled', variant: 'success' })
   }
 
+  const handlePromptHotkeyChange = (hotkey: string) => {
+    updateSetting('promptHotkey', hotkey)
+    toast({ title: 'AI Prompt hotkey updated', description: hotkey ? `Now using ${hotkey}` : 'Disabled', variant: 'success' })
+  }
+
   const handleSaveKey = async (key: string, provider: string) => {
     const result = await saveApiKey(key, provider)
     if (result.success) {
@@ -227,6 +232,31 @@ export function SettingsPage() {
           description="Press once to start recording, press again to stop and paste"
           allowClear
         />
+
+        {/* AI Prompt Hotkey */}
+        <HotkeyRecorder
+          value={settings.promptHotkey}
+          onChange={handlePromptHotkeyChange}
+          label="AI Prompt Hotkey"
+          description="Press to start, speak instructions, press again — AI generates full content (emails, docs, etc.)"
+          allowClear
+        />
+
+        <Separator />
+
+        {/* Code Mode */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label>Code Mode</Label>
+            <p className="text-xs text-muted-foreground">
+              Convert spoken words to code syntax instead of natural language cleanup
+            </p>
+          </div>
+          <Switch
+            checked={settings.codeMode}
+            onCheckedChange={(v) => updateSetting('codeMode', v)}
+          />
+        </div>
 
         <Separator />
 

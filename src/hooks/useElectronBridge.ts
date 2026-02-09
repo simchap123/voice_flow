@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react'
 
 export function useElectronBridge(callbacks?: {
-  onStart?: () => void
+  onStart?: (data?: { mode?: string }) => void
   onStop?: () => void
   onCancel?: () => void
 }) {
@@ -15,7 +15,7 @@ export function useElectronBridge(callbacks?: {
     const cleanups: (() => void)[] = []
 
     if (callbacksRef.current.onStart) {
-      cleanups.push(window.electronAPI!.onStartRecording(() => callbacksRef.current?.onStart?.()))
+      cleanups.push(window.electronAPI!.onStartRecording((data) => callbacksRef.current?.onStart?.(data)))
     }
     if (callbacksRef.current.onStop) {
       cleanups.push(window.electronAPI!.onStopRecording(() => callbacksRef.current?.onStop?.()))

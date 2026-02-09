@@ -17,7 +17,7 @@ interface UseRecordingStateReturn {
   duration: number
   analyserNode: AnalyserNode | null
   error: string | null
-  startRecording: (deviceId?: string) => void
+  startRecording: (deviceId?: string, mode?: string) => void
   stopRecording: () => void
   cancelRecording: () => void
   lastResult: TranscriptionResult | null
@@ -30,6 +30,7 @@ export function useRecordingState(options: {
   snippets?: Snippet[]
   sttProvider?: STTProviderType
   cleanupProvider?: CleanupProviderType
+  codeMode?: boolean
   onComplete?: (result: TranscriptionResult) => void
 }): UseRecordingStateReturn {
   const {
@@ -39,6 +40,7 @@ export function useRecordingState(options: {
     snippets = [],
     sttProvider = 'openai',
     cleanupProvider = 'openai',
+    codeMode = false,
     onComplete,
   } = options
 
@@ -53,12 +55,14 @@ export function useRecordingState(options: {
   const gpt = useGptCleanup(cleanupProvider)
   const { injectText } = useElectronBridge()
   const recordingStartTime = useRef<number>(0)
+  const recordingModeRef = useRef<string | undefined>(undefined)
 
-  const startRecording = useCallback(async (deviceId?: string) => {
+  const startRecording = useCallback(async (deviceId?: string, mode?: string) => {
     if (state !== 'IDLE' && state !== 'CANCELLED') return
     setError(null)
     setRawText('')
     setCleanedText('')
+    recordingModeRef.current = mode
     try {
       await recorder.startRecording(deviceId)
       recordingStartTime.current = Date.now()
@@ -80,21 +84,30 @@ export function useRecordingState(options: {
       }
 
       const durationSecs = Math.floor((Date.now() - recordingStartTime.current) / 1000)
+      const mode = recordingModeRef.current
 
       // STT phase
       setState('PROCESSING_STT')
       const raw = await whisper.transcribe(audioBlob, language)
       setRawText(raw)
 
-      // Cleanup phase
+      // Cleanup / Generate / Code phase
       let cleaned = raw
-      if (cleanupEnabled && raw.trim()) {
+      if (mode === 'prompt' && raw.trim()) {
+        // AI Prompt mode: generate content from spoken instructions
+        setState('PROCESSING_CLEANUP')
+        cleaned = await gpt.generate(raw)
+      } else if (codeMode && raw.trim()) {
+        // Code mode: convert spoken instructions to code
+        setState('PROCESSING_CLEANUP')
+        cleaned = await gpt.cleanupCode(raw)
+      } else if (cleanupEnabled && raw.trim()) {
         setState('PROCESSING_CLEANUP')
         cleaned = await gpt.cleanup(raw)
       }
 
-      // Snippet expansion
-      if (snippets.length > 0) {
+      // Snippet expansion (skip for prompt mode — generated content shouldn't be snippet-expanded)
+      if (mode !== 'prompt' && snippets.length > 0) {
         cleaned = expandSnippets(cleaned, snippets)
       }
       setCleanedText(cleaned)
@@ -121,13 +134,14 @@ export function useRecordingState(options: {
       setError(err.message ?? 'Processing failed')
       setState('IDLE')
     }
-  }, [state, recorder, whisper, gpt, language, cleanupEnabled, autoCopy, snippets, injectText, onComplete])
+  }, [state, recorder, whisper, gpt, language, cleanupEnabled, codeMode, autoCopy, snippets, injectText, onComplete])
 
   const cancelRecording = useCallback(() => {
     recorder.cancelRecording()
     setState('CANCELLED')
     setRawText('')
     setCleanedText('')
+    recordingModeRef.current = undefined
     setTimeout(() => setState('IDLE'), 100)
   }, [recorder])
 

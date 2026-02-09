@@ -5,7 +5,7 @@ export interface ElectronAPI {
   windowClose: () => void
 
   // Recording events from main process
-  onStartRecording: (callback: () => void) => () => void
+  onStartRecording: (callback: (data?: { mode?: string }) => void) => () => void
   onStopRecording: (callback: () => void) => () => void
   onCancelRecording: (callback: () => void) => () => void
 
