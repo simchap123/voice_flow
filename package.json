@@ -6,7 +6,8 @@
   "main": "dist-electron/main/index.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "clean": "node -e \"const fs=require('fs');['dist','dist-electron'].forEach(d=>{try{fs.rmSync(d,{recursive:true,force:true})}catch{}})\"",
+    "build": "npm run clean && vite build",
     "electron:dev": "vite --config vite.config.ts",
     "electron:build": "npm run build && electron-builder",
     "electron:build:win": "npm run build && electron-builder --win",
