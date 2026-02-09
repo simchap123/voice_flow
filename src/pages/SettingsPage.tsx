@@ -32,15 +32,17 @@ export function SettingsPage() {
   const [hasGroqKey, setHasGroqKey] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<string | null>(null)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
+  const [appVersion, setAppVersion] = useState<string>('')
 
   useEffect(() => {
-    async function checkKeys() {
+    async function init() {
       if (window.electronAPI) {
         setHasOpenAIKey(await window.electronAPI.hasApiKey('openai'))
         setHasGroqKey(await window.electronAPI.hasApiKey('groq'))
+        setAppVersion(await window.electronAPI.getAppVersion())
       }
     }
-    checkKeys()
+    init()
   }, [])
 
   const handleHoldHotkeyChange = (hotkey: string) => {
@@ -316,6 +318,9 @@ export function SettingsPage() {
 
         {/* Updates */}
         <div className="space-y-2">
+          {appVersion && (
+            <p className="text-sm text-muted-foreground">VoiceFlow v{appVersion}</p>
+          )}
           <div className="flex items-center gap-3">
             <Button
               variant="outline"

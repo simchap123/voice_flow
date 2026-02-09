@@ -66,6 +66,9 @@ export interface ElectronAPI {
   openRecordingsFolder: () => Promise<void>
   exportRecording: (filename: string) => Promise<{ success: boolean }>
 
+  // App info
+  getAppVersion: () => Promise<string>
+
   // Auto-update
   checkForUpdates: () => Promise<{ updateAvailable: boolean; version?: string; downloaded?: boolean }>
   installUpdate: () => Promise<void>

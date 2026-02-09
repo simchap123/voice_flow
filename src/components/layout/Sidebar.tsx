@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Mic, History, Settings, Zap } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
@@ -15,6 +16,12 @@ const navItems = [
 ]
 
 export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
+  const [version, setVersion] = useState('')
+
+  useEffect(() => {
+    window.electronAPI?.getAppVersion().then(setVersion)
+  }, [])
+
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex h-full w-16 flex-col items-center gap-2 border-r border-border/50 bg-card/50 py-4">
@@ -43,7 +50,7 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
           ))}
         </nav>
 
-        <div className="text-[10px] text-muted-foreground/50">v1.0</div>
+        <div className="text-[10px] text-muted-foreground/50">{version ? `v${version}` : ''}</div>
       </div>
     </TooltipProvider>
   )

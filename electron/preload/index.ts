@@ -96,6 +96,9 @@ const api: ElectronAPI = {
   openRecordingsFolder: () => ipcRenderer.invoke('recording:open-folder'),
   exportRecording: (filename: string) => ipcRenderer.invoke('recording:export', filename),
 
+  // App info
+  getAppVersion: () => ipcRenderer.invoke('app:get-version'),
+
   // Auto-update
   checkForUpdates: () => ipcRenderer.invoke('update:check'),
   installUpdate: () => ipcRenderer.invoke('update:install'),

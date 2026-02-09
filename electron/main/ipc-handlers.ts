@@ -235,6 +235,11 @@ export function registerIpcHandlers() {
     return { success: true }
   })
 
+  // App version
+  ipcMain.handle('app:get-version', () => {
+    return app.getVersion()
+  })
+
   // Auto-update
   ipcMain.handle('update:check', async () => {
     return checkForUpdates()
