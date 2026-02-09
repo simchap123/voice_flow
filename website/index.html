@@ -375,33 +375,108 @@
     .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
     .feature-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
-    /* ---- Download / CTA ---- */
-    .cta-section {
+    /* ---- Get Started / CTA ---- */
+    .get-started-section {
       text-align: center;
       padding: 80px 0 120px;
     }
-    .cta-box {
+    .get-started-box {
       background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(59,130,246,0.08));
       border: 1px solid rgba(124, 58, 237, 0.15);
       border-radius: 24px;
       padding: 64px 40px;
     }
-    .cta-box h2 {
+    .get-started-box h2 {
       font-size: clamp(28px, 4vw, 40px);
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
-    .cta-box p {
+    .get-started-box > p {
       font-size: 16px;
       color: var(--text-muted);
-      margin-bottom: 32px;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
+      margin-bottom: 28px;
     }
-    .cta-box .btn-primary { font-size: 18px; padding: 18px 40px; border-radius: 14px; }
+    .get-started-email-wrap {
+      max-width: 400px;
+      margin: 0 auto 32px;
+    }
+    .get-started-email-wrap input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .get-started-email-wrap input:focus { border-color: var(--primary); }
+    .get-started-error {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+    .get-started-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      max-width: 680px;
+      margin: 0 auto 24px;
+    }
+    .gs-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+    .gs-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(124, 58, 237, 0.2);
+    }
+    .gs-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .gs-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+    }
+    .gs-card ul li {
+      font-size: 14px;
+      color: var(--text-muted);
+      padding: 5px 0 5px 22px;
+      position: relative;
+    }
+    .gs-card ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 14px;
+      height: 14px;
+      background: rgba(124, 58, 237, 0.15);
+      border-radius: 50%;
+    }
+    .gs-card ul li::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 13px;
+      width: 6px;
+      height: 3px;
+      border-left: 1.5px solid var(--primary-light);
+      border-bottom: 1.5px solid var(--primary-light);
+      transform: rotate(-45deg);
+    }
+    .gs-card .btn { width: 100%; justify-content: center; }
     .platform-note {
-      margin-top: 16px;
       font-size: 13px;
       color: var(--text-muted);
     }
@@ -588,7 +663,8 @@
       .nav-links { display: none; }
       .hero { padding-top: 120px; }
       section { padding: 60px 0; }
-      .cta-box { padding: 40px 24px; }
+      .get-started-box { padding: 40px 24px; }
+      .get-started-cards { grid-template-columns: 1fr; max-width: 400px; }
     }
   </style>
 </head>
@@ -609,7 +685,7 @@
       <a href="#features">Features</a>
       <a href="#how-it-works">How It Works</a>
       <a href="#pricing">Pricing</a>
-      <a href="#download" class="btn btn-primary btn-sm">
+      <a href="#get-started" class="btn btn-primary btn-sm">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         Download
       </a>
@@ -627,7 +703,7 @@
     <h1>Type with your <span class="gradient">voice</span></h1>
     <p>Press a hotkey from any app, speak naturally, and your cleaned-up text appears right where your cursor is. No switching windows. No copying. Just talk.</p>
     <div class="hero-buttons">
-      <a href="#download" class="btn btn-primary" id="hero-download-btn">
+      <a href="#get-started" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         Download for Windows
       </a>
@@ -774,7 +850,7 @@
           <li>AI text cleanup</li>
           <li>All languages</li>
         </ul>
-        <button class="btn btn-outline pricing-btn" onclick="startCheckout('monthly')">Get Pro Monthly</button>
+        <a href="#get-started" class="btn btn-outline pricing-btn">Get Pro Monthly</a>
       </div>
       <div class="pricing-card pricing-card-popular">
         <div class="pricing-popular-tag">Best Value</div>
@@ -786,7 +862,7 @@
           <li>Priority support</li>
           <li>Early access to new features</li>
         </ul>
-        <button class="btn btn-primary pricing-btn" onclick="startCheckout('yearly')">Get Pro Yearly</button>
+        <a href="#get-started" class="btn btn-primary pricing-btn">Get Pro Yearly</a>
       </div>
       <div class="pricing-card">
         <div class="pricing-badge">Lifetime</div>
@@ -796,7 +872,7 @@
           <li>Pay once, use forever</li>
           <li>All future updates</li>
         </ul>
-        <button class="btn btn-outline pricing-btn" onclick="startCheckout('lifetime')">Get Lifetime Access</button>
+        <a href="#get-started" class="btn btn-outline pricing-btn">Get Lifetime Access</a>
       </div>
     </div>
     <p class="pricing-byok-note">
@@ -805,17 +881,49 @@
   </div>
 </section>
 
-<!-- Download CTA -->
-<section id="download" class="cta-section">
+<!-- Get Started -->
+<section id="get-started" class="get-started-section">
   <div class="container">
-    <div class="cta-box">
-      <h2>Ready to start dictating?</h2>
-      <p>Download VoiceFlow, add your API key (Groq or OpenAI), and you're up and running in under a minute.</p>
-      <a href="#" class="btn btn-primary" id="download-btn" download>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-        Download for Windows
-      </a>
-      <p class="platform-note">Windows 10/11 &bull; 64-bit &bull; Free &amp; open source</p>
+    <div class="get-started-box">
+      <h2>Get VoiceFlow</h2>
+      <p>Enter your email to download</p>
+
+      <div class="get-started-email-wrap">
+        <input type="email" id="gs-email" placeholder="your@email.com" />
+        <div class="get-started-error" id="gs-error"></div>
+      </div>
+
+      <div class="get-started-cards">
+        <!-- Free card -->
+        <div class="gs-card">
+          <h3>Free</h3>
+          <ul>
+            <li>30-day trial</li>
+            <li>Use your own API key (BYOK)</li>
+            <li>Free forever with own key</li>
+          </ul>
+          <button class="btn btn-outline" id="gs-free-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Download Free
+          </button>
+        </div>
+
+        <!-- Pro card -->
+        <div class="gs-card">
+          <h3>Pro</h3>
+          <ul>
+            <li>We handle the API keys</li>
+            <li>$8/mo, $48/yr, or $39 once</li>
+            <li>Unlimited use</li>
+          </ul>
+          <button class="btn btn-primary" id="gs-pro-btn">
+            Choose Plan
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="platform-note">Windows 10/11 &bull; 64-bit</p>
     </div>
   </div>
 </section>
@@ -827,38 +935,31 @@
   </div>
 </footer>
 
-<!-- Checkout email modal -->
+<!-- Checkout modal -->
 <div class="checkout-overlay" id="checkout-overlay">
   <div class="checkout-modal">
-    <h3>Enter your email</h3>
-    <p>We'll send your license key to this email.</p>
+    <h3>Choose your plan</h3>
+    <p>Select a plan to continue to payment.</p>
     <div class="checkout-error" id="checkout-error"></div>
-    <input type="email" id="checkout-email" placeholder="you@example.com" />
-    <button class="btn btn-primary" id="checkout-submit">Continue to Payment</button>
+    <input type="email" id="checkout-email" placeholder="you@example.com" style="display:none" />
+    <div class="checkout-plans" id="checkout-plans">
+      <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('monthly')">Monthly &mdash; $8/mo</button>
+      <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('yearly')">Yearly &mdash; $48/yr (Best Value)</button>
+      <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('lifetime')">Lifetime &mdash; $39 once</button>
+    </div>
+    <button class="btn btn-primary" id="checkout-submit" style="display:none">Continue to Payment</button>
     <button class="checkout-cancel" id="checkout-cancel">Cancel</button>
   </div>
 </div>
 
 <script>
-  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest/download/VoiceFlow.Setup.1.3.0.exe';
+  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest/download/VoiceFlow.Setup.1.4.0.exe';
 
-  // Download buttons: trigger download then redirect to setup instructions
-  document.querySelectorAll('#download-btn, #hero-download-btn').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      var link = document.createElement('a');
-      link.href = DOWNLOAD_URL;
-      link.download = 'VoiceFlow Setup.exe';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(function() {
-        window.location.href = 'download.html';
-      }, 500);
-    });
-  });
-
-  // Checkout flow
+  // --- Element refs ---
+  var gsEmail = document.getElementById('gs-email');
+  var gsError = document.getElementById('gs-error');
+  var gsFreeBtn = document.getElementById('gs-free-btn');
+  var gsProBtn = document.getElementById('gs-pro-btn');
   var selectedPlan = null;
   var checkoutOverlay = document.getElementById('checkout-overlay');
   var checkoutEmail = document.getElementById('checkout-email');
@@ -866,12 +967,107 @@
   var checkoutSubmit = document.getElementById('checkout-submit');
   var checkoutCancel = document.getElementById('checkout-cancel');
 
-  function startCheckout(plan) {
-    selectedPlan = plan;
-    checkoutError.style.display = 'none';
-    checkoutEmail.value = '';
+  // --- Helpers ---
+  function getEmail() {
+    var email = gsEmail.value.trim();
+    if (!email || !email.includes('@')) {
+      gsError.textContent = 'Please enter a valid email address.';
+      gsError.style.display = 'block';
+      return null;
+    }
+    gsError.style.display = 'none';
+    return email;
+  }
+
+  async function captureLead(email, path) {
+    try {
+      await fetch('/api/capture-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, path: path }),
+      });
+    } catch (e) {
+      // Don't block user flow if lead capture fails
+    }
+  }
+
+  function triggerDownload() {
+    var link = document.createElement('a');
+    link.href = DOWNLOAD_URL;
+    link.download = 'VoiceFlow Setup.exe';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // --- Get Started: "Download Free" ---
+  gsFreeBtn.addEventListener('click', async function() {
+    var email = getEmail();
+    if (!email) return;
+    gsFreeBtn.disabled = true;
+    gsFreeBtn.textContent = 'Starting download...';
+    await captureLead(email, 'free');
+    triggerDownload();
+    setTimeout(function() {
+      window.location.href = 'download.html';
+    }, 500);
+  });
+
+  // --- Get Started: "Choose Plan" ---
+  gsProBtn.addEventListener('click', async function() {
+    var email = getEmail();
+    if (!email) return;
+    gsProBtn.disabled = true;
+    gsProBtn.textContent = 'Opening plans...';
+    await captureLead(email, 'pro');
+    // Pre-fill checkout modal email and open it
+    checkoutEmail.value = email;
     checkoutOverlay.classList.add('active');
-    checkoutEmail.focus();
+    gsProBtn.disabled = false;
+    gsProBtn.innerHTML = 'Choose Plan <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>';
+  });
+
+  gsEmail.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') gsFreeBtn.click();
+  });
+
+  // --- Checkout modal ---
+  var checkoutPlans = document.getElementById('checkout-plans');
+
+  function selectPlan(plan) {
+    selectedPlan = plan;
+    var email = checkoutEmail.value || gsEmail.value.trim();
+    if (!email || !email.includes('@')) {
+      checkoutError.textContent = 'Please enter a valid email address.';
+      checkoutError.style.display = 'block';
+      return;
+    }
+    checkoutError.style.display = 'none';
+    doCheckout(plan, email);
+  }
+
+  async function doCheckout(plan, email) {
+    checkoutPlans.style.pointerEvents = 'none';
+    checkoutPlans.style.opacity = '0.5';
+
+    try {
+      var resp = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: plan, email: email }),
+      });
+      var data = await resp.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+    } catch (err) {
+      checkoutError.textContent = err.message || 'Something went wrong. Please try again.';
+      checkoutError.style.display = 'block';
+      checkoutPlans.style.pointerEvents = '';
+      checkoutPlans.style.opacity = '';
+    }
   }
 
   checkoutCancel.addEventListener('click', function() {
@@ -884,42 +1080,6 @@
       checkoutOverlay.classList.remove('active');
       selectedPlan = null;
     }
-  });
-
-  checkoutSubmit.addEventListener('click', async function() {
-    var email = checkoutEmail.value.trim();
-    if (!email || !email.includes('@')) {
-      checkoutError.textContent = 'Please enter a valid email address.';
-      checkoutError.style.display = 'block';
-      return;
-    }
-
-    checkoutSubmit.disabled = true;
-    checkoutSubmit.textContent = 'Redirecting...';
-    checkoutError.style.display = 'none';
-
-    try {
-      var resp = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: selectedPlan, email: email }),
-      });
-      var data = await resp.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
-    } catch (err) {
-      checkoutError.textContent = err.message || 'Something went wrong. Please try again.';
-      checkoutError.style.display = 'block';
-      checkoutSubmit.disabled = false;
-      checkoutSubmit.textContent = 'Continue to Payment';
-    }
-  });
-
-  checkoutEmail.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') checkoutSubmit.click();
   });
 </script>
 

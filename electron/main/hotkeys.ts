@@ -1,6 +1,6 @@
 import { globalShortcut } from 'electron'
 import { uIOhook, UiohookKey } from 'uiohook-napi'
-import { getOverlayWindow, showOverlay, hideOverlay, isOverlayReady } from './windows'
+import { getOverlayWindow, showOverlay, hideOverlay, isOverlayReady, shrinkOverlay } from './windows'
 import { getStore } from './store'
 import { canUseApp } from './license'
 
@@ -118,6 +118,7 @@ function handleHotkeyAction(mode: 'hold' | 'toggle' | 'prompt', action: 'start' 
     console.log(`[VoiceFlow] Recording started (${mode} mode)`)
   } else if (action === 'stop' && isRecording && recordingMode === mode) {
     // Only the mode that started recording can stop it
+    shrinkOverlay()
     overlay.webContents.send('stop-recording')
     isRecording = false
     setIsProcessing(true) // Use setter to get safety timeout
@@ -151,24 +152,13 @@ function registerHoldModifier(hotkey: string): { success: boolean; error?: strin
         }, HOLD_THRESHOLD_MS)
       }
     } else {
-      // Any other key was pressed (modifier or not, e.g., Shift in Alt+Shift, Tab in Alt+Tab) — cancel threshold
-      if (holdModifierDown) {
-        if (holdThresholdTimer) {
-          clearTimeout(holdThresholdTimer)
-          holdThresholdTimer = null
-        }
+      // Any other key was pressed (modifier or not, e.g., Shift in Alt+Shift, Tab in Alt+Tab)
+      // Only cancel the threshold timer (before recording starts). Once recording has started,
+      // the user must release the modifier to stop — stray keypresses should NOT cancel it.
+      if (holdModifierDown && holdThresholdTimer) {
+        clearTimeout(holdThresholdTimer)
+        holdThresholdTimer = null
         comboCancelled = true
-
-        // If recording already started (threshold fired before combo key arrived), cancel it
-        if (isRecording && recordingMode === 'hold') {
-          const overlay = getOverlayWindow()
-          overlay?.webContents.send('cancel-recording')
-          hideOverlay()
-          isRecording = false
-          isProcessing = false
-          recordingMode = null
-          console.log('[VoiceFlow] Recording cancelled: combo key detected after threshold')
-        }
       }
     }
   }
@@ -367,6 +357,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
       if (isRecording || isProcessing) {
         const overlay = getOverlayWindow()
         overlay?.webContents.send('cancel-recording')
+        shrinkOverlay()
         hideOverlay()
         isRecording = false
         isProcessing = false

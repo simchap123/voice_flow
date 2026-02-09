@@ -1,6 +1,6 @@
 {
   "name": "voiceflow",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "AI-powered system-wide dictation app",
   "type": "module",
   "main": "dist-electron/main/index.js",

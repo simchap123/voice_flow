@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mic, Loader2, X, Lock } from 'lucide-react'
+import { Mic, Loader2, X, Lock, Square } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
@@ -28,6 +28,8 @@ export function OverlayShell() {
     codeMode: settings.codeMode,
     snippets,
     onComplete: (result) => {
+      // Shrink overlay back before processing/hiding
+      window.electronAPI?.shrinkOverlay()
       // Notify main window about the completed transcription
       window.electronAPI?.notifyTranscriptionComplete(result)
       // Hide overlay after injection
@@ -43,15 +45,24 @@ export function OverlayShell() {
         recording.cancelRecording()
         return
       }
+      // Expand overlay to show controls
+      window.electronAPI?.expandOverlay()
       recording.startRecording(settings.audioInputDeviceId, data?.mode)
     },
-    onStop: () => recording.stopRecording(),
-    onCancel: () => recording.cancelRecording(),
+    onStop: () => {
+      window.electronAPI?.shrinkOverlay()
+      recording.stopRecording()
+    },
+    onCancel: () => {
+      window.electronAPI?.shrinkOverlay()
+      recording.cancelRecording()
+    },
   })
 
   // Auto-hide overlay on error after a delay
   useEffect(() => {
     if (recording.error) {
+      window.electronAPI?.shrinkOverlay()
       const timer = setTimeout(() => {
         window.electronAPI?.hideOverlay()
       }, 3000)
@@ -63,11 +74,47 @@ export function OverlayShell() {
   const isProcessing = recording.state === 'PROCESSING_STT' || recording.state === 'PROCESSING_CLEANUP' || recording.state === 'INJECTING'
   const hasError = !!recording.error
 
-  // Determine animation class
+  // Determine animation class for compact dot
   let animClass = ''
-  if (isRecording) animClass = 'animate-overlay-bounce'
-  else if (isProcessing) animClass = 'animate-pulse'
+  if (isProcessing) animClass = 'animate-pulse'
 
+  // Recording: show expanded layout with controls
+  if (isRecording) {
+    return (
+      <div className="flex h-full w-full items-center justify-center p-0 m-0">
+        <div className="flex h-12 items-center gap-2 rounded-full bg-black/90 border border-white/10 shadow-lg px-3 animate-overlay-bounce">
+          {/* Pulsing mic indicator */}
+          <Mic className="h-4 w-4 text-red-400 animate-pulse shrink-0" />
+
+          {/* Stop button */}
+          <button
+            onClick={() => {
+              window.electronAPI?.shrinkOverlay()
+              recording.stopRecording()
+            }}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            title="Stop recording"
+          >
+            <Square className="h-3 w-3 text-white fill-white" />
+          </button>
+
+          {/* Cancel button */}
+          <button
+            onClick={() => {
+              window.electronAPI?.shrinkOverlay()
+              recording.cancelRecording()
+            }}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-red-500/30 transition-colors"
+            title="Cancel recording"
+          >
+            <X className="h-3 w-3 text-white/70" />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Compact dot for idle/processing/error states
   return (
     <div className="flex h-full w-full items-center justify-center p-0 m-0">
       <div
@@ -80,7 +127,7 @@ export function OverlayShell() {
         ) : isProcessing ? (
           <Loader2 className="h-5 w-5 text-white/80 animate-spin" />
         ) : (
-          <Mic className={`h-5 w-5 ${isRecording ? 'text-red-400' : 'text-white/80'}`} />
+          <Mic className="h-5 w-5 text-white/80" />
         )}
       </div>
     </div>

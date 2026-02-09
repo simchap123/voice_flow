@@ -66,6 +66,13 @@ const api: ElectronAPI = {
     return () => ipcRenderer.removeListener('trial-expired', handler)
   },
 
+  // Clipboard
+  copyToClipboard: (text: string) => ipcRenderer.invoke('clipboard:write', text),
+
+  // Overlay resize
+  expandOverlay: () => ipcRenderer.send('overlay:expand'),
+  shrinkOverlay: () => ipcRenderer.send('overlay:shrink'),
+
   // Cross-window communication
   notifyTranscriptionComplete: (data: any) => ipcRenderer.send('transcription-complete', data),
 }

@@ -19,6 +19,22 @@ export function useTranscriptionHistory() {
     load()
   }, [])
 
+  // Sync overlay recordings into React state so we don't overwrite them on next persist
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onTranscriptionComplete?.((data: any) => {
+      const entry = {
+        ...data,
+        id: data.id ?? generateId(),
+      }
+      setHistory(prev => {
+        // Avoid duplicates if the entry was already added via addEntry
+        if (prev.some(e => e.id === entry.id)) return prev
+        return [entry, ...prev]
+      })
+    })
+    return () => cleanup?.()
+  }, [])
+
   // Persist whenever history changes (after initial load)
   useEffect(() => {
     if (isLoaded && window.electronAPI) {

@@ -128,6 +128,32 @@ export function showOverlay() {
   }
 }
 
+export function expandOverlay() {
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+    const expandedWidth = 180
+    const expandedHeight = 48
+    overlayWindow.setBounds({
+      x: Math.round(screenWidth / 2 - expandedWidth / 2),
+      y: screenHeight - 60,
+      width: expandedWidth,
+      height: expandedHeight,
+    })
+  }
+}
+
+export function shrinkOverlay() {
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+    overlayWindow.setBounds({
+      x: Math.round(screenWidth / 2 - 24),
+      y: screenHeight - 60,
+      width: 48,
+      height: 48,
+    })
+  }
+}
+
 export function hideOverlay(instant = false) {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
     if (instant) {

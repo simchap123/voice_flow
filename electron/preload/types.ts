@@ -40,6 +40,13 @@ export interface ElectronAPI {
   clearLicense: () => Promise<void>
   onTrialExpired: (callback: () => void) => () => void
 
+  // Clipboard
+  copyToClipboard: (text: string) => Promise<void>
+
+  // Overlay resize
+  expandOverlay: () => void
+  shrinkOverlay: () => void
+
   // Notify main window
   notifyTranscriptionComplete: (data: any) => void
 }

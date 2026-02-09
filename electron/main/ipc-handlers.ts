@@ -1,5 +1,5 @@
-import { ipcMain, BrowserWindow } from 'electron'
-import { hideOverlay, getMainWindow, getOverlayWindow } from './windows'
+import { ipcMain, BrowserWindow, clipboard } from 'electron'
+import { hideOverlay, getMainWindow, getOverlayWindow, expandOverlay, shrinkOverlay } from './windows'
 import { injectText } from './text-injection'
 import { setIsRecording, setIsProcessing } from './hotkeys'
 import { reregisterHotkeys } from './hotkeys'
@@ -147,5 +147,19 @@ export function registerIpcHandlers() {
   ipcMain.handle('license:clear', async () => {
     clearLicense()
     console.log('[VoiceFlow] License cleared')
+  })
+
+  // Clipboard (reliable across Electron windows)
+  ipcMain.handle('clipboard:write', async (_event, text: string) => {
+    clipboard.writeText(text)
+  })
+
+  // Overlay resize
+  ipcMain.on('overlay:expand', () => {
+    expandOverlay()
+  })
+
+  ipcMain.on('overlay:shrink', () => {
+    shrinkOverlay()
   })
 }
