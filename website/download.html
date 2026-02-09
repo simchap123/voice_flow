@@ -249,6 +249,22 @@
     VoiceFlow
   </a>
 
+  <!-- Email gate: shown when no email param -->
+  <div id="email-gate" style="display:none;">
+    <h1>Download <span class="gradient">VoiceFlow</span></h1>
+    <p class="subtitle">Enter your email to get the download.</p>
+    <div style="max-width:400px;margin:0 auto 16px;">
+      <input type="email" id="gate-email" placeholder="your@email.com" style="width:100%;padding:14px 18px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;font-family:inherit;outline:none;" />
+      <div id="gate-error" style="color:#ef4444;font-size:13px;margin-top:8px;display:none;"></div>
+    </div>
+    <button id="gate-btn" style="display:inline-flex;align-items:center;gap:10px;padding:14px 32px;border-radius:12px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;border:none;background:linear-gradient(135deg,var(--primary),#6d28d9);color:white;box-shadow:0 4px 24px var(--primary-glow);transition:all 0.2s;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+      Download Free
+    </button>
+  </div>
+
+  <!-- Main content: shown only with valid email -->
+  <div id="download-content" style="display:none;">
   <div class="download-badge">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
     Your download has started
@@ -306,6 +322,7 @@
     Download didn't start? <a href="#" id="retry-download" download>Try again</a>
     &nbsp;&bull;&nbsp; <a href="index.html">Back to home</a>
   </p>
+  </div><!-- end download-content -->
 </div>
 
 <script>
@@ -318,14 +335,62 @@
     })
     .catch(function() { /* fallback to releases page */ });
 
-  document.getElementById('retry-download').addEventListener('click', function(e) {
-    e.preventDefault();
+  function triggerDownload() {
     var link = document.createElement('a');
     link.href = DOWNLOAD_URL;
     link.download = 'VoiceFlow Setup.exe';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  async function captureLead(email) {
+    try {
+      await fetch('/api/capture-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, path: 'free-download-page' }),
+      });
+    } catch (e) { /* don't block */ }
+  }
+
+  // Check for email param
+  var params = new URLSearchParams(window.location.search);
+  var email = params.get('email');
+
+  if (email && email.includes('@')) {
+    document.getElementById('download-content').style.display = 'block';
+  } else {
+    document.getElementById('email-gate').style.display = 'block';
+  }
+
+  // Gate form handler
+  document.getElementById('gate-btn').addEventListener('click', async function() {
+    var input = document.getElementById('gate-email');
+    var error = document.getElementById('gate-error');
+    var val = input.value.trim();
+    if (!val || !val.includes('@')) {
+      error.textContent = 'Please enter a valid email address.';
+      error.style.display = 'block';
+      return;
+    }
+    error.style.display = 'none';
+    this.disabled = true;
+    this.textContent = 'Starting download...';
+    await captureLead(val);
+    triggerDownload();
+    document.getElementById('email-gate').style.display = 'none';
+    document.getElementById('download-content').style.display = 'block';
+  });
+
+  document.getElementById('gate-email').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('gate-btn').click();
+  });
+
+  // Retry download
+  document.getElementById('retry-download').addEventListener('click', function(e) {
+    e.preventDefault();
+    triggerDownload();
   });
 </script>
 

@@ -1017,7 +1017,7 @@
     await captureLead(email, 'free');
     triggerDownload();
     setTimeout(function() {
-      window.location.href = 'download.html';
+      window.location.href = 'download.html?email=' + encodeURIComponent(email);
     }, 500);
   });
 
