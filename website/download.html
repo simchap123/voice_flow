@@ -309,7 +309,14 @@
 </div>
 
 <script>
-  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest/download/VoiceFlow.Setup.1.3.0.exe';
+  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
+  fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
+    .then(function(r) { return r.json(); })
+    .then(function(release) {
+      var exe = release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
+      if (exe) DOWNLOAD_URL = exe.browser_download_url;
+    })
+    .catch(function() { /* fallback to releases page */ });
 
   document.getElementById('retry-download').addEventListener('click', function(e) {
     e.preventDefault();
