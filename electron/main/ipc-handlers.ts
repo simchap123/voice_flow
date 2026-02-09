@@ -111,6 +111,15 @@ export function registerIpcHandlers() {
       const result = reregisterHotkeys()
       return result
     }
+    // Broadcast setting change to all windows (keeps overlay in sync)
+    const overlay = getOverlayWindow()
+    if (overlay && !overlay.isDestroyed()) {
+      overlay.webContents.send('setting-changed', key, value)
+    }
+    const main = getMainWindow()
+    if (main && !main.isDestroyed()) {
+      main.webContents.send('setting-changed', key, value)
+    }
     return { success: true }
   })
 
@@ -161,5 +170,27 @@ export function registerIpcHandlers() {
 
   ipcMain.on('overlay:shrink', () => {
     shrinkOverlay()
+  })
+
+  // Recording stopped from overlay UI — mark as processing
+  ipcMain.on('recording-stopped-from-ui', () => {
+    setIsRecording(false)
+    setIsProcessing(true)
+  })
+
+  // Recording cancelled from overlay UI — reset all state
+  ipcMain.on('recording-cancelled', () => {
+    setIsRecording(false)
+    setIsProcessing(false)
+  })
+
+  // Show main window (from overlay click)
+  ipcMain.on('show-main-window', () => {
+    const main = getMainWindow()
+    if (main && !main.isDestroyed()) {
+      if (main.isMinimized()) main.restore()
+      main.show()
+      main.focus()
+    }
   })
 }

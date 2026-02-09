@@ -47,6 +47,16 @@ export interface ElectronAPI {
   expandOverlay: () => void
   shrinkOverlay: () => void
 
+  // Settings sync across windows
+  onSettingChanged: (callback: (key: string, value: any) => void) => () => void
+
+  // Show main window
+  showMainWindow: () => void
+
+  // Notify main process that recording was stopped/cancelled from overlay UI
+  notifyRecordingStopped: () => void
+  notifyRecordingCancelled: () => void
+
   // Notify main window
   notifyTranscriptionComplete: (data: any) => void
 }

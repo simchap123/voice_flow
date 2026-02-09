@@ -1,14 +1,18 @@
 import { Tray, Menu, app, nativeImage } from 'electron'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { getMainWindow } from './windows'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 let tray: Tray | null = null
 
 export function createTray() {
-  // Create a simple 16x16 tray icon programmatically
-  const icon = nativeImage.createFromDataURL(
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA4ElEQVQ4T6WTwQ3CMBBEZxYKgA6ggNABdEAqCB1AB6EC6ICkA+gAOoAKSAewA3Ls2ImdSOxp7f9/PLuWOPBjB/ZrAjMAFwBXAL2A+wJYkvwKM9sCmJL8TjMBMAUwI/mbA+4AJiS/SsASwITkT+7aNiJAezbJr3TPZQY/klxX5UsDlE0x4EvypwywArAg+Z0BelHAguRPHhBJnAlyrVqAAJ0jZONIFgYvN0DdCiQ3uf5OZ7BcB+pYIdeBB2AG4G7kZzMT07hDkg/JVUxQaQaFJhP76V9QJKl0i+p/9e8fvKVuMHVVVSwAAAAASUVORK5CYII='
-  )
+  // In dev: resources/ is at project root; in production: it's in the asar's extraResources
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'icon-16.png')
+    : path.join(__dirname, '../../resources/icon-16.png')
+  const icon = nativeImage.createFromPath(iconPath)
 
   tray = new Tray(icon)
   tray.setToolTip('VoiceFlow - AI Dictation')

@@ -106,6 +106,14 @@ export function useSettingsProvider(): SettingsContextValue {
     load()
   }, [isElectron])
 
+  // Listen for settings changed in other windows (e.g. main window changes, overlay picks up)
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onSettingChanged?.((key: string, value: any) => {
+      setSettings(prev => ({ ...prev, [key]: value }))
+    })
+    return () => cleanup?.()
+  }, [])
+
   const updateSetting = useCallback(<K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
     setSettings(prev => {
       const next = { ...prev, [key]: value }

@@ -73,6 +73,20 @@ const api: ElectronAPI = {
   expandOverlay: () => ipcRenderer.send('overlay:expand'),
   shrinkOverlay: () => ipcRenderer.send('overlay:shrink'),
 
+  // Settings sync across windows
+  onSettingChanged: (callback: (key: string, value: any) => void) => {
+    const handler = (_event: any, key: string, value: any) => callback(key, value)
+    ipcRenderer.on('setting-changed', handler)
+    return () => ipcRenderer.removeListener('setting-changed', handler)
+  },
+
+  // Show main window
+  showMainWindow: () => ipcRenderer.send('show-main-window'),
+
+  // Notify main process that recording was stopped/cancelled from overlay UI
+  notifyRecordingStopped: () => ipcRenderer.send('recording-stopped-from-ui'),
+  notifyRecordingCancelled: () => ipcRenderer.send('recording-cancelled'),
+
   // Cross-window communication
   notifyTranscriptionComplete: (data: any) => ipcRenderer.send('transcription-complete', data),
 }

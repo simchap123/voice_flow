@@ -90,6 +90,7 @@ export function OverlayShell() {
           <button
             onClick={() => {
               window.electronAPI?.shrinkOverlay()
+              window.electronAPI?.notifyRecordingStopped()
               recording.stopRecording()
             }}
             className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
@@ -102,7 +103,9 @@ export function OverlayShell() {
           <button
             onClick={() => {
               window.electronAPI?.shrinkOverlay()
+              window.electronAPI?.notifyRecordingCancelled()
               recording.cancelRecording()
+              setTimeout(() => window.electronAPI?.hideOverlay(), 150)
             }}
             className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-red-500/30 transition-colors"
             title="Cancel recording"
@@ -115,10 +118,16 @@ export function OverlayShell() {
   }
 
   // Compact dot for idle/processing/error states
+  // Click opens the main window (shortcut to history, settings, etc.)
   return (
     <div className="flex h-full w-full items-center justify-center p-0 m-0">
       <div
-        className={`flex h-12 w-12 items-center justify-center rounded-full bg-black/90 border border-white/10 shadow-lg ${animClass}`}
+        onClick={() => {
+          if (!isProcessing) {
+            window.electronAPI?.showMainWindow()
+          }
+        }}
+        className={`flex h-12 w-12 items-center justify-center rounded-full bg-black/90 border border-white/10 shadow-lg ${isProcessing ? '' : 'cursor-pointer hover:bg-black/70'} ${animClass}`}
       >
         {trialExpired ? (
           <Lock className="h-5 w-5 text-yellow-400" />
