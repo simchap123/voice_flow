@@ -84,7 +84,7 @@ APP_URL
 - `openai` v4 (used for both OpenAI and Groq — Groq is OpenAI-compatible)
 - `uiohook-napi` for global keyboard hooks
 
-## Current Version: v1.5.0
+## Current Version: v1.6.0
 
 ### Recent Session (Feb 2026) — What Was Done
 
