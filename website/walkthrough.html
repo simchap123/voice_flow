@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoxGen - How It Works</title>
+  <meta name="description" content="See how VoxGen works in 3 simple steps. Download, press a hotkey, and your voice becomes text in any app." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #06080f;
+      --bg-card: #0c1020;
+      --bg-card-hover: #111630;
+      --text: #e8eaf0;
+      --text-muted: #7a7f96;
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --primary-glow: rgba(124, 58, 237, 0.3);
+      --accent: #3b82f6;
+      --border: rgba(255,255,255,0.06);
+      --radius: 16px;
+      --green: #22c55e;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ---- Ambient background ---- */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-glow::before {
+      content: '';
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      animation: float 8s ease-in-out infinite;
+    }
+    .bg-glow::after {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      bottom: -100px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+      animation: float 10s ease-in-out infinite reverse;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(30px); }
+    }
+
+    /* ---- Layout ---- */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 100px 0; }
+
+    /* ---- Scroll reveal ---- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+
+    /* ---- Nav ---- */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(6, 8, 15, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ---- Buttons ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      color: white;
+      box-shadow: 0 4px 24px var(--primary-glow), 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--primary-glow), 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-sm { padding: 10px 20px; font-size: 14px; border-radius: 10px; }
+    .btn svg { width: 20px; height: 20px; }
+
+    /* ---- Page header ---- */
+    .page-header {
+      padding-top: 140px;
+      padding-bottom: 20px;
+      text-align: center;
+    }
+    .page-header h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .page-header h1 .gradient {
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-header p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ---- Animated steps ---- */
+    .steps-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+      max-width: 900px;
+      margin: 60px auto 0;
+    }
+    .step-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .step-row:nth-child(even) .step-info { order: 2; }
+    .step-row:nth-child(even) .step-mockup { order: 1; }
+
+    .step-info { display: flex; flex-direction: column; gap: 16px; }
+    .step-num-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+    }
+    .step-num-badge .num {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .step-num-badge .label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary-light);
+    }
+    .step-info h3 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    .step-info p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .step-info kbd {
+      background: rgba(124, 58, 237, 0.15);
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-family: inherit;
+      font-weight: 600;
+      color: var(--primary-light);
+    }
+
+    /* Mockup containers */
+    .step-mockup {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03) inset;
+    }
+    .mock-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border);
+    }
+    .mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .mock-dot-r { background: #ef4444; }
+    .mock-dot-y { background: #eab308; }
+    .mock-dot-g { background: var(--green); }
+    .mock-titlebar-text {
+      margin-left: 8px;
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+    .mock-body { padding: 24px; min-height: 180px; position: relative; }
+
+    /* ===== Step 1: Download animation ===== */
+    .dl-anim { display: flex; flex-direction: column; gap: 16px; align-items: center; justify-content: center; min-height: 180px; }
+    .dl-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      animation: dl-bounce 12s ease-in-out infinite;
+    }
+    .dl-icon svg { width: 24px; height: 24px; color: white; }
+    @keyframes dl-bounce {
+      0%, 8% { transform: translateY(0); }
+      4% { transform: translateY(-6px); }
+      12%, 100% { transform: translateY(0); }
+    }
+    .dl-filename {
+      font-size: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .dl-bar-wrap {
+      width: 100%;
+      max-width: 240px;
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .dl-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 3px;
+      width: 0%;
+      animation: dl-progress 12s ease-in-out infinite;
+    }
+    @keyframes dl-progress {
+      0% { width: 0%; }
+      2% { width: 8%; }
+      15% { width: 45%; }
+      30% { width: 78%; }
+      40% { width: 100%; }
+      50%, 100% { width: 100%; }
+    }
+    .dl-status {
+      font-size: 11px;
+      color: var(--text-muted);
+      animation: dl-status-text 12s ease-in-out infinite;
+    }
+    @keyframes dl-status-text {
+      0%, 39% { opacity: 1; }
+      40% { opacity: 0; }
+      42% { opacity: 1; }
+      100% { opacity: 1; }
+    }
+    .dl-complete {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      opacity: 0;
+      animation: dl-complete-show 12s ease-in-out infinite;
+    }
+    @keyframes dl-complete-show {
+      0%, 39% { opacity: 0; pointer-events: none; }
+      42% { opacity: 1; }
+      90% { opacity: 1; }
+      95%, 100% { opacity: 0; }
+    }
+    .dl-check {
+      width: 44px; height: 44px;
+      background: rgba(34, 197, 94, 0.12);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dl-check svg { width: 22px; height: 22px; color: var(--green); }
+    .dl-check-text { font-size: 13px; color: var(--green); font-weight: 500; }
+
+    /* ===== Step 2: Hotkey animation ===== */
+    .hk-anim { display: flex; flex-direction: column; align-items: center; gap: 20px; min-height: 180px; justify-content: center; }
+    .hk-keyboard {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .hk-key {
+      height: 36px;
+      padding: 0 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.3s;
+      position: relative;
+    }
+    .hk-key-alt {
+      background: rgba(124, 58, 237, 0.08);
+      border-color: rgba(124, 58, 237, 0.2);
+      color: var(--primary-light);
+      animation: hk-press 8s ease-in-out infinite;
+    }
+    @keyframes hk-press {
+      0%, 10% { transform: translateY(0); background: rgba(124, 58, 237, 0.08); box-shadow: none; }
+      15% { transform: translateY(2px); background: rgba(124, 58, 237, 0.25); box-shadow: 0 0 20px var(--primary-glow); }
+      70% { transform: translateY(2px); background: rgba(124, 58, 237, 0.25); box-shadow: 0 0 20px var(--primary-glow); }
+      80%, 100% { transform: translateY(0); background: rgba(124, 58, 237, 0.08); box-shadow: none; }
+    }
+    .hk-key-space {
+      width: 100px;
+    }
+
+    /* Overlay pill that appears */
+    .hk-overlay {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 100px;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: hk-overlay-show 8s ease-in-out infinite;
+    }
+    @keyframes hk-overlay-show {
+      0%, 14% { opacity: 0; transform: scale(0.8); }
+      18% { opacity: 1; transform: scale(1); }
+      70% { opacity: 1; transform: scale(1); }
+      78%, 100% { opacity: 0; transform: scale(0.8); }
+    }
+    .hk-mic-icon {
+      width: 8px; height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: hk-mic-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes hk-mic-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(239,68,68,0); }
+    }
+    .hk-overlay-text { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 500; }
+    .hk-overlay-bars {
+      display: flex; gap: 2px; align-items: center; height: 16px;
+    }
+    .hk-overlay-bars .hk-bar {
+      width: 2px;
+      background: var(--primary-light);
+      border-radius: 1px;
+      animation: hk-wave 0.8s ease-in-out infinite;
+    }
+    @keyframes hk-wave {
+      0%, 100% { height: 4px; }
+      50% { height: 14px; }
+    }
+
+    /* ===== Step 3: Text appears animation ===== */
+    .ta-anim { min-height: 180px; }
+    .ta-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .ta-toolbar-btn {
+      width: 20px; height: 20px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 4px;
+    }
+    .ta-toolbar-sep {
+      width: 1px; height: 14px;
+      background: var(--border);
+    }
+    .ta-toolbar-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.5;
+      margin-left: auto;
+    }
+    .ta-lines { display: flex; flex-direction: column; gap: 8px; }
+    .ta-line {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 20px;
+    }
+    .ta-line-existing {
+      color: var(--text-muted);
+      opacity: 0.4;
+    }
+    .ta-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 16px;
+      background: var(--primary);
+      vertical-align: text-bottom;
+      animation: ta-blink 1s step-end infinite;
+    }
+    @keyframes ta-blink { 50% { opacity: 0; } }
+
+    .ta-new-text {
+      background: rgba(124, 58, 237, 0.08);
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    /* ---- CTA ---- */
+    .cta-section {
+      text-align: center;
+      padding: 60px 0 120px;
+    }
+    .cta-section p {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* ---- Footer ---- */
+    footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 768px) {
+      .step-row {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .step-row:nth-child(even) .step-info { order: 1; }
+      .step-row:nth-child(even) .step-mockup { order: 2; }
+      .step-info h3 { font-size: 20px; }
+      .steps-grid { gap: 48px; }
+      .nav-links { display: none; }
+      .page-header { padding-top: 100px; }
+      section { padding: 60px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+      </div>
+      VoxGen
+    </a>
+    <div class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#get-started" class="btn btn-primary btn-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Download
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Header -->
+<div class="page-header">
+  <div class="container">
+    <h1 class="reveal">How <span class="gradient">VoxGen</span> Works</h1>
+    <p class="reveal stagger-1">Three steps. That's it. VoxGen runs silently in your system tray &mdash; you never leave the app you're working in.</p>
+  </div>
+</div>
+
+<!-- Animated Steps -->
+<section>
+  <div class="container">
+    <div class="steps-grid">
+
+      <!-- Step 1: Download & Install -->
+      <div class="step-row reveal">
+        <div class="step-info">
+          <div class="step-num-badge">
+            <div class="num">1</div>
+            <span class="label">Quick setup</span>
+          </div>
+          <h3>Download &amp; Install</h3>
+          <p>Download the installer, double-click to run, and add your Groq or OpenAI API key. You'll be dictating in under 30 seconds.</p>
+        </div>
+        <div class="step-mockup">
+          <div class="mock-titlebar">
+            <span class="mock-dot mock-dot-r"></span>
+            <span class="mock-dot mock-dot-y"></span>
+            <span class="mock-dot mock-dot-g"></span>
+            <span class="mock-titlebar-text">Downloads</span>
+          </div>
+          <div class="mock-body">
+            <div class="dl-anim">
+              <div class="dl-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              </div>
+              <div class="dl-filename">VoxGen-Setup-1.8.0.exe</div>
+              <div class="dl-bar-wrap">
+                <div class="dl-bar-fill"></div>
+              </div>
+              <div class="dl-status">Downloading...</div>
+            </div>
+            <div class="dl-complete">
+              <div class="dl-check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="dl-check-text">Installed &amp; ready</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Press Your Hotkey -->
+      <div class="step-row reveal stagger-1">
+        <div class="step-info">
+          <div class="step-num-badge">
+            <div class="num">2</div>
+            <span class="label">From any app</span>
+          </div>
+          <h3>Press Your Hotkey</h3>
+          <p>From Slack, VS Code, Word, Gmail &mdash; anywhere. Hold <kbd>Alt</kbd> and start speaking. Release to finish. You can also configure a toggle hotkey.</p>
+        </div>
+        <div class="step-mockup">
+          <div class="mock-titlebar">
+            <span class="mock-dot mock-dot-r"></span>
+            <span class="mock-dot mock-dot-y"></span>
+            <span class="mock-dot mock-dot-g"></span>
+            <span class="mock-titlebar-text">Any App</span>
+          </div>
+          <div class="mock-body">
+            <div class="hk-anim">
+              <div class="hk-keyboard">
+                <div class="hk-key" style="padding:0 8px;">Tab</div>
+                <div class="hk-key" style="padding:0 8px;">Ctrl</div>
+                <div class="hk-key hk-key-alt">Alt</div>
+                <div class="hk-key hk-key-space"></div>
+                <div class="hk-key" style="padding:0 8px;">Alt</div>
+                <div class="hk-key" style="padding:0 8px;">Ctrl</div>
+              </div>
+              <div class="hk-overlay">
+                <div class="hk-mic-icon"></div>
+                <span class="hk-overlay-text">Recording</span>
+                <div class="hk-overlay-bars">
+                  <div class="hk-bar" style="animation-delay:0s"></div>
+                  <div class="hk-bar" style="animation-delay:0.1s"></div>
+                  <div class="hk-bar" style="animation-delay:0.2s"></div>
+                  <div class="hk-bar" style="animation-delay:0.15s"></div>
+                  <div class="hk-bar" style="animation-delay:0.25s"></div>
+                  <div class="hk-bar" style="animation-delay:0.05s"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Text Appears -->
+      <div class="step-row reveal stagger-2">
+        <div class="step-info">
+          <div class="step-num-badge">
+            <div class="num">3</div>
+            <span class="label">Instant</span>
+          </div>
+          <h3>Clean Text Appears</h3>
+          <p>VoxGen transcribes your speech, removes filler words, fixes grammar, and pastes polished text right where your cursor was. No copy-pasting needed.</p>
+        </div>
+        <div class="step-mockup">
+          <div class="mock-titlebar">
+            <span class="mock-dot mock-dot-r"></span>
+            <span class="mock-dot mock-dot-y"></span>
+            <span class="mock-dot mock-dot-g"></span>
+            <span class="mock-titlebar-text">Document</span>
+          </div>
+          <div class="mock-body ta-anim">
+            <div class="ta-toolbar">
+              <div class="ta-toolbar-btn"></div>
+              <div class="ta-toolbar-btn"></div>
+              <div class="ta-toolbar-btn"></div>
+              <div class="ta-toolbar-sep"></div>
+              <div class="ta-toolbar-btn"></div>
+              <div class="ta-toolbar-btn"></div>
+              <span class="ta-toolbar-label">Draft</span>
+            </div>
+            <div class="ta-lines">
+              <div class="ta-line ta-line-existing">Meeting Notes &mdash; Q1 Review</div>
+              <div class="ta-line ta-line-existing" style="opacity:0.25">The team discussed progress on...</div>
+              <div class="ta-line" style="margin-top: 4px;">
+                <span class="ta-new-text" id="step3-typed"></span><span class="ta-cursor"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section reveal">
+  <div class="container">
+    <p>Ready to try it yourself?</p>
+    <a href="index.html#get-started" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+      Get Started Free
+    </a>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>&copy; 2026 VoxGen. Built with Electron, React, and Whisper AI.</p>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  (function() {
+    var reveals = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      reveals.forEach(function(el) { observer.observe(el); });
+    } else {
+      reveals.forEach(function(el) { el.classList.add('visible'); });
+    }
+  })();
+
+  // Step 3 typewriter
+  (function() {
+    var el = document.getElementById('step3-typed');
+    if (!el) return;
+    var lines = [
+      'We should move the launch date to next Thursday to give the design team more time for final revisions.',
+      'Action item: Sarah will send the updated budget spreadsheet to the finance team by end of day.',
+      'The client loved the new dashboard design but requested a dark mode option for accessibility.',
+    ];
+    var lineIdx = 0, charIdx = 0, deleting = false;
+    function tick() {
+      var current = lines[lineIdx];
+      if (!deleting) {
+        charIdx = Math.min(charIdx + 1, current.length);
+        el.textContent = current.substring(0, charIdx);
+        if (charIdx >= current.length) {
+          setTimeout(function() { deleting = true; tick(); }, 3000);
+          return;
+        }
+        setTimeout(tick, current[charIdx] === ' ' ? 80 : (30 + Math.random() * 40));
+      } else {
+        charIdx = Math.max(charIdx - 4, 0);
+        el.textContent = current.substring(0, charIdx);
+        if (charIdx <= 0) {
+          deleting = false;
+          lineIdx = (lineIdx + 1) % lines.length;
+          setTimeout(tick, 600);
+          return;
+        }
+        setTimeout(tick, 15);
+      }
+    }
+    setTimeout(tick, 2000);
+  })();
+</script>
+
+</body>
+</html>
