@@ -734,7 +734,7 @@
             <div class="bar" style="animation-delay:0.35s;height:20px"></div>
           </div>
           <div class="demo-text">
-            <span class="typed">I wanted to schedule a meeting for tomorrow afternoon</span>
+            <span class="typed" id="typed-text"></span>
           </div>
         </div>
       </div>
@@ -1112,6 +1112,61 @@
   checkoutOverlay.addEventListener('click', function(e) {
     if (e.target === checkoutOverlay) closeCheckout();
   });
+
+  // --- Typewriter effect for demo text ---
+  (function() {
+    var phrases = [
+      'I wanted to schedule a meeting for tomorrow afternoon',
+      'Hey team, just following up on the project deadline',
+      'Can you send me the report by end of day Friday',
+      'Write me an email about rescheduling the client call',
+      'The quarterly results exceeded our expectations by 20 percent',
+    ];
+    var el = document.getElementById('typed-text');
+    if (!el) return;
+
+    var phraseIndex = 0;
+    var charIndex = 0;
+    var isDeleting = false;
+    var pauseTime = 2000;
+
+    function tick() {
+      var current = phrases[phraseIndex];
+
+      if (!isDeleting) {
+        // Typing — add chars in chunks (word-like pace)
+        var step = Math.random() < 0.3 ? 2 : 1; // occasionally type 2 chars
+        charIndex = Math.min(charIndex + step, current.length);
+        el.textContent = current.substring(0, charIndex);
+
+        if (charIndex >= current.length) {
+          // Done typing — pause then start deleting
+          setTimeout(function() { isDeleting = true; tick(); }, pauseTime);
+          return;
+        }
+        // Typing speed: faster in the middle of words, slight pause on spaces
+        var nextChar = current[charIndex];
+        var delay = nextChar === ' ' ? 120 : (40 + Math.random() * 60);
+        setTimeout(tick, delay);
+      } else {
+        // Deleting — fast, in chunks
+        var deleteStep = 3 + Math.floor(Math.random() * 3);
+        charIndex = Math.max(charIndex - deleteStep, 0);
+        el.textContent = current.substring(0, charIndex);
+
+        if (charIndex <= 0) {
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % phrases.length;
+          setTimeout(tick, 400);
+          return;
+        }
+        setTimeout(tick, 25);
+      }
+    }
+
+    // Start after the demo section is visible
+    setTimeout(tick, 1500);
+  })();
 </script>
 
 </body>
