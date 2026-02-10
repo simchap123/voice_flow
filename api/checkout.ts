@@ -14,11 +14,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { plan, email } = req.body as { plan?: string; email?: string }
+  const { plan, email: rawEmail } = req.body as { plan?: string; email?: string }
 
-  if (!plan || !email) {
+  if (!plan || !rawEmail) {
     return res.status(400).json({ error: 'Missing plan or email' })
   }
+
+  const email = rawEmail.trim().toLowerCase()
 
   const priceConfig = PRICE_MAP[plan]
   if (!priceConfig) {

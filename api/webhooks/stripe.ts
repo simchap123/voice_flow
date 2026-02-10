@@ -72,13 +72,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const email = session.customer_email || session.customer_details?.email
+  const rawEmail = session.customer_email || session.customer_details?.email
   const plan = session.metadata?.plan
 
-  if (!email || !plan) {
+  if (!rawEmail || !plan) {
     console.error('[webhook] Missing email or plan in session:', session.id)
     return
   }
+
+  const email = rawEmail.trim().toLowerCase()
 
   const licenseTypeSlug = PLAN_TO_LICENSE_TYPE[plan]
   if (!licenseTypeSlug) {

@@ -19,10 +19,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Retrieve Stripe session to get customer email
     const session = await stripe.checkout.sessions.retrieve(sessionId)
 
-    const email = session.customer_email || session.customer_details?.email
-    if (!email) {
+    const rawEmail = session.customer_email || session.customer_details?.email
+    if (!rawEmail) {
       return res.status(404).json({ error: 'No email associated with session' })
     }
+
+    const email = rawEmail.trim().toLowerCase()
 
     // Find the user and their most recent license
     const { data: user } = await supabase
