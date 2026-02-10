@@ -1,6 +1,6 @@
 import { safeStorage, app } from 'electron'
 import Store from 'electron-store'
-import { existsSync, readFileSync, unlinkSync } from 'fs'
+import { existsSync, readFileSync, unlinkSync, mkdirSync, readdirSync, copyFileSync, renameSync } from 'fs'
 import { join } from 'path'
 
 let store: Store | null = null
@@ -68,39 +68,88 @@ export function initStore() {
     console.log('[VoxGen] Store initialized successfully at:', (store as any).path)
 
     // --- Migrate from old voiceflow-settings store (v1.7.x → v1.8.0 rebrand) ---
+    // The productName changed from "VoiceFlow" to "VoxGen", so userData path changed.
+    // Old data lives in AppData/Roaming/VoiceFlow/, new data in AppData/Roaming/VoxGen/.
     const userDataPath = app.getPath('userData')
-    const oldStorePath = join(userDataPath, 'voiceflow-settings.json')
-    if (existsSync(oldStorePath)) {
+    const appDataPath = app.getPath('appData')
+
+    // Check multiple possible old directory names
+    const oldDirCandidates = ['VoiceFlow', 'voiceflow', 'voice_flow']
+    let oldUserDataPath: string | null = null
+    let oldStorePath: string | null = null
+
+    for (const dirName of oldDirCandidates) {
+      const candidate = join(appDataPath, dirName)
+      const storePath = join(candidate, 'voiceflow-settings.json')
+      if (existsSync(storePath)) {
+        oldUserDataPath = candidate
+        oldStorePath = storePath
+        console.log(`[VoxGen] Found old store at: ${storePath}`)
+        break
+      }
+    }
+
+    // Also check current userData (in case both dirs are the same somehow)
+    if (!oldStorePath) {
+      const localPath = join(userDataPath, 'voiceflow-settings.json')
+      if (existsSync(localPath)) {
+        oldUserDataPath = userDataPath
+        oldStorePath = localPath
+        console.log(`[VoxGen] Found old store in current userData: ${localPath}`)
+      }
+    }
+
+    if (oldStorePath && oldUserDataPath) {
       try {
         const oldData = JSON.parse(readFileSync(oldStorePath, 'utf-8'))
-        console.log('[VoxGen] Found old voiceflow-settings.json — migrating...')
+        console.log('[VoxGen] Migrating settings from old VoiceFlow store...')
 
-        // Copy all known settings from old store
+        // Copy ALL keys from old store (not just known defaults — catches future-proofed keys)
+        for (const key of Object.keys(oldData)) {
+          store.set(key, oldData[key])
+        }
+
+        // Ensure known defaults are overwritten properly
         for (const key of Object.keys(defaults)) {
           if (oldData[key] !== undefined) {
             store.set(key, oldData[key])
           }
         }
 
-        // Copy API keys (encrypted) — stored as api_key_<provider> and api_key_<provider>_plain
-        for (const k of Object.keys(oldData)) {
-          if (k.startsWith('api_key_') || k === 'openai_api_key' || k === 'openai_api_key_plain') {
-            store.set(k, oldData[k])
+        console.log(`[VoxGen] Migrated ${Object.keys(oldData).length} keys from old store`)
+
+        // --- Migrate recordings directory ---
+        const oldRecordingsDir = join(oldUserDataPath, 'recordings')
+        const newRecordingsDir = join(userDataPath, 'recordings')
+        if (existsSync(oldRecordingsDir) && oldRecordingsDir !== newRecordingsDir) {
+          try {
+            if (!existsSync(newRecordingsDir)) {
+              mkdirSync(newRecordingsDir, { recursive: true })
+            }
+            const files = readdirSync(oldRecordingsDir)
+            let copied = 0
+            for (const file of files) {
+              const src = join(oldRecordingsDir, file)
+              const dest = join(newRecordingsDir, file)
+              if (!existsSync(dest)) {
+                try {
+                  copyFileSync(src, dest)
+                  copied++
+                } catch {
+                  // Skip files that can't be copied
+                }
+              }
+            }
+            console.log(`[VoxGen] Copied ${copied} recording files from old directory`)
+          } catch (err) {
+            console.error('[VoxGen] Failed to migrate recordings:', err)
           }
         }
 
-        // Copy history + snippets
-        if (oldData.transcription_history) {
-          store.set('transcription_history', oldData.transcription_history)
-        }
-        if (oldData.snippets) {
-          store.set('snippets', oldData.snippets)
-        }
-
-        // Rename old file so migration only runs once
+        // Rename old settings file so migration only runs once
         try {
-          const backupPath = join(userDataPath, 'voiceflow-settings.backup.json')
-          require('fs').renameSync(oldStorePath, backupPath)
+          const backupPath = join(oldUserDataPath, 'voiceflow-settings.backup.json')
+          renameSync(oldStorePath, backupPath)
           console.log('[VoxGen] Migration complete — old store backed up')
         } catch {
           console.log('[VoxGen] Migration complete — could not rename old store')
@@ -108,6 +157,8 @@ export function initStore() {
       } catch (err) {
         console.error('[VoxGen] Migration from voiceflow-settings failed:', err)
       }
+    } else {
+      console.log('[VoxGen] No old VoiceFlow store found — fresh install')
     }
 
     // Migrate old hotkey/hotkeyMode to holdHotkey/toggleHotkey
