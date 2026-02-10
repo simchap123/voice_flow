@@ -27,7 +27,8 @@
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false,
-    "shortcutName": "VoiceFlow"
+    "shortcutName": "VoiceFlow",
+    "artifactName": "VoiceFlow-Setup-${version}.${ext}"
   },
   "mac": {
     "target": ["dmg"],
