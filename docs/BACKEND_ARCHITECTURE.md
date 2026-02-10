@@ -72,10 +72,23 @@ CREATE TABLE user_licenses (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- usage_logs: per-transcription usage tracking
+CREATE TABLE usage_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  words INTEGER NOT NULL DEFAULT 0,
+  audio_seconds INTEGER NOT NULL DEFAULT 0,
+  stt_provider TEXT,
+  cleanup_provider TEXT,
+  language TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for fast lookups
 CREATE INDEX idx_user_licenses_license_key ON user_licenses (license_key);
 CREATE INDEX idx_user_licenses_stripe_subscription_id ON user_licenses (stripe_subscription_id) WHERE stripe_subscription_id IS NOT NULL;
 CREATE INDEX idx_user_licenses_user_id_created ON user_licenses (user_id, created_at DESC);
+CREATE INDEX idx_usage_logs_user_id_created ON usage_logs (user_id, created_at DESC);
 ```
 
 ### Seeded Data
@@ -119,6 +132,16 @@ Validates by email (preferred) or legacy license key.
 - Email-based: Looks up user by email, checks for active license, falls back to server-side trial (30 days)
 - Creates user record + starts trial if email is new
 - Legacy key-based: Joins `user_licenses` with `license_types`, checks status + expiration
+
+### POST /api/track-usage
+Logs per-transcription usage for cost/analytics tracking. Called fire-and-forget by the desktop app after each transcription.
+
+**Request:** `{ email: string, words: number, audioSeconds: number, sttProvider: string, cleanupProvider: string, language: string }`
+**Response:** `{ ok: true }`
+
+- Looks up user by email
+- Inserts row into `usage_logs` table
+- Non-blocking — app doesn't wait for response
 
 ### GET /api/get-license
 Retrieves license info after Stripe payment.

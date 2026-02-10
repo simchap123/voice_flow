@@ -131,6 +131,13 @@ APP_URL
 | `update:check` | renderer→main (invoke) | Manually check for updates, returns version info |
 | `update:install` | renderer→main (invoke) | Quit and install downloaded update |
 
+### Usage Tracking (v1.6.x)
+- Every transcription sends fire-and-forget POST to `/api/track-usage`
+- Tracks: word count, audio seconds, STT provider, cleanup provider, language per user
+- Supabase `usage_logs` table indexed on `(user_id, created_at DESC)`
+- `electron/main/usage-tracker.ts` uses Electron `net` module, non-blocking
+- Useful for cost analysis (managed API key users vs BYOK)
+
 ### Known Issues / TODO
 - GitHub release for v1.4.1 needs manual upload of installer exe
 - Code mode should potentially be per-recording-mode (e.g. only for prompt mode) rather than global — user found it annoying when it applied to regular dictation

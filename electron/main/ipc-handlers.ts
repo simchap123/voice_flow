@@ -22,6 +22,7 @@ import {
 } from './store'
 import { validateLicenseKey, validateByEmail } from './license'
 import { checkForUpdates, installUpdate } from './updater'
+import { trackUsage } from './usage-tracker'
 
 export function registerIpcHandlers() {
   // Window controls
@@ -73,6 +74,9 @@ export function registerIpcHandlers() {
     }
     setHistory([entry, ...history])
     console.log('[VoiceFlow] Saved transcription to history:', entry.cleanedText?.slice(0, 50))
+
+    // Fire-and-forget usage tracking (don't block the user)
+    trackUsage(data).catch(() => {})
 
     // Also forward to main window for live UI updates
     const mainWin = getMainWindow()
