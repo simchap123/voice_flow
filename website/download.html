@@ -538,7 +538,8 @@
       downloadReady = true;
     });
 
-  function triggerDownload() {
+  function triggerDownload(force) {
+    if (downloadTriggered && !force) return;
     downloadTriggered = true;
     var link = document.createElement('a');
     link.href = DOWNLOAD_URL;
@@ -589,7 +590,7 @@
     showDownloading();
     // Small delay so user sees the status change
     setTimeout(function() {
-      triggerDownload();
+      triggerDownload(true);
       showSuccess();
     }, 800);
   }

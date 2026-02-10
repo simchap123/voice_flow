@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mic, History, Settings, Zap, ListOrdered } from 'lucide-react'
+import { Mic, History, Settings, Zap } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 
@@ -12,7 +12,6 @@ const navItems = [
   { id: 'dictation', icon: Mic, label: 'Dictation' },
   { id: 'history', icon: History, label: 'History' },
   { id: 'snippets', icon: Zap, label: 'Snippets' },
-  { id: 'three-steps', icon: ListOrdered, label: '3 Steps' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ]
 

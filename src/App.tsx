@@ -6,7 +6,6 @@ import { DictationPage } from '@/pages/DictationPage'
 import { HistoryPage } from '@/pages/HistoryPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { SnippetsPage } from '@/pages/SnippetsPage'
-import { ThreeStepsPage } from '@/pages/ThreeStepsPage'
 import { SettingsContext, useSettingsProvider } from '@/hooks/useSettings'
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from '@/components/ui/toast'
 import { useToastProvider } from '@/hooks/useToast'
@@ -20,7 +19,6 @@ function MainApp() {
       case 'history': return <HistoryPage />
       case 'settings': return <SettingsPage />
       case 'snippets': return <SnippetsPage />
-      case 'three-steps': return <ThreeStepsPage />
       default: return <DictationPage />
     }
   }
