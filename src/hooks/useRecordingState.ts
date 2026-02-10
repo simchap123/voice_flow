@@ -103,13 +103,11 @@ export function useRecordingState(options: {
       let cleaned = raw
       if (mode === 'prompt' && raw.trim()) {
         // AI Prompt mode: generate content from spoken instructions
+        // Code mode applies only here — spoken code instructions → actual code
         setState('PROCESSING_CLEANUP')
-        cleaned = await gpt.generate(raw)
-      } else if (codeMode && raw.trim()) {
-        // Code mode: convert spoken instructions to code
-        setState('PROCESSING_CLEANUP')
-        cleaned = await gpt.cleanupCode(raw)
+        cleaned = codeMode ? await gpt.cleanupCode(raw) : await gpt.generate(raw)
       } else if (cleanupEnabled && raw.trim()) {
+        // Hold/Toggle modes: just transcription cleanup (filler words, grammar)
         setState('PROCESSING_CLEANUP')
         cleaned = await gpt.cleanup(raw)
       }
