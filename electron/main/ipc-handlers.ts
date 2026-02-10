@@ -20,7 +20,7 @@ import {
   getLicenseInfo,
   clearLicense,
 } from './store'
-import { validateLicenseKey } from './license'
+import { validateLicenseKey, validateByEmail } from './license'
 import { checkForUpdates, installUpdate } from './updater'
 
 export function registerIpcHandlers() {
@@ -150,6 +150,13 @@ export function registerIpcHandlers() {
     console.log('[VoiceFlow] IPC license:validate, key length:', key?.length)
     const result = await validateLicenseKey(key)
     console.log('[VoiceFlow] IPC license:validate result:', result.valid, result.plan)
+    return result
+  })
+
+  ipcMain.handle('license:validate-email', async (_event, email: string) => {
+    console.log('[VoiceFlow] IPC license:validate-email:', email)
+    const result = await validateByEmail(email)
+    console.log('[VoiceFlow] IPC license:validate-email result:', result.valid, result.plan)
     return result
   })
 

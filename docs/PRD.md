@@ -22,9 +22,10 @@ VoiceFlow:   "Same quality, private"  — Free offline + $8/mo cloud Pro
 
 | Tier | Price | STT | AI Cleanup | Features |
 |------|-------|-----|------------|----------|
-| **Free** | $0 forever | Local whisper.cpp | Local LLM (optional) | Unlimited offline, all hotkey modes, snippets, history |
-| **Pro** | $8/mo or $39 lifetime | Groq Whisper cloud | Groq Llama 3.3 | Faster + more accurate, cloud history sync |
-| **BYOK** | Free (user pays API) | OpenAI / Groq / Deepgram | OpenAI / Groq / any | Full provider choice, advanced settings |
+| **Free** | $0 (30-day trial, then BYOK) | Groq / OpenAI (own key) | Groq / OpenAI (own key) | All features, bring your own API key |
+| **Pro Monthly** | $9/mo | Managed Groq/OpenAI | Managed Groq/OpenAI | Managed API keys, priority support |
+| **Pro Yearly** | $59/yr (~$4.92/mo) | Managed Groq/OpenAI | Managed Groq/OpenAI | Same as monthly, 45% savings |
+| **Lifetime** | $149 once (BYOK) | Groq / OpenAI (own key) | Groq / OpenAI (own key) | Pay once, use forever, bring own key |
 
 ## Phase 1: Desktop App Excellence (Done)
 
@@ -36,10 +37,11 @@ VoiceFlow:   "Same quality, private"  — Free offline + $8/mo cloud Pro
 
 ## Phase 2: Backend + Monetization (Done)
 
-- Stripe billing (monthly $8, yearly $48, lifetime $39)
-- Supabase Postgres for license keys + user records
+- Stripe billing (monthly $9, yearly $59, lifetime $149)
+- Supabase Postgres for user records + licenses
 - Vercel serverless API (checkout, webhook, validate-license, get-license)
-- 7-day free trial built into app locally
+- 30-day free trial tracked server-side (tied to email, prevents reset via reinstall)
+- Email-based license activation (no manual key entry)
 - License validation with 24h offline caching
 
 ## Phase 3: Local Offline Mode (Planned — v1.2)

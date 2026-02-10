@@ -58,6 +58,7 @@ const api: ElectronAPI = {
 
   // License
   validateLicense: (key: string) => ipcRenderer.invoke('license:validate', key),
+  validateByEmail: (email: string) => ipcRenderer.invoke('license:validate-email', email),
   getLicenseInfo: () => ipcRenderer.invoke('license:get-info'),
   clearLicense: () => ipcRenderer.invoke('license:clear'),
   onTrialExpired: (callback: () => void) => {

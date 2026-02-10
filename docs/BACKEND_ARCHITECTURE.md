@@ -2,7 +2,7 @@
 
 ## Overview
 
-The backend enables monetization via license-key-based payments. No user registration or passwords needed — users purchase a license through Stripe, receive a key, and enter it in the desktop app. A 7-day free trial is built into the app locally.
+The backend enables monetization via email-based license activation. No passwords needed — users purchase a license through Stripe, and activate by entering the same email in the desktop app. A 30-day free trial is tracked server-side to prevent trial resets via reinstall.
 
 ## Stack
 
@@ -28,6 +28,7 @@ CREATE TABLE users (
   email TEXT UNIQUE NOT NULL,
   display_name TEXT,
   avatar_url TEXT,
+  trial_started_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -82,9 +83,9 @@ CREATE INDEX idx_user_licenses_user_id_created ON user_licenses (user_id, create
 | License Type | Slug | Price | Duration |
 |-------------|------|-------|----------|
 | Free (BYOK) | `free` | $0 | Forever |
-| Pro Monthly | `pro_monthly` | $8/mo | 30 days |
-| Pro Yearly | `pro_yearly` | $48/yr | 365 days |
-| Lifetime | `lifetime` | $39 | Forever |
+| Pro Monthly | `pro_monthly` | $9/mo | 30 days |
+| Pro Yearly | `pro_yearly` | $59/yr | 365 days |
+| Lifetime | `lifetime` | $149 (BYOK) | Forever |
 
 ## API Endpoints (Vercel Serverless)
 
@@ -110,52 +111,56 @@ Handles Stripe webhook events with signature verification.
 **Raw body parsing** required (bodyParser disabled) for Stripe signature verification.
 
 ### POST /api/validate-license
-Validates a license key.
+Validates by email (preferred) or legacy license key.
 
-**Request:** `{ licenseKey: string }`
-**Response:** `{ valid: boolean, plan?: string, planSlug?: string, expiresAt?: string, error?: string }`
+**Request:** `{ email: string }` or `{ licenseKey: string }`
+**Response:** `{ valid: boolean, plan?: string, planSlug?: string, expiresAt?: string, trialDaysLeft?: number, error?: string }`
 
-- Joins `user_licenses` with `license_types`
-- Checks: status = active, not expired (lifetime keys never expire)
+- Email-based: Looks up user by email, checks for active license, falls back to server-side trial (30 days)
+- Creates user record + starts trial if email is new
+- Legacy key-based: Joins `user_licenses` with `license_types`, checks status + expiration
 
 ### GET /api/get-license
-Retrieves license key after Stripe payment.
+Retrieves license info after Stripe payment.
 
 **Query:** `?session_id=cs_...`
-**Response:** `{ licenseKey: string, plan: string, planSlug: string, expiresAt: string | null }`
+**Response:** `{ email: string, plan: string, planSlug: string, expiresAt: string | null }`
 
 - Looks up Stripe session to get customer email
 - Finds most recent license for that user
+- Returns email (user enters this in the app to activate)
 
 ## Purchase Flow
 
 ```
-1. User visits website → Clicks pricing card → Enters email in modal
+1. User visits website → Clicks pricing card → Enters email
 2. POST /api/checkout → Returns Stripe Checkout URL → Redirect
 3. User pays on Stripe's hosted page
 4. Stripe fires webhook → POST /api/webhooks/stripe
    → Upserts user in Supabase
-   → Creates license with auto-generated 48-char hex key
+   → Creates license linked to user's email
 5. Stripe redirects to /success.html?session_id=cs_...
    → Page calls GET /api/get-license?session_id=cs_...
-   → Shows license key with copy button + activation instructions
-6. User opens VoiceFlow → Settings → Pastes license key → Activate
-   → App calls POST /api/validate-license → Returns valid + plan
+   → Shows email + activation instructions (no license key needed)
+6. User opens VoiceFlow → Settings → Enters email → Activate
+   → App calls POST /api/validate-license { email } → Returns valid + plan
    → Cached locally in electron-store for 24h
 ```
 
 ## Desktop App Integration
 
 ### Trial System
-- 7-day free trial, no registration
-- `trialStartedAt` set in electron-store on first launch
+- 30-day free trial, server-side tracking via `users.trial_started_at`
+- Local `trialStartedAt` in electron-store as offline fallback
 - `canUseApp()` returns true if trial active OR license valid
-- Trial progress bar shown in Settings
+- Trial progress bar shown in Settings (30-day scale)
+- Server-side trial prevents reset via reinstall (tied to email)
 
 ### License Validation (electron/main/license.ts)
 ```
-validateLicenseKey(key) → calls /api/validate-license → caches result
-checkLicenseOnStartup() → revalidates if >24h since last check
+validateByEmail(email) → calls /api/validate-license { email } → caches result
+validateLicenseKey(key) → legacy key-based validation (backwards compat)
+checkLicenseOnStartup() → revalidates email or key if >24h since last check
 canUseApp() → true if license active OR trial not expired
 ```
 
@@ -170,19 +175,20 @@ canUseApp() → true if license active OR trial not expired
 
 ### IPC Bridge
 ```
-license:validate  → validates key via API, stores result
-license:get-info  → returns cached license info
-license:clear     → removes stored license
-trial-expired     → event sent to overlay when recording blocked
+license:validate        → validates key via API (legacy), stores result
+license:validate-email  → validates email via API, stores result
+license:get-info        → returns cached license info (incl. userEmail)
+license:clear           → removes stored license + email
+trial-expired           → event sent to overlay when recording blocked
 ```
 
 ## Stripe Configuration (Manual Steps)
 
 1. Create Stripe account
 2. Create 3 products/prices:
-   - VoiceFlow Pro Monthly: $8/month recurring
-   - VoiceFlow Pro Yearly: $48/year recurring
-   - VoiceFlow Lifetime: $39 one-time
+   - VoiceFlow Pro Monthly: $9/month recurring
+   - VoiceFlow Pro Yearly: $59/year recurring
+   - VoiceFlow Lifetime: $149 one-time (BYOK)
 3. Set up webhook: `https://your-domain.vercel.app/api/webhooks/stripe`
    - Events: `checkout.session.completed`, `customer.subscription.deleted`
 4. Copy Price IDs and webhook secret to Vercel env vars
@@ -205,9 +211,9 @@ APP_URL=https://your-domain.vercel.app
 ### Per-Transaction Costs
 | Plan | Revenue | Stripe Fee (2.9% + $0.30) | Net |
 |------|---------|---------------------------|-----|
-| Monthly | $8/mo | ~$0.53 | $7.47/mo |
-| Yearly | $48/yr | ~$1.69 | $46.31/yr ($3.86/mo) |
-| Lifetime | $39 | ~$1.43 | $37.57 once |
+| Monthly | $9/mo | ~$0.56 | $8.44/mo |
+| Yearly | $59/yr | ~$2.01 | $56.99/yr ($4.75/mo) |
+| Lifetime | $149 | ~$4.62 | $144.38 once |
 
 ### Infrastructure Costs
 | Service | Cost | Notes |
@@ -221,6 +227,7 @@ APP_URL=https://your-domain.vercel.app
 - All API calls over HTTPS
 - Stripe webhook signature verification
 - Supabase service_role key only used server-side (Vercel env vars)
-- License keys are 48-char random hex (auto-generated by Postgres)
-- No passwords stored — license-key-only authentication
+- License keys are 48-char random hex (auto-generated by Postgres, used internally)
+- Email-based activation — no passwords, no manual key entry
+- Server-side trial tracking prevents trial abuse via reinstall
 - RLS enabled on all tables (service_role bypasses for API)

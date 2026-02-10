@@ -55,11 +55,13 @@ Cleanup: OpenAI GPT-4o-mini | Groq Llama 3.3 | None (disabled)
 | 14 | Licensing (Stripe + Supabase + Vercel) | DONE |
 
 ### Licensing
-- **Free trial:** 7 days, no registration
-- **BYOK:** Free forever with own API key
-- **Pro:** $8/mo, $48/yr, or $39 lifetime via Stripe
+- **Free trial:** 30 days, server-side tracking (tied to email, prevents reinstall reset)
+- **BYOK:** Free forever with own API key (after trial or with Lifetime license)
+- **Pro:** $9/mo, $59/yr via Stripe (managed API keys)
+- **Lifetime:** $149 one-time (BYOK — bring own API key)
+- **Activation:** Email-based (no license key entry), user enters email used at purchase
 - **Backend:** Vercel serverless + Supabase DB + Stripe payments
-- **Validation:** /api/validate-license, cached 24h, offline-safe
+- **Validation:** /api/validate-license { email }, cached 24h, offline-safe
 
 ### Environment Variables (Vercel)
 ```

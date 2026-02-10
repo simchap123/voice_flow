@@ -24,6 +24,7 @@ export interface AppSettings {
   licenseExpiresAt: string
   trialStartedAt: number
   lastLicenseCheck: number
+  userEmail: string
 }
 
 const defaults: AppSettings = {
@@ -45,6 +46,7 @@ const defaults: AppSettings = {
   licenseExpiresAt: '',
   trialStartedAt: 0,
   lastLicenseCheck: 0,
+  userEmail: '',
 }
 
 export function initStore() {
@@ -114,6 +116,7 @@ export function getAllSettings(): AppSettings {
     licenseExpiresAt: store.get('licenseExpiresAt', defaults.licenseExpiresAt) as string,
     trialStartedAt: store.get('trialStartedAt', defaults.trialStartedAt) as number,
     lastLicenseCheck: store.get('lastLicenseCheck', defaults.lastLicenseCheck) as number,
+    userEmail: store.get('userEmail', defaults.userEmail) as string,
   }
 }
 
@@ -126,6 +129,7 @@ export function getLicenseInfo() {
     licenseExpiresAt: getSetting('licenseExpiresAt'),
     trialStartedAt: getSetting('trialStartedAt'),
     lastLicenseCheck: getSetting('lastLicenseCheck'),
+    userEmail: getSetting('userEmail'),
   }
 }
 
@@ -148,16 +152,17 @@ export function clearLicense() {
   setSetting('licensePlan', '')
   setSetting('licenseExpiresAt', '')
   setSetting('lastLicenseCheck', 0)
+  setSetting('userEmail', '')
 }
 
 export function getTrialInfo(): { daysLeft: number; isExpired: boolean } {
   const trialStartedAt = getSetting('trialStartedAt')
   if (!trialStartedAt) {
-    return { daysLeft: 7, isExpired: false }
+    return { daysLeft: 30, isExpired: false }
   }
   const elapsed = Date.now() - trialStartedAt
   const daysUsed = elapsed / (1000 * 60 * 60 * 24)
-  const daysLeft = Math.max(0, Math.ceil(7 - daysUsed))
+  const daysLeft = Math.max(0, Math.ceil(30 - daysUsed))
   return { daysLeft, isExpired: daysLeft <= 0 }
 }
 

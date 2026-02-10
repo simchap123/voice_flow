@@ -11,14 +11,15 @@ interface LicenseInfo {
   licenseExpiresAt: string
   trialStartedAt: number
   lastLicenseCheck: number
+  userEmail: string
 }
 
 export function LicenseInput() {
   const [licenseInfo, setLicenseInfo] = useState<LicenseInfo | null>(null)
-  const [inputKey, setInputKey] = useState('')
+  const [inputEmail, setInputEmail] = useState('')
   const [checking, setChecking] = useState(false)
   const [error, setError] = useState('')
-  const [trialDaysLeft, setTrialDaysLeft] = useState(7)
+  const [trialDaysLeft, setTrialDaysLeft] = useState(30)
 
   useEffect(() => {
     loadLicenseInfo()
@@ -33,26 +34,27 @@ export function LicenseInput() {
     if (info.trialStartedAt) {
       const elapsed = Date.now() - info.trialStartedAt
       const daysUsed = elapsed / (1000 * 60 * 60 * 24)
-      setTrialDaysLeft(Math.max(0, Math.ceil(7 - daysUsed)))
+      setTrialDaysLeft(Math.max(0, Math.ceil(30 - daysUsed)))
     }
   }
 
   async function handleActivate() {
-    if (!inputKey.trim() || !window.electronAPI) return
+    const email = inputEmail.trim()
+    if (!email || !email.includes('@') || !window.electronAPI) return
 
     setChecking(true)
     setError('')
 
     try {
-      const result = await window.electronAPI.validateLicense(inputKey.trim())
+      const result = await window.electronAPI.validateByEmail(email)
       if (result.valid) {
-        setInputKey('')
+        setInputEmail('')
         await loadLicenseInfo()
       } else {
-        setError(result.error || 'Invalid license key')
+        setError(result.error || 'No active license found for this email')
       }
     } catch {
-      setError('Failed to validate license. Check your internet connection.')
+      setError('Failed to validate. Check your internet connection.')
     } finally {
       setChecking(false)
     }
@@ -61,7 +63,7 @@ export function LicenseInput() {
   async function handleRemove() {
     if (!window.electronAPI) return
     await window.electronAPI.clearLicense()
-    setInputKey('')
+    setInputEmail('')
     setError('')
     await loadLicenseInfo()
   }
@@ -69,9 +71,8 @@ export function LicenseInput() {
   const status = licenseInfo?.licenseStatus || 'none'
   const isActive = status === 'active'
   const isExpired = status === 'expired'
-  const isInvalid = status === 'invalid'
   const trialExpired = trialDaysLeft <= 0
-  const hasLicense = !!licenseInfo?.licenseKey
+  const hasEmail = !!licenseInfo?.userEmail
 
   return (
     <div className="space-y-3">
@@ -88,9 +89,9 @@ export function LicenseInput() {
             <div className="text-sm">
               <span className="text-red-400 font-medium">Trial expired</span>
               <p className="text-xs text-muted-foreground mt-1">
-                Enter a license key below to continue using VoiceFlow, or{' '}
+                Enter the email you used to purchase a license, or{' '}
                 <a
-                  href="https://voiceflow.app/#pricing"
+                  href="https://freevoiceflow.com/#pricing"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
@@ -108,7 +109,7 @@ export function LicenseInput() {
               <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
                 <div
                   className="h-full rounded-full bg-primary transition-all"
-                  style={{ width: `${((7 - trialDaysLeft) / 7) * 100}%` }}
+                  style={{ width: `${((30 - trialDaysLeft) / 30) * 100}%` }}
                 />
               </div>
             </div>
@@ -117,7 +118,7 @@ export function LicenseInput() {
       )}
 
       {/* Active license display */}
-      {isActive && hasLicense && (
+      {isActive && (
         <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-3">
           <div className="flex items-center justify-between">
             <div>
@@ -125,15 +126,18 @@ export function LicenseInput() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-500/15 px-2 py-0.5 text-xs font-medium text-green-400">
                   Active
                 </span>
-                <span className="text-sm font-medium">{licenseInfo.licensePlan || 'Pro'}</span>
+                <span className="text-sm font-medium">{licenseInfo?.licensePlan || 'Pro'}</span>
               </div>
-              {licenseInfo.licenseExpiresAt && (
-                <p className="text-xs text-muted-foreground mt-1">
+              {licenseInfo?.userEmail && (
+                <p className="text-xs text-muted-foreground mt-1">{licenseInfo.userEmail}</p>
+              )}
+              {licenseInfo?.licenseExpiresAt && (
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Expires: {new Date(licenseInfo.licenseExpiresAt).toLocaleDateString()}
                 </p>
               )}
-              {!licenseInfo.licenseExpiresAt && (
-                <p className="text-xs text-muted-foreground mt-1">Never expires</p>
+              {!licenseInfo?.licenseExpiresAt && licenseInfo?.licensePlan !== 'Trial' && (
+                <p className="text-xs text-muted-foreground mt-0.5">Never expires</p>
               )}
             </div>
             <Button variant="ghost" size="sm" onClick={handleRemove} className="text-xs text-muted-foreground">
@@ -144,7 +148,7 @@ export function LicenseInput() {
       )}
 
       {/* Expired license display */}
-      {isExpired && hasLicense && (
+      {isExpired && hasEmail && (
         <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3">
           <div className="flex items-center justify-between">
             <div>
@@ -153,7 +157,7 @@ export function LicenseInput() {
               </span>
               <p className="text-xs text-muted-foreground mt-1">
                 <a
-                  href="https://voiceflow.app/#pricing"
+                  href="https://freevoiceflow.com/#pricing"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
@@ -169,23 +173,23 @@ export function LicenseInput() {
         </div>
       )}
 
-      {/* License key input (when no active license) */}
+      {/* Email input (when no active license) */}
       {!isActive && (
         <div className="flex gap-2">
           <Input
-            type="password"
-            placeholder="Enter license key"
-            value={inputKey}
+            type="email"
+            placeholder="Enter your email"
+            value={inputEmail}
             onChange={(e) => {
-              setInputKey(e.target.value)
+              setInputEmail(e.target.value)
               setError('')
             }}
             onKeyDown={(e) => { if (e.key === 'Enter') handleActivate() }}
-            className="font-mono text-sm"
+            className="text-sm"
           />
           <Button
             onClick={handleActivate}
-            disabled={!inputKey.trim() || checking}
+            disabled={!inputEmail.trim() || !inputEmail.includes('@') || checking}
             size="sm"
             className="shrink-0"
           >
@@ -200,10 +204,10 @@ export function LicenseInput() {
       )}
 
       {/* Buy link when no license and not showing trial expired (which already has the link) */}
-      {!isActive && !trialExpired && !hasLicense && (
+      {!isActive && !trialExpired && !hasEmail && (
         <p className="text-xs text-muted-foreground">
           <a
-            href="https://voiceflow.app/#pricing"
+            href="https://freevoiceflow.com/#pricing"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"

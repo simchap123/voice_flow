@@ -18,6 +18,11 @@ export interface ElectronAPI {
   getSnippets: () => Promise<any[]>
   setSnippets: (snippets: any[]) => Promise<void>
   notifyTranscriptionComplete: (data: any) => void
+  validateLicense: (key: string) => Promise<{ valid: boolean; plan?: string; error?: string; trialDaysLeft?: number }>
+  validateByEmail: (email: string) => Promise<{ valid: boolean; plan?: string; error?: string; trialDaysLeft?: number }>
+  getLicenseInfo: () => Promise<any>
+  clearLicense: () => Promise<void>
+  onTrialExpired: (callback: () => void) => () => void
 }
 
 declare global {

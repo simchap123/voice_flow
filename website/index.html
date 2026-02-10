@@ -23,6 +23,7 @@
       --accent: #3b82f6;
       --border: rgba(255,255,255,0.06);
       --radius: 16px;
+      --green: #22c55e;
     }
 
     html { scroll-behavior: smooth; }
@@ -72,6 +73,23 @@
     /* ---- Layout ---- */
     .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
     section { padding: 100px 0; }
+
+    /* ---- Scroll reveal ---- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+    .stagger-4 { transition-delay: 0.4s; }
+    .stagger-5 { transition-delay: 0.5s; }
+    .stagger-6 { transition-delay: 0.6s; }
 
     /* ---- Nav ---- */
     nav {
@@ -177,7 +195,7 @@
     .hero-badge .dot {
       width: 6px;
       height: 6px;
-      background: #22c55e;
+      background: var(--green);
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
@@ -205,7 +223,6 @@
       margin: 0 auto 40px;
       line-height: 1.7;
     }
-    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
     .hero-note {
       margin-top: 16px;
       font-size: 13px;
@@ -238,7 +255,7 @@
     .demo-dot { width: 12px; height: 12px; border-radius: 50%; }
     .demo-dot-red { background: #ef4444; }
     .demo-dot-yellow { background: #eab308; }
-    .demo-dot-green { background: #22c55e; }
+    .demo-dot-green { background: var(--green); }
     .demo-body {
       padding: 40px;
       text-align: left;
@@ -295,47 +312,65 @@
     }
     @keyframes blink { 50% { border-color: transparent; } }
 
-    /* ---- How it works ---- */
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-top: 48px;
+    /* ---- How it works — vertical timeline ---- */
+    .timeline {
+      max-width: 600px;
+      margin: 48px auto 0;
+      position: relative;
+      padding-left: 48px;
     }
-    .step-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px 28px;
-      text-align: center;
-      transition: all 0.3s ease;
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--primary), var(--accent), transparent);
     }
-    .step-card:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(124, 58, 237, 0.2);
-      transform: translateY(-4px);
+    .timeline-step {
+      position: relative;
+      padding-bottom: 48px;
     }
-    .step-number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    .timeline-step:last-child { padding-bottom: 0; }
+    .timeline-dot {
+      position: absolute;
+      left: -48px;
+      top: 0;
       width: 40px;
       height: 40px;
       background: rgba(124, 58, 237, 0.12);
       color: var(--primary-light);
       border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: 700;
       font-size: 16px;
-      margin-bottom: 20px;
+      border: 2px solid var(--bg);
+      z-index: 1;
     }
-    .step-card h3 {
+    .timeline-step h3 {
       font-size: 17px;
       font-weight: 600;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-    .step-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+    .timeline-step p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .timeline-step kbd {
+      background: rgba(124, 58, 237, 0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: inherit;
+      font-weight: 500;
+      color: var(--primary-light);
+    }
 
-    /* ---- Features ---- */
+    /* ---- Section headers ---- */
     .section-header { text-align: center; margin-bottom: 48px; }
     .section-header h2 {
       font-size: clamp(28px, 4vw, 40px);
@@ -345,6 +380,7 @@
     }
     .section-header p { font-size: 16px; color: var(--text-muted); max-width: 500px; margin: 0 auto; }
 
+    /* ---- Features ---- */
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -374,121 +410,6 @@
     .feature-icon svg { width: 22px; height: 22px; color: var(--primary-light); }
     .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
     .feature-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-
-    /* ---- Get Started / CTA ---- */
-    .get-started-section {
-      text-align: center;
-      padding: 80px 0 120px;
-    }
-    .get-started-box {
-      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(59,130,246,0.08));
-      border: 1px solid rgba(124, 58, 237, 0.15);
-      border-radius: 24px;
-      padding: 64px 40px;
-    }
-    .get-started-box h2 {
-      font-size: clamp(28px, 4vw, 40px);
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .get-started-box > p {
-      font-size: 16px;
-      color: var(--text-muted);
-      margin-bottom: 28px;
-    }
-    .get-started-email-wrap {
-      max-width: 400px;
-      margin: 0 auto 32px;
-    }
-    .get-started-email-wrap input {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--text);
-      font-size: 16px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .get-started-email-wrap input:focus { border-color: var(--primary); }
-    .get-started-error {
-      color: #ef4444;
-      font-size: 13px;
-      margin-top: 8px;
-      display: none;
-    }
-    .get-started-cards {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-      max-width: 680px;
-      margin: 0 auto 24px;
-    }
-    .gs-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px 28px;
-      text-align: left;
-      transition: all 0.3s ease;
-    }
-    .gs-card:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(124, 58, 237, 0.2);
-    }
-    .gs-card h3 {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 16px;
-    }
-    .gs-card ul {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 24px;
-    }
-    .gs-card ul li {
-      font-size: 14px;
-      color: var(--text-muted);
-      padding: 5px 0 5px 22px;
-      position: relative;
-    }
-    .gs-card ul li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 9px;
-      width: 14px;
-      height: 14px;
-      background: rgba(124, 58, 237, 0.15);
-      border-radius: 50%;
-    }
-    .gs-card ul li::after {
-      content: '';
-      position: absolute;
-      left: 4px;
-      top: 13px;
-      width: 6px;
-      height: 3px;
-      border-left: 1.5px solid var(--primary-light);
-      border-bottom: 1.5px solid var(--primary-light);
-      transform: rotate(-45deg);
-    }
-    .gs-card .btn { width: 100%; justify-content: center; }
-    .platform-note {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    /* ---- Footer ---- */
-    footer {
-      padding: 32px 0;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
 
     /* ---- Pricing ---- */
     .pricing-grid {
@@ -547,9 +468,15 @@
     }
     .pricing-savings {
       font-size: 13px;
-      color: #22c55e;
+      color: var(--green);
       font-weight: 500;
       margin-bottom: 4px;
+    }
+    .pricing-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-style: italic;
     }
     .pricing-features {
       list-style: none;
@@ -593,6 +520,62 @@
       color: var(--text-muted);
     }
     .pricing-byok-note strong { color: var(--text); }
+
+    /* ---- Get Started / CTA ---- */
+    .get-started-section {
+      text-align: center;
+      padding: 80px 0 120px;
+    }
+    .get-started-box {
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(59,130,246,0.08));
+      border: 1px solid rgba(124, 58, 237, 0.15);
+      border-radius: 24px;
+      padding: 64px 40px;
+    }
+    .get-started-box h2 {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .get-started-box > p {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+    .get-started-email-wrap {
+      max-width: 400px;
+      margin: 0 auto 32px;
+    }
+    .get-started-email-wrap input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .get-started-email-wrap input:focus { border-color: var(--primary); }
+    .get-started-error {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+    .get-started-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .platform-note {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
 
     /* Checkout email modal */
     .checkout-overlay {
@@ -656,15 +639,26 @@
       display: none;
     }
 
+    /* ---- Footer ---- */
+    footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
     /* ---- Responsive ---- */
     @media (max-width: 768px) {
-      .steps-grid { grid-template-columns: 1fr; }
       .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+      .features-grid { grid-template-columns: 1fr; }
       .nav-links { display: none; }
       .hero { padding-top: 120px; }
       section { padding: 60px 0; }
       .get-started-box { padding: 40px 24px; }
-      .get-started-cards { grid-template-columns: 1fr; max-width: 400px; }
+      .timeline { padding-left: 40px; }
+      .timeline::before { left: 15px; }
+      .timeline-dot { left: -40px; width: 32px; height: 32px; font-size: 14px; }
     }
   </style>
 </head>
@@ -696,26 +690,22 @@
 <!-- Hero -->
 <section class="hero">
   <div class="container">
-    <div class="hero-badge">
+    <div class="hero-badge reveal">
       <span class="dot"></span>
       Now available for Windows
     </div>
-    <h1>Type with your <span class="gradient">voice</span></h1>
-    <p>Press a hotkey from any app, speak naturally, and your cleaned-up text appears right where your cursor is. No switching windows. No copying. Just talk.</p>
-    <div class="hero-buttons">
-      <a href="#get-started" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-        Download for Windows
-      </a>
-      <a href="#how-it-works" class="btn btn-outline">See How It Works</a>
+    <h1 class="reveal stagger-1">Type with your <span class="gradient">voice</span></h1>
+    <p class="reveal stagger-2">Press a hotkey from any app, speak naturally, and your cleaned-up text appears right where your cursor is. No switching windows. No copying. Just talk.</p>
+    <div class="reveal stagger-3">
+      <a href="#get-started" class="btn btn-primary">Get Started Free</a>
     </div>
-    <p class="hero-note">
+    <p class="hero-note reveal stagger-4">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Free &amp; open source. Your API key stays on your device.
+      Free 30-day trial. No credit card required.
     </p>
 
     <!-- Demo visual -->
-    <div class="demo-wrapper">
+    <div class="demo-wrapper reveal stagger-5">
       <div class="demo-window">
         <div class="demo-titlebar">
           <span class="demo-dot demo-dot-red"></span>
@@ -755,23 +745,23 @@
 <!-- How It Works -->
 <section id="how-it-works">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal">
       <h2>Three steps. That's it.</h2>
       <p>VoiceFlow runs silently in your system tray. You never leave the app you're working in.</p>
     </div>
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-number">1</div>
+    <div class="timeline">
+      <div class="timeline-step reveal">
+        <div class="timeline-dot">1</div>
         <h3>Download &amp; Install</h3>
         <p>Download the installer, run it, and add your Groq or OpenAI API key. Takes 30 seconds.</p>
       </div>
-      <div class="step-card">
-        <div class="step-number">2</div>
+      <div class="timeline-step reveal stagger-1">
+        <div class="timeline-dot">2</div>
         <h3>Press Your Hotkey</h3>
-        <p>From any app &mdash; Slack, VS Code, Word, Gmail, anywhere &mdash; hold <kbd style="background:rgba(124,58,237,0.15);padding:2px 6px;border-radius:4px;font-size:12px;">Alt</kbd> and start talking. Release to finish. You can also set a toggle hotkey.</p>
+        <p>From any app &mdash; Slack, VS Code, Word, Gmail, anywhere &mdash; hold <kbd>Alt</kbd> and start talking. Release to finish. You can also set a toggle hotkey.</p>
       </div>
-      <div class="step-card">
-        <div class="step-number">3</div>
+      <div class="timeline-step reveal stagger-2">
+        <div class="timeline-dot">3</div>
         <h3>Text Appears</h3>
         <p>VoiceFlow transcribes, removes filler words, fixes grammar, and pastes the clean text right where your cursor was.</p>
       </div>
@@ -782,47 +772,47 @@
 <!-- Features -->
 <section id="features">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal">
       <h2>Everything you need</h2>
       <p>Powerful dictation with AI cleanup, built for speed.</p>
     </div>
     <div class="features-grid">
-      <div class="feature-card">
+      <div class="feature-card reveal stagger-1">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.855z"/></svg>
         </div>
         <h3>Works Everywhere</h3>
         <p>Any text field, any app. Emails, documents, chat, code editors. Just press the hotkey.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal stagger-2">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.288L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.288Z"/></svg>
         </div>
         <h3>AI Text Cleanup</h3>
         <p>AI removes "um", "like", filler words, and fixes grammar &mdash; so you sound polished, not rambling.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal stagger-3">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
         <h3>Lightning Fast</h3>
         <p>Groq Whisper transcribes in under a second. Choose between Groq (fast &amp; cheap) or OpenAI for transcription and cleanup.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal stagger-4">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
         </div>
         <h3>Private &amp; Secure</h3>
         <p>Your API key is encrypted with Windows DPAPI. Audio goes directly to your chosen provider &mdash; no middleman servers.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal stagger-5">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
         <h3>99+ Languages</h3>
         <p>Whisper supports over 99 languages. Set your preferred language or let it auto-detect.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal stagger-6">
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M11 19c-1.7 0-3-1.3-3-3v-2h8v2c0 1.7-1.3 3-3 3Z"/><path d="M12 22v-3"/></svg>
         </div>
@@ -836,47 +826,51 @@
 <!-- Pricing -->
 <section id="pricing">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal">
       <h2>Simple pricing</h2>
       <p>Choose the plan that works for you. Cancel anytime.</p>
     </div>
     <div class="pricing-grid">
-      <div class="pricing-card">
+      <div class="pricing-card reveal stagger-1">
         <div class="pricing-badge">Monthly</div>
-        <div class="pricing-price">$8<span>/mo</span></div>
+        <div class="pricing-price">$9<span>/mo</span></div>
         <ul class="pricing-features">
-          <li>Unlimited dictation</li>
+          <li>Managed API keys (no setup)</li>
           <li>Groq &amp; OpenAI cloud STT</li>
           <li>AI text cleanup</li>
           <li>All languages</li>
+          <li>Priority support</li>
         </ul>
-        <a href="#get-started" class="btn btn-outline pricing-btn">Get Pro Monthly</a>
+        <button class="btn btn-outline pricing-btn" onclick="openCheckout('monthly')">Get Pro Monthly</button>
       </div>
-      <div class="pricing-card pricing-card-popular">
+      <div class="pricing-card pricing-card-popular reveal stagger-2">
         <div class="pricing-popular-tag">Best Value</div>
         <div class="pricing-badge">Yearly</div>
-        <div class="pricing-price">$48<span>/yr</span></div>
-        <p class="pricing-savings">Save 50% vs monthly</p>
+        <div class="pricing-price">$59<span>/yr</span></div>
+        <p class="pricing-savings">Save 45% &mdash; $4.92/mo</p>
         <ul class="pricing-features">
           <li>Everything in Monthly</li>
+          <li>Managed API keys (no setup)</li>
           <li>Priority support</li>
-          <li>Early access to new features</li>
-        </ul>
-        <a href="#get-started" class="btn btn-primary pricing-btn">Get Pro Yearly</a>
-      </div>
-      <div class="pricing-card">
-        <div class="pricing-badge">Lifetime</div>
-        <div class="pricing-price">$39<span> once</span></div>
-        <ul class="pricing-features">
-          <li>Everything in Pro</li>
-          <li>Pay once, use forever</li>
           <li>All future updates</li>
         </ul>
-        <a href="#get-started" class="btn btn-outline pricing-btn">Get Lifetime Access</a>
+        <button class="btn btn-primary pricing-btn" onclick="openCheckout('yearly')">Get Pro Yearly</button>
+      </div>
+      <div class="pricing-card reveal stagger-3">
+        <div class="pricing-badge">Lifetime</div>
+        <div class="pricing-price">$149<span> once</span></div>
+        <p class="pricing-note">BYOK &mdash; bring your own API key</p>
+        <ul class="pricing-features">
+          <li>Pay once, use forever</li>
+          <li>Use your own API key</li>
+          <li>All app features</li>
+          <li>No recurring charges</li>
+        </ul>
+        <button class="btn btn-outline pricing-btn" onclick="openCheckout('lifetime')">Get Lifetime Access</button>
       </div>
     </div>
-    <p class="pricing-byok-note">
-      Already have a Groq or OpenAI API key? <strong>Use VoiceFlow free forever</strong> with your own key &mdash; no license needed.
+    <p class="pricing-byok-note reveal">
+      Already have a Groq or OpenAI API key? <strong>Use VoiceFlow free for 30 days</strong>, then BYOK forever &mdash; no license needed.
     </p>
   </div>
 </section>
@@ -884,46 +878,27 @@
 <!-- Get Started -->
 <section id="get-started" class="get-started-section">
   <div class="container">
-    <div class="get-started-box">
+    <div class="get-started-box reveal">
       <h2>Get VoiceFlow</h2>
-      <p>Enter your email to download</p>
+      <p>Enter your email to download. You'll use this email to activate your license in the app.</p>
 
       <div class="get-started-email-wrap">
         <input type="email" id="gs-email" placeholder="your@email.com" />
         <div class="get-started-error" id="gs-error"></div>
       </div>
 
-      <div class="get-started-cards">
-        <!-- Free card -->
-        <div class="gs-card">
-          <h3>Free</h3>
-          <ul>
-            <li>30-day trial</li>
-            <li>Use your own API key (BYOK)</li>
-            <li>Free forever with own key</li>
-          </ul>
-          <button class="btn btn-outline" id="gs-free-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-            Download Free
-          </button>
-        </div>
-
-        <!-- Pro card -->
-        <div class="gs-card">
-          <h3>Pro</h3>
-          <ul>
-            <li>We handle the API keys</li>
-            <li>$8/mo, $48/yr, or $39 once</li>
-            <li>Unlimited use</li>
-          </ul>
-          <button class="btn btn-primary" id="gs-pro-btn">
-            Choose Plan
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
+      <div class="get-started-buttons">
+        <button class="btn btn-primary" id="gs-free-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          Download Free
+        </button>
+        <button class="btn btn-outline" id="gs-pro-btn">
+          Go Pro
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
 
-      <p class="platform-note">Windows 10/11 &bull; 64-bit</p>
+      <p class="platform-note">Windows 10/11 &bull; 64-bit &bull; 30-day free trial</p>
     </div>
   </div>
 </section>
@@ -943,9 +918,9 @@
     <div class="checkout-error" id="checkout-error"></div>
     <input type="email" id="checkout-email" placeholder="you@example.com" style="display:none" />
     <div class="checkout-plans" id="checkout-plans">
-      <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('monthly')">Monthly &mdash; $8/mo</button>
-      <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('yearly')">Yearly &mdash; $48/yr (Best Value)</button>
-      <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('lifetime')">Lifetime &mdash; $39 once</button>
+      <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('monthly')">Monthly &mdash; $9/mo</button>
+      <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('yearly')">Yearly &mdash; $59/yr (Best Value)</button>
+      <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('lifetime')">Lifetime &mdash; $149 once (BYOK)</button>
     </div>
     <button class="btn btn-primary" id="checkout-submit" style="display:none">Continue to Payment</button>
     <button class="checkout-cancel" id="checkout-cancel">Cancel</button>
@@ -953,7 +928,26 @@
 </div>
 
 <script>
-  // Dynamically resolve the latest .exe from GitHub Releases — never needs updating
+  // --- Scroll reveal with IntersectionObserver ---
+  (function() {
+    var reveals = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      reveals.forEach(function(el) { observer.observe(el); });
+    } else {
+      // Fallback: show everything immediately
+      reveals.forEach(function(el) { el.classList.add('visible'); });
+    }
+  })();
+
+  // Dynamically resolve the latest .exe from GitHub Releases
   var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
   fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
     .then(function(r) { return r.json(); })
@@ -1021,23 +1015,29 @@
     }, 500);
   });
 
-  // --- Get Started: "Choose Plan" ---
+  // --- Get Started: "Go Pro" ---
   gsProBtn.addEventListener('click', async function() {
     var email = getEmail();
     if (!email) return;
     gsProBtn.disabled = true;
     gsProBtn.textContent = 'Opening plans...';
     await captureLead(email, 'pro');
-    // Pre-fill checkout modal email and open it
     checkoutEmail.value = email;
     checkoutOverlay.classList.add('active');
     gsProBtn.disabled = false;
-    gsProBtn.innerHTML = 'Choose Plan <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>';
+    gsProBtn.innerHTML = 'Go Pro <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>';
   });
 
   gsEmail.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') gsFreeBtn.click();
   });
+
+  // --- Open checkout from pricing cards ---
+  function openCheckout(plan) {
+    checkoutOverlay.classList.add('active');
+    // Auto-select the plan
+    selectPlan(plan);
+  }
 
   // --- Checkout modal ---
   var checkoutPlans = document.getElementById('checkout-plans');
@@ -1046,8 +1046,25 @@
     selectedPlan = plan;
     var email = checkoutEmail.value || gsEmail.value.trim();
     if (!email || !email.includes('@')) {
-      checkoutError.textContent = 'Please enter a valid email address.';
+      // Show email input in modal if no email yet
+      checkoutEmail.style.display = 'block';
+      checkoutEmail.focus();
+      checkoutError.textContent = 'Please enter your email to continue.';
       checkoutError.style.display = 'block';
+      // Store pending plan selection
+      checkoutSubmit.style.display = 'flex';
+      checkoutSubmit.textContent = 'Continue to Payment';
+      checkoutPlans.style.display = 'none';
+      checkoutSubmit.onclick = function() {
+        var em = checkoutEmail.value.trim();
+        if (!em || !em.includes('@')) {
+          checkoutError.textContent = 'Please enter a valid email address.';
+          checkoutError.style.display = 'block';
+          return;
+        }
+        checkoutError.style.display = 'none';
+        doCheckout(plan, em);
+      };
       return;
     }
     checkoutError.style.display = 'none';
@@ -1078,16 +1095,22 @@
     }
   }
 
-  checkoutCancel.addEventListener('click', function() {
+  function closeCheckout() {
     checkoutOverlay.classList.remove('active');
     selectedPlan = null;
-  });
+    // Reset modal state
+    checkoutEmail.style.display = 'none';
+    checkoutSubmit.style.display = 'none';
+    checkoutPlans.style.display = '';
+    checkoutPlans.style.pointerEvents = '';
+    checkoutPlans.style.opacity = '';
+    checkoutError.style.display = 'none';
+  }
+
+  checkoutCancel.addEventListener('click', closeCheckout);
 
   checkoutOverlay.addEventListener('click', function(e) {
-    if (e.target === checkoutOverlay) {
-      checkoutOverlay.classList.remove('active');
-      selectedPlan = null;
-    }
+    if (e.target === checkoutOverlay) closeCheckout();
   });
 </script>
 
