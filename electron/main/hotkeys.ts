@@ -47,7 +47,7 @@ export function setIsProcessing(value: boolean) {
   if (value) {
     processingTimeout = setTimeout(() => {
       if (isProcessing) {
-        console.warn('[VoiceFlow] Processing timeout reached (30s), resetting state')
+        console.warn('[VoxGen] Processing timeout reached (30s), resetting state')
         isProcessing = false
         isRecording = false
         recordingMode = null
@@ -86,7 +86,7 @@ async function suppressAltMenu() {
     await keyboard.pressKey(Key.LeftControl)
     await keyboard.releaseKey(Key.LeftControl)
   } catch (err) {
-    console.warn('[VoiceFlow] Failed to suppress Alt menu:', err)
+    console.warn('[VoxGen] Failed to suppress Alt menu:', err)
   }
 }
 
@@ -98,7 +98,7 @@ function handleHotkeyAction(mode: 'hold' | 'toggle' | 'prompt', action: 'start' 
   if (isProcessing) return
 
   if (!isOverlayReady()) {
-    console.warn('[VoiceFlow] Overlay not ready yet, ignoring hotkey')
+    console.warn('[VoxGen] Overlay not ready yet, ignoring hotkey')
     return
   }
 
@@ -110,7 +110,7 @@ function handleHotkeyAction(mode: 'hold' | 'toggle' | 'prompt', action: 'start' 
         overlay.webContents.send('trial-expired')
         setTimeout(() => hideOverlay(), 2000)
       }, 100)
-      console.log('[VoiceFlow] Recording blocked: trial expired and no active license')
+      console.log('[VoxGen] Recording blocked: trial expired and no active license')
       return
     }
 
@@ -120,7 +120,7 @@ function handleHotkeyAction(mode: 'hold' | 'toggle' | 'prompt', action: 'start' 
     }, 100)
     isRecording = true
     recordingMode = mode
-    console.log(`[VoiceFlow] Recording started (${mode} mode)`)
+    console.log(`[VoxGen] Recording started (${mode} mode)`)
   } else if (action === 'stop' && isRecording && recordingMode === mode) {
     // Only the mode that started recording can stop it
     shrinkOverlay()
@@ -128,7 +128,7 @@ function handleHotkeyAction(mode: 'hold' | 'toggle' | 'prompt', action: 'start' 
     isRecording = false
     setIsProcessing(true) // Use setter to get safety timeout
     recordingMode = null
-    console.log(`[VoiceFlow] Recording stopped (${mode} mode)`)
+    console.log(`[VoxGen] Recording stopped (${mode} mode)`)
   }
 }
 
@@ -353,7 +353,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
       // Regular key/combo for toggle mode — use globalShortcut
       try {
         const registered = globalShortcut.register(toggleHotkey, () => {
-          console.log(`[VoiceFlow] Toggle hotkey pressed: isRecording=${isRecording}, isProcessing=${isProcessing}, recordingMode=${recordingMode}`)
+          console.log(`[VoxGen] Toggle hotkey pressed: isRecording=${isRecording}, isProcessing=${isProcessing}, recordingMode=${recordingMode}`)
           if (!isRecording && !isProcessing) {
             handleHotkeyAction('toggle', 'start')
           } else if (isRecording) {
@@ -373,7 +373,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   if (promptHotkey) {
     try {
       const registered = globalShortcut.register(promptHotkey, () => {
-        console.log(`[VoiceFlow] Prompt hotkey pressed: isRecording=${isRecording}, isProcessing=${isProcessing}, recordingMode=${recordingMode}`)
+        console.log(`[VoxGen] Prompt hotkey pressed: isRecording=${isRecording}, isProcessing=${isProcessing}, recordingMode=${recordingMode}`)
         if (!isRecording && !isProcessing) {
           handleHotkeyAction('prompt', 'start')
         } else if (isRecording && recordingMode === 'prompt') {
@@ -381,10 +381,10 @@ export function registerHotkeys(): { success: boolean; error?: string } {
         }
       })
       if (!registered) {
-        console.warn(`[VoiceFlow] Prompt hotkey "${promptHotkey}" already in use`)
+        console.warn(`[VoxGen] Prompt hotkey "${promptHotkey}" already in use`)
       }
     } catch (err: any) {
-      console.warn(`[VoiceFlow] Failed to register prompt hotkey "${promptHotkey}": ${err.message}`)
+      console.warn(`[VoxGen] Failed to register prompt hotkey "${promptHotkey}": ${err.message}`)
     }
   }
 
@@ -396,7 +396,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
       keydownHandlers.push(result.keydownHandler)
       keyupHandlers.push(result.keyupHandler)
     } else {
-      console.warn(`[VoiceFlow] Double-tap hotkey "${doubleTapHotkey}" is not a modifier key, ignoring`)
+      console.warn(`[VoxGen] Double-tap hotkey "${doubleTapHotkey}" is not a modifier key, ignoring`)
     }
   }
 
@@ -432,7 +432,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
       }
     })
   } catch {
-    console.warn('[VoiceFlow] Could not register Escape key (may be in use)')
+    console.warn('[VoxGen] Could not register Escape key (may be in use)')
   }
 
   const parts: string[] = []
@@ -440,7 +440,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   if (toggleHotkey) parts.push(`toggle: ${toggleHotkey}`)
   if (promptHotkey) parts.push(`prompt: ${promptHotkey}`)
   if (doubleTapHotkey) parts.push(`double-tap: ${doubleTapHotkey}`)
-  console.log(`[VoiceFlow] Hotkeys registered: ${parts.join(', ')}`)
+  console.log(`[VoxGen] Hotkeys registered: ${parts.join(', ')}`)
   return { success: true }
 }
 

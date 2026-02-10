@@ -1,14 +1,14 @@
-# VoiceFlow v2 — Product Requirements Document
+# VoxGen v2 — Product Requirements Document
 
 ## Vision
 
-The cheapest, easiest, most flexible system-wide voice dictation app. Works offline out of the box. Optional cloud upgrade for power users. Beats Wispr Flow on price, privacy, and simplicity.
+The cheapest, easiest, most flexible system-wide voice dictation and smart content generation app. Works offline out of the box. Optional cloud upgrade for power users. Beats Wispr Flow on price, privacy, and simplicity.
 
 ## Positioning
 
 ```
 Wispr Flow:  "Best AI dictation"      — $15/mo, cloud-only, sends screenshots
-VoiceFlow:   "Same quality, private"  — Free offline + $8/mo cloud Pro
+VoxGen:   "Same quality, private"  — Free offline + $8/mo cloud Pro
 ```
 
 ## Target Users

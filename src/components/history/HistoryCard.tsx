@@ -23,7 +23,7 @@ export function HistoryCard({ entry, onDelete }: HistoryCardProps) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      console.error('[VoiceFlow] Copy failed:', err)
+      console.error('[VoxGen] Copy failed:', err)
     }
   }
 

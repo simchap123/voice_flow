@@ -6,8 +6,8 @@ import { initCleanupProvider } from '@/lib/cleanup/provider-factory'
 import type { STTProviderType } from '@/lib/stt/types'
 import type { CleanupProviderType } from '@/lib/cleanup/types'
 
-const LS_SETTINGS_KEY = 'voiceflow-settings'
-const LS_API_KEY_PREFIX = 'voiceflow-api-key'
+const LS_SETTINGS_KEY = 'voxgen-settings'
+const LS_API_KEY_PREFIX = 'voxgen-api-key'
 
 interface SettingsContextValue {
   settings: AppSettings
@@ -75,7 +75,7 @@ export function useSettingsProvider(): SettingsContextValue {
             setHasApiKey(has)
           }
         } catch (err) {
-          console.error('[VoiceFlow] Failed to load settings:', err)
+          console.error('[VoxGen] Failed to load settings:', err)
         }
       } else {
         try {
@@ -90,7 +90,7 @@ export function useSettingsProvider(): SettingsContextValue {
             setHasApiKey(true)
           }
         } catch (err) {
-          console.error('[VoiceFlow] Failed to load settings from localStorage:', err)
+          console.error('[VoxGen] Failed to load settings from localStorage:', err)
         }
       }
 
@@ -139,7 +139,7 @@ export function useSettingsProvider(): SettingsContextValue {
       try {
         await window.electronAPI.saveApiKey(key, provider)
       } catch (err) {
-        console.error('[VoiceFlow] Failed to save API key:', err)
+        console.error('[VoxGen] Failed to save API key:', err)
         return { success: false, error: 'Failed to save API key to secure storage.' }
       }
     } else {

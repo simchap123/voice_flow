@@ -1,4 +1,4 @@
-# VoiceFlow Backend Architecture
+# VoxGen Backend Architecture
 
 ## Overview
 
@@ -33,10 +33,10 @@ CREATE TABLE users (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- products: the VoiceFlow product
+-- products: the VoxGen product
 CREATE TABLE products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug TEXT UNIQUE NOT NULL,        -- 'voiceflow'
+  slug TEXT UNIQUE NOT NULL,        -- 'voxgen'
   name TEXT NOT NULL,
   description TEXT,
   is_active BOOLEAN DEFAULT true,
@@ -165,7 +165,7 @@ Retrieves license info after Stripe payment.
 5. Stripe redirects to /success.html?session_id=cs_...
    → Page calls GET /api/get-license?session_id=cs_...
    → Shows email + activation instructions (no license key needed)
-6. User opens VoiceFlow → Settings → Enters email → Activate
+6. User opens VoxGen → Settings → Enters email → Activate
    → App calls POST /api/validate-license { email } → Returns valid + plan
    → Cached locally in electron-store for 24h
 ```
@@ -209,9 +209,9 @@ trial-expired           → event sent to overlay when recording blocked
 
 1. Create Stripe account
 2. Create 3 products/prices:
-   - VoiceFlow Pro Monthly: $9/month recurring
-   - VoiceFlow Pro Yearly: $59/year recurring
-   - VoiceFlow Lifetime: $149 one-time (BYOK)
+   - VoxGen Pro Monthly: $9/month recurring
+   - VoxGen Pro Yearly: $59/year recurring
+   - VoxGen Lifetime: $149 one-time (BYOK)
 3. Set up webhook: `https://your-domain.vercel.app/api/webhooks/stripe`
    - Events: `checkout.session.completed`, `customer.subscription.deleted`
 4. Copy Price IDs and webhook secret to Vercel env vars

@@ -13,7 +13,13 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/useToast'
 import type { STTProviderType } from '@/lib/stt/types'
-import type { CleanupProviderType } from '@/lib/cleanup/types'
+import type { CleanupProviderType, OutputLength } from '@/lib/cleanup/types'
+
+const OUTPUT_LENGTHS: { value: OutputLength; label: string; description: string }[] = [
+  { value: 'concise', label: 'Concise', description: 'Brief and to the point' },
+  { value: 'medium', label: 'Medium', description: 'Balanced level of detail' },
+  { value: 'detailed', label: 'Detailed', description: 'Thorough with examples' },
+]
 
 const STT_PROVIDERS: { value: STTProviderType; label: string; description: string; disabled?: boolean }[] = [
   { value: 'openai', label: 'OpenAI Whisper', description: 'High accuracy, $0.006/min' },
@@ -78,7 +84,7 @@ export function SettingsPage() {
     if (window.electronAPI) {
       await window.electronAPI.deleteApiKey(provider)
     } else {
-      localStorage.removeItem(`voiceflow-api-key-${provider}`)
+      localStorage.removeItem(`voxgen-api-key-${provider}`)
     }
     if (provider === 'openai') setHasOpenAIKey(false)
     if (provider === 'groq') setHasGroqKey(false)
@@ -306,6 +312,73 @@ export function SettingsPage() {
 
         <Separator />
 
+        {/* Keyword Triggers */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label>Keyword Triggers</Label>
+            <p className="text-xs text-muted-foreground">
+              Auto-detect commands like "write me an email about..." and generate content
+            </p>
+          </div>
+          <Switch
+            checked={settings.keywordTriggersEnabled}
+            onCheckedChange={(v) => updateSetting('keywordTriggersEnabled', v)}
+          />
+        </div>
+
+        <Separator />
+
+        {/* Output Length */}
+        <div className="space-y-3">
+          <Label>Output Length</Label>
+          <p className="text-xs text-muted-foreground">
+            Control the length of AI-generated content
+          </p>
+          <div className="grid gap-2">
+            {OUTPUT_LENGTHS.map((l) => (
+              <label
+                key={l.value}
+                className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
+                  settings.outputLength === l.value
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-muted-foreground/30'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="outputLength"
+                  value={l.value}
+                  checked={settings.outputLength === l.value}
+                  onChange={() => updateSetting('outputLength', l.value)}
+                  className="accent-primary"
+                />
+                <div>
+                  <div className="text-sm font-medium">{l.label}</div>
+                  <div className="text-xs text-muted-foreground">{l.description}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Prompt Refinement */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label>Prompt Refinement</Label>
+            <p className="text-xs text-muted-foreground">
+              AI cleans up your spoken instructions before generating content
+            </p>
+          </div>
+          <Switch
+            checked={settings.promptRefinementEnabled}
+            onCheckedChange={(v) => updateSetting('promptRefinementEnabled', v)}
+          />
+        </div>
+
+        <Separator />
+
         {/* Auto-paste toggle */}
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
@@ -333,7 +406,7 @@ export function SettingsPage() {
         {/* Updates */}
         <div className="space-y-2">
           {appVersion && (
-            <p className="text-sm text-muted-foreground">VoiceFlow v{appVersion}</p>
+            <p className="text-sm text-muted-foreground">VoxGen v{appVersion}</p>
           )}
           <div className="flex items-center gap-3">
             <Button

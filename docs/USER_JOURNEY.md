@@ -1,9 +1,9 @@
-# VoiceFlow — User Journey
+# VoxGen — User Journey
 
 ## Download & Install
 
 1. Visit website → Read features → Click "Download for Windows"
-2. Run `VoiceFlow Setup.exe` → Windows SmartScreen → "Run anyway"
+2. Run `VoxGen Setup.exe` → Windows SmartScreen → "Run anyway"
 3. App installs, launches, appears in system tray
 
 ## First-Time Setup

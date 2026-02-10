@@ -1,7 +1,7 @@
 {
-  "name": "voiceflow",
-  "version": "1.7.1",
-  "description": "AI-powered system-wide dictation app",
+  "name": "voxgen",
+  "version": "1.8.0",
+  "description": "AI-powered system-wide dictation with smart content generation",
   "type": "module",
   "main": "dist-electron/main/index.js",
   "scripts": {

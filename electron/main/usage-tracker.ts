@@ -38,7 +38,7 @@ export async function trackUsage(data: {
     })
 
     request.on('error', (err) => {
-      console.error('[VoiceFlow] Usage tracking failed:', err.message)
+      console.error('[VoxGen] Usage tracking failed:', err.message)
       reject(err)
     })
 

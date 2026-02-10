@@ -1,13 +1,14 @@
 import { useState, useCallback, useRef } from 'react'
 import type { RecordingState, TranscriptionResult } from '@/types/transcription'
 import type { STTProviderType } from '@/lib/stt/types'
-import type { CleanupProviderType } from '@/lib/cleanup/types'
+import type { CleanupProviderType, GenerationMode, OutputLength } from '@/lib/cleanup/types'
 import { useAudioRecorder } from './useAudioRecorder'
 import { useWhisperTranscription } from './useWhisperTranscription'
 import { useGptCleanup } from './useGptCleanup'
 import { useElectronBridge } from './useElectronBridge'
 import { expandSnippets } from '@/lib/snippet-engine'
 import { countWords } from '@/lib/audio-utils'
+import { detectKeywordTrigger } from '@/lib/cleanup/keyword-detector'
 import type { Snippet } from '@/types/snippets'
 
 interface UseRecordingStateReturn {
@@ -17,6 +18,7 @@ interface UseRecordingStateReturn {
   duration: number
   analyserNode: AnalyserNode | null
   error: string | null
+  detectedMode: GenerationMode | null
   startRecording: (deviceId?: string, mode?: string) => void
   stopRecording: () => void
   cancelRecording: () => void
@@ -31,6 +33,9 @@ export function useRecordingState(options: {
   sttProvider?: STTProviderType
   cleanupProvider?: CleanupProviderType
   codeMode?: boolean
+  keywordTriggersEnabled?: boolean
+  outputLength?: OutputLength
+  promptRefinementEnabled?: boolean
   onComplete?: (result: TranscriptionResult) => void
 }): UseRecordingStateReturn {
   const {
@@ -41,6 +46,9 @@ export function useRecordingState(options: {
     sttProvider = 'openai',
     cleanupProvider = 'openai',
     codeMode = false,
+    keywordTriggersEnabled = true,
+    outputLength = 'medium',
+    promptRefinementEnabled = false,
     onComplete,
   } = options
 
@@ -49,6 +57,7 @@ export function useRecordingState(options: {
   const [cleanedText, setCleanedText] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [lastResult, setLastResult] = useState<TranscriptionResult | null>(null)
+  const [detectedMode, setDetectedMode] = useState<GenerationMode | null>(null)
 
   const recorder = useAudioRecorder()
   const whisper = useWhisperTranscription(sttProvider)
@@ -62,6 +71,7 @@ export function useRecordingState(options: {
     setError(null)
     setRawText('')
     setCleanedText('')
+    setDetectedMode(null)
     recordingModeRef.current = mode
     try {
       await recorder.startRecording(deviceId)
@@ -90,7 +100,7 @@ export function useRecordingState(options: {
       const filename = `recording-${Date.now()}.webm`
       audioBlob.arrayBuffer().then(buffer => {
         window.electronAPI?.saveRecording(filename, buffer).catch((err: any) =>
-          console.warn('[VoiceFlow] Failed to save recording:', err)
+          console.warn('[VoxGen] Failed to save recording:', err)
         )
       })
 
@@ -100,16 +110,36 @@ export function useRecordingState(options: {
       setRawText(raw)
 
       // Cleanup / Generate / Code phase
+      // Priority: prompt mode → keyword triggers → code mode → cleanup → raw
       let cleaned = raw
+      setDetectedMode(null)
+
       if (mode === 'prompt' && raw.trim()) {
         // AI Prompt mode: generate content from spoken instructions
         // Code mode applies only here — spoken code instructions → actual code
         setState('PROCESSING_CLEANUP')
         cleaned = codeMode ? await gpt.cleanupCode(raw) : await gpt.generate(raw)
-      } else if (cleanupEnabled && raw.trim()) {
-        // Hold/Toggle modes: just transcription cleanup (filler words, grammar)
-        setState('PROCESSING_CLEANUP')
-        cleaned = await gpt.cleanup(raw)
+      } else if (raw.trim()) {
+        // Check for keyword triggers (e.g., "write me an email about...")
+        const detection = detectKeywordTrigger(raw, keywordTriggersEnabled)
+
+        if (detection.detected && detection.triggerType) {
+          setState('PROCESSING_CLEANUP')
+          setDetectedMode(detection.triggerType)
+          let instructions = detection.contentAfterTrigger
+          if (promptRefinementEnabled) {
+            instructions = await gpt.refinePrompt(instructions)
+          }
+          cleaned = await gpt.generateWithTemplate(detection.triggerType, instructions, outputLength)
+        } else if (codeMode) {
+          // Code mode: convert spoken instructions to code
+          setState('PROCESSING_CLEANUP')
+          cleaned = await gpt.cleanupCode(raw)
+        } else if (cleanupEnabled) {
+          // Hold/Toggle modes: just transcription cleanup (filler words, grammar)
+          setState('PROCESSING_CLEANUP')
+          cleaned = await gpt.cleanup(raw)
+        }
       }
 
       // Snippet expansion (skip for prompt mode — generated content shouldn't be snippet-expanded)
@@ -141,13 +171,14 @@ export function useRecordingState(options: {
       setError(err.message ?? 'Processing failed')
       setState('IDLE')
     }
-  }, [state, recorder, whisper, gpt, language, cleanupEnabled, codeMode, autoCopy, snippets, injectText, onComplete])
+  }, [state, recorder, whisper, gpt, language, cleanupEnabled, codeMode, keywordTriggersEnabled, outputLength, promptRefinementEnabled, autoCopy, snippets, injectText, onComplete])
 
   const cancelRecording = useCallback(() => {
     recorder.cancelRecording()
     setState('CANCELLED')
     setRawText('')
     setCleanedText('')
+    setDetectedMode(null)
     recordingModeRef.current = undefined
     setTimeout(() => setState('IDLE'), 100)
   }, [recorder])
@@ -159,6 +190,7 @@ export function useRecordingState(options: {
     duration: recorder.duration,
     analyserNode: recorder.analyserNode,
     error,
+    detectedMode,
     startRecording,
     stopRecording,
     cancelRecording,

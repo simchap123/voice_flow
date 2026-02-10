@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VoiceFlow - Type With Your Voice</title>
+  <title>VoxGen - Type With Your Voice</title>
   <meta name="description" content="AI-powered dictation that works everywhere. Hold a hotkey, speak, and your words appear in any app. Powered by Whisper AI." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -673,7 +673,7 @@
       <div class="logo-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
       </div>
-      VoiceFlow
+      VoxGen
     </a>
     <div class="nav-links">
       <a href="#features">Features</a>
@@ -747,7 +747,7 @@
   <div class="container">
     <div class="section-header reveal">
       <h2>Three steps. That's it.</h2>
-      <p>VoiceFlow runs silently in your system tray. You never leave the app you're working in.</p>
+      <p>VoxGen runs silently in your system tray. You never leave the app you're working in.</p>
     </div>
     <div class="timeline">
       <div class="timeline-step reveal">
@@ -763,7 +763,7 @@
       <div class="timeline-step reveal stagger-2">
         <div class="timeline-dot">3</div>
         <h3>Text Appears</h3>
-        <p>VoiceFlow transcribes, removes filler words, fixes grammar, and pastes the clean text right where your cursor was.</p>
+        <p>VoxGen transcribes, removes filler words, fixes grammar, and pastes the clean text right where your cursor was.</p>
       </div>
     </div>
   </div>
@@ -870,7 +870,7 @@
       </div>
     </div>
     <p class="pricing-byok-note reveal">
-      Already have a Groq or OpenAI API key? <strong>Use VoiceFlow free for 30 days</strong>, then BYOK forever &mdash; no license needed.
+      Already have a Groq or OpenAI API key? <strong>Use VoxGen free for 30 days</strong>, then BYOK forever &mdash; no license needed.
     </p>
   </div>
 </section>
@@ -879,7 +879,7 @@
 <section id="get-started" class="get-started-section">
   <div class="container">
     <div class="get-started-box reveal">
-      <h2>Get VoiceFlow</h2>
+      <h2>Get VoxGen</h2>
       <p>Enter your email to download. You'll use this email to activate your license in the app.</p>
 
       <div class="get-started-email-wrap">
@@ -906,7 +906,7 @@
 <!-- Footer -->
 <footer>
   <div class="container">
-    <p>&copy; 2026 VoiceFlow. Built with Electron, React, and Whisper AI.</p>
+    <p>&copy; 2026 VoxGen. Built with Electron, React, and Whisper AI.</p>
   </div>
 </footer>
 
@@ -948,8 +948,8 @@
   })();
 
   // Dynamically resolve the latest .exe from GitHub Releases
-  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
-  fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
+  var DOWNLOAD_URL = 'https://github.com/simchap123/VoxGen/releases/latest';
+  fetch('https://api.github.com/repos/simchap123/VoxGen/releases/latest')
     .then(function(r) { return r.json(); })
     .then(function(release) {
       var exe = release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
@@ -996,7 +996,7 @@
   function triggerDownload() {
     var link = document.createElement('a');
     link.href = DOWNLOAD_URL;
-    link.download = 'VoiceFlow Setup.exe';
+    link.download = 'VoxGen Setup.exe';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

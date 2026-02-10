@@ -1,5 +1,7 @@
-import { safeStorage } from 'electron'
+import { safeStorage, app } from 'electron'
 import Store from 'electron-store'
+import { existsSync, readFileSync, unlinkSync } from 'fs'
+import { join } from 'path'
 
 let store: Store | null = null
 
@@ -19,6 +21,9 @@ export interface AppSettings {
   localModelSize: 'tiny' | 'base' | 'small' | 'medium'
   cleanupProvider: 'groq' | 'openai' | 'none'
   codeMode: boolean
+  outputLength: 'concise' | 'medium' | 'detailed'
+  keywordTriggersEnabled: boolean
+  promptRefinementEnabled: boolean
   licenseKey: string
   licenseStatus: LicenseStatus
   licensePlan: string
@@ -42,6 +47,9 @@ const defaults: AppSettings = {
   localModelSize: 'base',
   cleanupProvider: 'openai',
   codeMode: false,
+  outputLength: 'medium',
+  keywordTriggersEnabled: true,
+  promptRefinementEnabled: false,
   licenseKey: '',
   licenseStatus: 'none',
   licensePlan: '',
@@ -55,9 +63,52 @@ export function initStore() {
   try {
     store = new Store({
       defaults,
-      name: 'voiceflow-settings',
+      name: 'voxgen-settings',
     })
-    console.log('[VoiceFlow] Store initialized successfully at:', (store as any).path)
+    console.log('[VoxGen] Store initialized successfully at:', (store as any).path)
+
+    // --- Migrate from old voiceflow-settings store (v1.7.x → v1.8.0 rebrand) ---
+    const userDataPath = app.getPath('userData')
+    const oldStorePath = join(userDataPath, 'voiceflow-settings.json')
+    if (existsSync(oldStorePath)) {
+      try {
+        const oldData = JSON.parse(readFileSync(oldStorePath, 'utf-8'))
+        console.log('[VoxGen] Found old voiceflow-settings.json — migrating...')
+
+        // Copy all known settings from old store
+        for (const key of Object.keys(defaults)) {
+          if (oldData[key] !== undefined) {
+            store.set(key, oldData[key])
+          }
+        }
+
+        // Copy API keys (encrypted) — stored as api_key_<provider> and api_key_<provider>_plain
+        for (const k of Object.keys(oldData)) {
+          if (k.startsWith('api_key_') || k === 'openai_api_key' || k === 'openai_api_key_plain') {
+            store.set(k, oldData[k])
+          }
+        }
+
+        // Copy history + snippets
+        if (oldData.transcription_history) {
+          store.set('transcription_history', oldData.transcription_history)
+        }
+        if (oldData.snippets) {
+          store.set('snippets', oldData.snippets)
+        }
+
+        // Rename old file so migration only runs once
+        try {
+          const backupPath = join(userDataPath, 'voiceflow-settings.backup.json')
+          require('fs').renameSync(oldStorePath, backupPath)
+          console.log('[VoxGen] Migration complete — old store backed up')
+        } catch {
+          console.log('[VoxGen] Migration complete — could not rename old store')
+        }
+      } catch (err) {
+        console.error('[VoxGen] Migration from voiceflow-settings failed:', err)
+      }
+    }
 
     // Migrate old hotkey/hotkeyMode to holdHotkey/toggleHotkey
     const oldHotkey = store.get('hotkey') as string | undefined
@@ -72,16 +123,16 @@ export function initStore() {
       }
       store.delete('hotkey')
       store.delete('hotkeyMode')
-      console.log(`[VoiceFlow] Migrated hotkey "${oldHotkey}" (mode: ${oldMode}) to new format`)
+      console.log(`[VoxGen] Migrated hotkey "${oldHotkey}" (mode: ${oldMode}) to new format`)
     }
     // Initialize trial on first launch
     const trialStarted = store.get('trialStartedAt', 0) as number
     if (!trialStarted) {
       store.set('trialStartedAt', Date.now())
-      console.log('[VoiceFlow] Trial period started')
+      console.log('[VoxGen] Trial period started')
     }
   } catch (err) {
-    console.error('[VoiceFlow] Failed to init store:', err)
+    console.error('[VoxGen] Failed to init store:', err)
   }
 }
 
@@ -113,6 +164,9 @@ export function getAllSettings(): AppSettings {
     localModelSize: store.get('localModelSize', defaults.localModelSize) as AppSettings['localModelSize'],
     cleanupProvider: store.get('cleanupProvider', defaults.cleanupProvider) as AppSettings['cleanupProvider'],
     codeMode: store.get('codeMode', defaults.codeMode) as boolean,
+    outputLength: store.get('outputLength', defaults.outputLength) as AppSettings['outputLength'],
+    keywordTriggersEnabled: store.get('keywordTriggersEnabled', defaults.keywordTriggersEnabled) as boolean,
+    promptRefinementEnabled: store.get('promptRefinementEnabled', defaults.promptRefinementEnabled) as boolean,
     licenseKey: store.get('licenseKey', defaults.licenseKey) as string,
     licenseStatus: store.get('licenseStatus', defaults.licenseStatus) as LicenseStatus,
     licensePlan: store.get('licensePlan', defaults.licensePlan) as string,
@@ -174,15 +228,15 @@ export function ensureTrialStarted() {
   const existing = store.get('trialStartedAt', 0) as number
   if (!existing) {
     store.set('trialStartedAt', Date.now())
-    console.log('[VoiceFlow] Trial started')
+    console.log('[VoxGen] Trial started')
   }
 }
 
 // Secure API key storage — supports multiple providers (openai, groq, deepgram)
 export function saveApiKey(key: string, provider: string = 'openai'): boolean {
-  console.log(`[VoiceFlow] saveApiKey called for ${provider}, store exists:`, !!store, 'encryption available:', safeStorage.isEncryptionAvailable())
+  console.log(`[VoxGen] saveApiKey called for ${provider}, store exists:`, !!store, 'encryption available:', safeStorage.isEncryptionAvailable())
   if (!store) {
-    console.error('[VoiceFlow] Store not initialized!')
+    console.error('[VoxGen] Store not initialized!')
     return false
   }
 
@@ -191,14 +245,14 @@ export function saveApiKey(key: string, provider: string = 'openai'): boolean {
 
   if (!safeStorage.isEncryptionAvailable()) {
     store.set(plainKey, key)
-    console.log(`[VoiceFlow] API key saved for ${provider} (plaintext fallback)`)
+    console.log(`[VoxGen] API key saved for ${provider} (plaintext fallback)`)
     return false
   }
 
   const encrypted = safeStorage.encryptString(key)
   store.set(storeKey, encrypted.toString('base64'))
   store.delete(plainKey)
-  console.log(`[VoiceFlow] API key saved for ${provider} (encrypted)`)
+  console.log(`[VoxGen] API key saved for ${provider} (encrypted)`)
   return true
 }
 
@@ -242,7 +296,7 @@ export function deleteApiKey(provider: string = 'openai'): boolean {
     store.delete('openai_api_key')
     store.delete('openai_api_key_plain')
   }
-  console.log(`[VoiceFlow] API key deleted for ${provider}`)
+  console.log(`[VoxGen] API key deleted for ${provider}`)
   return true
 }
 

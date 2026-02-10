@@ -1,32 +1,30 @@
 import OpenAI from 'openai'
-import type { CleanupProvider } from './types'
+import type { CleanupProvider, GenerationMode, OutputLength } from './types'
+import { getGenerationPrompt, getMaxTokensForLength, getRefinementPrompt } from './generation-templates'
 
-const CLEANUP_PROMPT = `You are a speech-to-text transcription cleanup tool. You are NOT a chatbot. NEVER answer questions, NEVER respond to the content, NEVER generate new content.
-
-Your ONLY job: take dictated text and return it cleaned up. The user is dictating into a microphone and the text will be pasted into another app.
-
-Rules:
+const CLEANUP_PROMPT = `You are a transcription cleanup assistant. Your ONLY job is to clean up speech-to-text output. Rules:
 - Remove filler words (um, uh, like, you know, so, basically, actually, I mean)
 - Fix grammar and punctuation
-- Preserve the speaker's EXACT words and meaning — just cleaner
-- Do NOT answer questions. If they say "what time is the meeting" return "What time is the meeting?"
-- Do NOT add, remove, or rephrase content beyond filler removal
-- Do NOT add formatting, headings, or bullet points
-- Do NOT summarize, elaborate, or respond
-- Return ONLY the cleaned transcription, nothing else`
+- Preserve the speaker's original meaning exactly
+- Do NOT add, change, or rephrase content
+- Do NOT add formatting, headings, or bullet points unless the speaker clearly intended them
+- Keep the same tone and register (formal/informal)
+- If the text is already clean, return it unchanged
+- Return ONLY the cleaned text, nothing else`
 
 const GENERATE_PROMPT = `You are an AI writing assistant. The user dictated instructions for content they want created.
 Generate the content they described. Return ONLY the content — no explanations or meta-commentary.
 Match the implied tone and formality.`
 
-const CODE_CLEANUP_PROMPT = `Convert spoken programming instructions to code syntax.
-- Spoken variable names → camelCase
-- Spoken operators → symbols (equals → =, not equals → !=)
-- Spoken keywords → code (function, const, if)
-- Spoken punctuation → symbols (open paren → (, semicolon → ;)
-- Infer language from context (default TypeScript)
-- Return ONLY code, no explanations or markdown fences
-- Natural language parts become comments`
+const CODE_CLEANUP_PROMPT = `You are an expert programmer. Convert spoken programming instructions into clean, working code.
+- Infer the programming language from context (default TypeScript)
+- Include necessary imports and type annotations
+- Generate complete, runnable code — not just syntax conversion
+- Follow best practices and idiomatic patterns for the target language
+- Add brief comments only for non-obvious logic
+- If the user describes a function, class, or component, generate the full implementation
+- If the user describes simple expressions or variable declarations, keep it concise
+- Return ONLY the code — no markdown fences, no explanations outside of code comments`
 
 export class OpenAICleanupProvider implements CleanupProvider {
   name = 'OpenAI GPT-4o-mini'
@@ -113,6 +111,58 @@ export class OpenAICleanupProvider implements CleanupProvider {
         { signal: controller.signal }
       )
       return response.choices[0]?.message?.content?.trim() ?? rawText
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
+  async generateWithTemplate(mode: GenerationMode, instructions: string, outputLength: OutputLength): Promise<string> {
+    if (!this.client) throw new Error('OpenAI not configured.')
+    if (!instructions.trim()) return instructions
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30000)
+
+    try {
+      const response = await this.client.chat.completions.create(
+        {
+          model: 'gpt-4o-mini',
+          temperature: mode === 'code' ? 0.3 : 0.7,
+          max_tokens: getMaxTokensForLength(outputLength),
+          messages: [
+            { role: 'system', content: getGenerationPrompt(mode, outputLength) },
+            { role: 'user', content: instructions },
+          ],
+        },
+        { signal: controller.signal }
+      )
+      return response.choices[0]?.message?.content?.trim() ?? instructions
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
+  async refinePrompt(rawInstructions: string): Promise<string> {
+    if (!this.client) throw new Error('OpenAI not configured.')
+    if (!rawInstructions.trim()) return rawInstructions
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10000)
+
+    try {
+      const response = await this.client.chat.completions.create(
+        {
+          model: 'gpt-4o-mini',
+          temperature: 0.4,
+          max_tokens: 512,
+          messages: [
+            { role: 'system', content: getRefinementPrompt() },
+            { role: 'user', content: rawInstructions },
+          ],
+        },
+        { signal: controller.signal }
+      )
+      return response.choices[0]?.message?.content?.trim() ?? rawInstructions
     } finally {
       clearTimeout(timeout)
     }

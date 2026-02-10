@@ -1,4 +1,4 @@
-# VoiceFlow Architecture
+# VoxGen Architecture
 
 ## Overview
 
@@ -137,7 +137,7 @@ Offline STT using whisper.cpp, zero cloud dependency:
 
 **Model storage:**
 ```
-%APPDATA%/voiceflow/models/
+%APPDATA%/voxgen/models/
   ├── ggml-base.bin      (142MB)
   ├── ggml-small.bin     (466MB, optional)
   └── ggml-medium.bin    (1.5GB, optional)

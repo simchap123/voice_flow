@@ -1,5 +1,5 @@
 import type { STTProviderType } from '@/lib/stt/types'
-import type { CleanupProviderType } from '@/lib/cleanup/types'
+import type { CleanupProviderType, OutputLength } from '@/lib/cleanup/types'
 
 export type LicenseStatus = 'none' | 'active' | 'expired' | 'invalid'
 
@@ -20,6 +20,11 @@ export interface AppSettings {
   cleanupProvider: CleanupProviderType
   cleanupEnabled: boolean
   codeMode: boolean
+
+  // Content generation
+  outputLength: OutputLength
+  keywordTriggersEnabled: boolean
+  promptRefinementEnabled: boolean
 
   // UI
   theme: 'dark' | 'light'
@@ -48,6 +53,10 @@ export const defaultSettings: AppSettings = {
   cleanupProvider: 'openai',
   cleanupEnabled: true,
   codeMode: false,
+
+  outputLength: 'medium',
+  keywordTriggersEnabled: true,
+  promptRefinementEnabled: false,
 
   theme: 'dark',
   autoCopy: true,

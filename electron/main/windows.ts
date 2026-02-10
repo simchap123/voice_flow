@@ -85,7 +85,7 @@ export function createOverlayWindow(): BrowserWindow {
 
   // Track when overlay has finished loading (API key + settings ready)
   overlayWindow.webContents.on('did-finish-load', () => {
-    console.log('[VoiceFlow] Overlay window loaded and ready')
+    console.log('[VoxGen] Overlay window loaded and ready')
     // Briefly show and hide to initialize mic permissions, then hide
     if (overlayWindow && !overlayWindow.isDestroyed()) {
       overlayWindow.show()

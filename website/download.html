@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VoiceFlow - Get Started</title>
+  <title>VoxGen - Get Started</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -261,12 +261,12 @@
     <div class="logo-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
     </div>
-    VoiceFlow
+    VoxGen
   </a>
 
   <!-- Email gate: shown when no email param -->
   <div id="email-gate" style="display:none;">
-    <h1 class="reveal">Download <span class="gradient">VoiceFlow</span></h1>
+    <h1 class="reveal">Download <span class="gradient">VoxGen</span></h1>
     <p class="subtitle reveal stagger-1">Enter your email to get the download.</p>
     <div class="reveal stagger-2" style="max-width:400px;margin:0 auto 16px;">
       <input type="email" id="gate-email" placeholder="your@email.com" style="width:100%;padding:14px 18px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;font-family:inherit;outline:none;" />
@@ -285,7 +285,7 @@
     Your download has started
   </div>
 
-  <h1 class="reveal stagger-1">Open VoiceFlow in <span class="gradient">3 steps</span></h1>
+  <h1 class="reveal stagger-1">Open VoxGen in <span class="gradient">3 steps</span></h1>
   <p class="subtitle reveal stagger-2">Get up and running in under a minute.</p>
 
   <div class="steps">
@@ -293,13 +293,13 @@
       <div class="step-num">1</div>
       <div class="step-content">
         <h3>Open your Downloads</h3>
-        <p>Look for <strong>VoiceFlow Setup.exe</strong> in your Downloads folder or at the bottom of your browser.</p>
+        <p>Look for <strong>VoxGen Setup.exe</strong> in your Downloads folder or at the bottom of your browser.</p>
       </div>
     </div>
     <div class="step reveal stagger-2">
       <div class="step-num">2</div>
       <div class="step-content">
-        <h3>Double-click VoiceFlow Setup.exe</h3>
+        <h3>Double-click VoxGen Setup.exe</h3>
         <p>If Windows SmartScreen appears, click <strong>"More info"</strong> then <strong>"Run anyway"</strong> &mdash; the app is safe and open source.</p>
       </div>
     </div>
@@ -307,7 +307,7 @@
       <div class="step-num">3</div>
       <div class="step-content">
         <h3>Wait for it to launch &mdash; then start dictating</h3>
-        <p>VoiceFlow will appear in your system tray. Hold <kbd>Alt</kbd> from anywhere to start your first dictation &mdash; release to stop. You can also configure a toggle hotkey in Settings.</p>
+        <p>VoxGen will appear in your system tray. Hold <kbd>Alt</kbd> from anywhere to start your first dictation &mdash; release to stop. You can also configure a toggle hotkey in Settings.</p>
       </div>
     </div>
   </div>
@@ -317,18 +317,18 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
       <h3>Set up your API key</h3>
     </div>
-    <p>VoiceFlow uses your own API key for transcription and text cleanup. Your key is encrypted on your device and never sent to us.</p>
+    <p>VoxGen uses your own API key for transcription and text cleanup. Your key is encrypted on your device and never sent to us.</p>
     <p><strong>Groq (recommended &mdash; fast &amp; cheap):</strong></p>
     <ol>
       <li>Go to <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a></li>
       <li>Create an API key and copy it</li>
-      <li>In VoiceFlow Settings, select <strong>Groq</strong> as your provider and paste the key</li>
+      <li>In VoxGen Settings, select <strong>Groq</strong> as your provider and paste the key</li>
     </ol>
     <p><strong>OpenAI (alternative):</strong></p>
     <ol>
       <li>Go to <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a></li>
       <li>Click <strong>"Create new secret key"</strong> and copy it</li>
-      <li>In VoiceFlow Settings, select <strong>OpenAI</strong> as your provider and paste the key</li>
+      <li>In VoxGen Settings, select <strong>OpenAI</strong> as your provider and paste the key</li>
     </ol>
     <p>That's it! Groq is ~8x cheaper than OpenAI. Typical usage costs less than a penny per day.</p>
   </div>
@@ -359,8 +359,8 @@
     }
   })();
 
-  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
-  fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
+  var DOWNLOAD_URL = 'https://github.com/simchap123/VoxGen/releases/latest';
+  fetch('https://api.github.com/repos/simchap123/VoxGen/releases/latest')
     .then(function(r) { return r.json(); })
     .then(function(release) {
       var exe = release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
@@ -371,7 +371,7 @@
   function triggerDownload() {
     var link = document.createElement('a');
     link.href = DOWNLOAD_URL;
-    link.download = 'VoiceFlow Setup.exe';
+    link.download = 'VoxGen Setup.exe';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

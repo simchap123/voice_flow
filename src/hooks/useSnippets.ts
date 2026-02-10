@@ -51,7 +51,7 @@ export function useSnippets() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `voiceflow-snippets-${new Date().toISOString().split('T')[0]}.json`
+    a.download = `voxgen-snippets-${new Date().toISOString().split('T')[0]}.json`
     a.click()
     URL.revokeObjectURL(url)
   }, [snippets])

@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react'
 import { getCleanupProvider } from '@/lib/cleanup/provider-factory'
-import type { CleanupProviderType } from '@/lib/cleanup/types'
+import type { CleanupProviderType, GenerationMode, OutputLength } from '@/lib/cleanup/types'
 
 interface UseCleanupReturn {
   cleanup: (rawText: string) => Promise<string>
   generate: (instructions: string) => Promise<string>
   cleanupCode: (rawText: string) => Promise<string>
+  generateWithTemplate: (mode: GenerationMode, instructions: string, outputLength: OutputLength) => Promise<string>
+  refinePrompt: (rawInstructions: string) => Promise<string>
   isCleaning: boolean
   error: string | null
 }
@@ -24,7 +26,7 @@ export function useGptCleanup(providerType: CleanupProviderType = 'openai'): Use
     } catch (err: any) {
       const message = err?.message ?? 'Cleanup failed'
       setError(message)
-      return rawText // Return raw text on failure
+      return rawText
     } finally {
       setIsCleaning(false)
     }
@@ -62,5 +64,37 @@ export function useGptCleanup(providerType: CleanupProviderType = 'openai'): Use
     }
   }, [providerType])
 
-  return { cleanup, generate, cleanupCode, isCleaning, error }
+  const generateWithTemplate = useCallback(async (mode: GenerationMode, instructions: string, outputLength: OutputLength): Promise<string> => {
+    setIsCleaning(true)
+    setError(null)
+    try {
+      const provider = getCleanupProvider(providerType)
+      const result = await provider.generateWithTemplate(mode, instructions, outputLength)
+      return result
+    } catch (err: any) {
+      const message = err?.message ?? 'Generation failed'
+      setError(message)
+      return instructions
+    } finally {
+      setIsCleaning(false)
+    }
+  }, [providerType])
+
+  const refinePrompt = useCallback(async (rawInstructions: string): Promise<string> => {
+    setIsCleaning(true)
+    setError(null)
+    try {
+      const provider = getCleanupProvider(providerType)
+      const result = await provider.refinePrompt(rawInstructions)
+      return result
+    } catch (err: any) {
+      const message = err?.message ?? 'Prompt refinement failed'
+      setError(message)
+      return rawInstructions
+    } finally {
+      setIsCleaning(false)
+    }
+  }, [providerType])
+
+  return { cleanup, generate, cleanupCode, generateWithTemplate, refinePrompt, isCleaning, error }
 }

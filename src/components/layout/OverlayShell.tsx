@@ -26,6 +26,9 @@ export function OverlayShell() {
     sttProvider: settings.sttProvider,
     cleanupProvider: settings.cleanupProvider,
     codeMode: settings.codeMode,
+    keywordTriggersEnabled: settings.keywordTriggersEnabled,
+    outputLength: settings.outputLength,
+    promptRefinementEnabled: settings.promptRefinementEnabled,
     snippets,
     onComplete: (result) => {
       window.electronAPI?.shrinkOverlay()
@@ -146,7 +149,7 @@ export function OverlayShell() {
         <button
           onClick={() => window.electronAPI?.showMainWindow()}
           className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
-          title="VoiceFlow"
+          title="VoxGen"
         >
           <Mic className="h-3.5 w-3.5 text-white/70" />
         </button>

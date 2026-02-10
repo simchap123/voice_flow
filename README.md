@@ -1,6 +1,6 @@
-# VoiceFlow
+# VoxGen
 
-AI-powered dictation that works everywhere. Hold a hotkey, speak, and your words appear in any app.
+AI-powered dictation and smart content generation that works everywhere. Hold a hotkey, speak, and your words appear in any app -- or trigger content generation with keyword commands.
 
 ## Features
 
@@ -16,13 +16,13 @@ AI-powered dictation that works everywhere. Hold a hotkey, speak, and your words
 
 ## Download
 
-Get the latest release from [freevoiceflow.vercel.app](https://freevoiceflow.vercel.app) or the [GitHub Releases](https://github.com/simchap123/voice_flow/releases) page.
+Get the latest release from [freevoiceflow.vercel.app](https://freevoiceflow.vercel.app) or the [GitHub Releases](https://github.com/simchap123/VoxGen/releases) page.
 
 ## Quick Start
 
-1. Download and run `VoiceFlow Setup.exe`
+1. Download and run `VoxGen Setup.exe`
 2. Get a free API key from [Groq](https://console.groq.com/keys) or [OpenAI](https://platform.openai.com/api-keys)
-3. Open VoiceFlow Settings, select your provider, and paste the key
+3. Open VoxGen Settings, select your provider, and paste the key
 4. Hold **Alt** from anywhere to start dictating — release to stop
 
 ## Development

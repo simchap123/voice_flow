@@ -28,7 +28,7 @@ export async function injectText(text: string): Promise<{ success: boolean; meth
 
     return { success: true, method: 'nut-js-paste' }
   } catch (error) {
-    console.error('[VoiceFlow] nut-js injection failed, text is in clipboard:', error)
+    console.error('[VoxGen] nut-js injection failed, text is in clipboard:', error)
     // Fallback: text remains in clipboard, user can paste manually
     return { success: false, method: 'clipboard-only' }
   }

@@ -9,7 +9,7 @@ export function TitleBar() {
     <div className="titlebar-drag flex h-8 items-center justify-between border-b border-border/50 bg-background/80 px-3">
       <div className="flex items-center gap-2">
         <div className="h-3 w-3 rounded-full bg-primary" />
-        <span className="text-xs font-medium text-muted-foreground">VoiceFlow</span>
+        <span className="text-xs font-medium text-muted-foreground">VoxGen</span>
       </div>
       <div className="titlebar-no-drag flex items-center gap-1">
         <button

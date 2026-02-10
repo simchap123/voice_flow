@@ -7,52 +7,52 @@ let updateDownloaded = false
 
 export function initAutoUpdater() {
   if (!app.isPackaged) {
-    console.log('[VoiceFlow] Skipping auto-updater in dev mode (run installed app to test)')
+    console.log('[VoxGen] Skipping auto-updater in dev mode (run installed app to test)')
     return
   }
 
-  console.log('[VoiceFlow] Auto-updater starting, current version:', app.getVersion())
+  console.log('[VoxGen] Auto-updater starting, current version:', app.getVersion())
   autoUpdater.autoDownload = true
   autoUpdater.autoInstallOnAppQuit = true
 
   autoUpdater.on('checking-for-update', () => {
-    console.log('[VoiceFlow] Checking for update...')
+    console.log('[VoxGen] Checking for update...')
   })
 
   autoUpdater.on('update-available', (info) => {
-    console.log('[VoiceFlow] Update available:', info.version)
+    console.log('[VoxGen] Update available:', info.version)
     updateAvailableVersion = info.version
   })
 
   autoUpdater.on('update-not-available', () => {
-    console.log('[VoiceFlow] No update available')
+    console.log('[VoxGen] No update available')
   })
 
   autoUpdater.on('download-progress', (progress) => {
-    console.log(`[VoiceFlow] Download progress: ${Math.round(progress.percent)}%`)
+    console.log(`[VoxGen] Download progress: ${Math.round(progress.percent)}%`)
   })
 
   autoUpdater.on('update-downloaded', (info) => {
-    console.log('[VoiceFlow] Update downloaded:', info.version)
+    console.log('[VoxGen] Update downloaded:', info.version)
     updateDownloaded = true
     updateAvailableVersion = info.version
   })
 
   autoUpdater.on('error', (err) => {
-    console.error('[VoiceFlow] Auto-updater error:', err.message)
+    console.error('[VoxGen] Auto-updater error:', err.message)
   })
 
   // Check on startup
   autoUpdater.checkForUpdatesAndNotify().catch((err) => {
-    console.error('[VoiceFlow] Failed to check for updates:', err.message)
+    console.error('[VoxGen] Failed to check for updates:', err.message)
   })
 
   // Re-check every 24 hours while app is running
   const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000
   setInterval(() => {
-    console.log('[VoiceFlow] Periodic update check (24h)')
+    console.log('[VoxGen] Periodic update check (24h)')
     autoUpdater.checkForUpdatesAndNotify().catch((err) => {
-      console.error('[VoiceFlow] Periodic update check failed:', err.message)
+      console.error('[VoxGen] Periodic update check failed:', err.message)
     })
   }, TWENTY_FOUR_HOURS)
 }
@@ -73,7 +73,7 @@ export async function checkForUpdates(): Promise<{ updateAvailable: boolean; ver
       }
     }
   } catch (err: any) {
-    console.error('[VoiceFlow] Manual update check failed:', err.message)
+    console.error('[VoxGen] Manual update check failed:', err.message)
   }
 
   return { updateAvailable: false }

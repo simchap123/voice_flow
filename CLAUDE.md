@@ -1,6 +1,6 @@
-# VoiceFlow - AI Dictation App
+# VoxGen - AI Dictation & Content Generation
 
-System-wide AI dictation: press a global hotkey from any app, speak, and transcribed + AI-cleaned text gets typed into the focused application.
+System-wide AI dictation and smart content generation: press a global hotkey from any app, speak, and transcribed + AI-cleaned text gets typed into the focused application. Use keyword triggers to generate structured content from voice prompts.
 
 **Stack:** Electron 33 + React 19 + Vite 6 + TypeScript 5 + Tailwind 3 + shadcn/ui (Radix)
 
@@ -63,6 +63,12 @@ Cleanup: OpenAI GPT-4o-mini | Groq Llama 3.3 | None (disabled)
 - **Backend:** Vercel serverless + Supabase DB + Stripe payments
 - **Validation:** /api/validate-license { email }, cached 24h, offline-safe
 
+### Content Generation System
+- **Keyword triggers:** Special words (e.g., "generate", "compose", "draft") at the start of a dictation activate content generation mode
+- **Generation templates:** Predefined templates for emails, summaries, blog posts, and other structured content
+- **Prompt refinement:** Spoken rough ideas are refined by AI into well-structured prompts before generation
+- **Smart content generation:** Voice-driven content creation that goes beyond simple dictation
+
 ### Environment Variables (Vercel)
 ```
 STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
@@ -86,7 +92,7 @@ APP_URL
 - `openai` v4 (used for both OpenAI and Groq — Groq is OpenAI-compatible)
 - `uiohook-napi` for global keyboard hooks
 
-## Current Version: v1.7.0
+## Current Version: v1.0.0
 
 ### Recent Session (Feb 2026) — What Was Done
 
@@ -108,12 +114,12 @@ APP_URL
 #### v1.5.0 Changes
 12. **Feature: Recording Backup** — All recordings auto-saved as .webm files in `userData/recordings/`. History cards have a download button. "Open Recordings Folder" button in History page. Export via system save dialog.
 13. **Feature: Overlay Redesign** — Idle overlay is now a toolbar with mic/settings/close icons. Recording state shows a cleaner pill with stop/cancel. Separate processing and error visual states. `expandOverlayIdle()` and `showOverlayIdle()` added to windows.ts.
-14. **Feature: Auto-Update via GitHub Releases** — `electron-updater` checks GitHub Releases on startup, auto-downloads updates, and prompts user to restart. "Check for Updates" button in Settings. `publish` config in electron-builder.json5 points to `simchap123/voice_flow`.
+14. **Feature: Auto-Update via GitHub Releases** — `electron-updater` checks GitHub Releases on startup, auto-downloads updates, and prompts user to restart. "Check for Updates" button in Settings. `publish` config in electron-builder.json5 points to `simchap123/VoxGen`.
 
 ### Build Notes
 - `npm run build` now runs `clean` + `vite build` (no standalone `tsc` — vite-plugin-electron handles TS compilation)
 - `npx electron-builder --win --config.win.signAndEditExecutable=false` needed on Windows without symlink privileges
-- Installer: `release/VoiceFlow Setup {version}.exe`
+- Installer: `release/VoxGen Setup {version}.exe`
 - Website download URL in `website/index.html` must be updated when version changes
 
 ### IPC Channels Added in v1.4.x

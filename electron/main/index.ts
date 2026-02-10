@@ -43,7 +43,7 @@ app.whenReady().then(async () => {
 
   // Check license validity on startup (non-blocking)
   checkLicenseOnStartup().catch(err => {
-    console.warn('[VoiceFlow] License check on startup failed:', err.message)
+    console.warn('[VoxGen] License check on startup failed:', err.message)
   })
 
   // Check for updates (non-blocking)

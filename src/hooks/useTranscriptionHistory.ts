@@ -70,7 +70,7 @@ export function useTranscriptionHistory() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `voiceflow-history-${new Date().toISOString().split('T')[0]}.txt`
+    a.download = `voxgen-history-${new Date().toISOString().split('T')[0]}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }, [history])

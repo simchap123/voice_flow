@@ -26,6 +26,9 @@ export function DictationPage() {
     sttProvider: settings.sttProvider,
     cleanupProvider: settings.cleanupProvider,
     codeMode: settings.codeMode,
+    keywordTriggersEnabled: settings.keywordTriggersEnabled,
+    outputLength: settings.outputLength,
+    promptRefinementEnabled: settings.promptRefinementEnabled,
     onComplete: (result) => {
       addEntry({
         rawText: result.rawText,

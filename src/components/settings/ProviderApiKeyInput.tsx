@@ -53,7 +53,7 @@ export function ProviderApiKeyInput({ provider, label, placeholder, hasKey, onSa
       <p className="text-xs text-muted-foreground">
         {hasKey
           ? 'Key saved and encrypted. Enter a new key to replace.'
-          : 'Stored securely on your device. Never sent to VoiceFlow servers.'}
+          : 'Stored securely on your device. Never sent to VoxGen servers.'}
       </p>
       <div className="flex gap-2">
         <div className="relative flex-1">

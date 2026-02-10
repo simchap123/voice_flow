@@ -50,7 +50,7 @@ export async function validateByEmail(email: string): Promise<LicenseValidationR
 
     return data
   } catch (err: any) {
-    console.error('[VoiceFlow] Email validation failed:', err.message)
+    console.error('[VoxGen] Email validation failed:', err.message)
     // On network failure, use cached result
     const cached = getLicenseInfo()
     if (cached.licenseKey === email.trim().toLowerCase() && cached.licenseStatus === 'active') {
@@ -98,7 +98,7 @@ export async function validateLicenseKey(key: string): Promise<LicenseValidation
 
     return data
   } catch (err: any) {
-    console.error('[VoiceFlow] License validation failed:', err.message)
+    console.error('[VoxGen] License validation failed:', err.message)
     const cached = getLicenseInfo()
     if (cached.licenseKey === key.trim() && cached.licenseStatus === 'active') {
       return {
@@ -118,10 +118,10 @@ export async function checkLicenseOnStartup(): Promise<void> {
     const lastCheck = getSetting('lastLicenseCheck')
     const elapsed = Date.now() - lastCheck
     if (elapsed < REVALIDATION_INTERVAL_MS) {
-      console.log('[VoiceFlow] License check skipped (cached)')
+      console.log('[VoxGen] License check skipped (cached)')
       return
     }
-    console.log('[VoiceFlow] Revalidating license by email on startup...')
+    console.log('[VoxGen] Revalidating license by email on startup...')
     await validateByEmail(email)
     return
   }
@@ -134,11 +134,11 @@ export async function checkLicenseOnStartup(): Promise<void> {
   const elapsed = Date.now() - lastCheck
 
   if (elapsed < REVALIDATION_INTERVAL_MS) {
-    console.log('[VoiceFlow] License check skipped (cached)')
+    console.log('[VoxGen] License check skipped (cached)')
     return
   }
 
-  console.log('[VoiceFlow] Revalidating license on startup...')
+  console.log('[VoxGen] Revalidating license on startup...')
   await validateLicenseKey(key)
 }
 

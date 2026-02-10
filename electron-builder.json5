@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "com.voiceflow.app",
-  "productName": "VoiceFlow",
+  "appId": "com.voxgen.app",
+  "productName": "VoxGen",
   "directories": {
     "output": "release",
     "buildResources": "resources"
@@ -27,8 +27,8 @@
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false,
-    "shortcutName": "VoiceFlow",
-    "artifactName": "VoiceFlow-Setup-${version}.${ext}"
+    "shortcutName": "VoxGen",
+    "artifactName": "VoxGen-Setup-${version}.${ext}"
   },
   "mac": {
     "target": ["dmg"],

@@ -45,7 +45,7 @@ export function registerIpcHandlers() {
 
   // Text injection
   ipcMain.handle('inject-text', async (_event, text: string) => {
-    console.log('[VoiceFlow] inject-text IPC received, text length:', text?.length)
+    console.log('[VoxGen] inject-text IPC received, text length:', text?.length)
     hideOverlay(true) // instant hide
     setIsRecording(false)
     setIsProcessing(false)
@@ -53,7 +53,7 @@ export function registerIpcHandlers() {
     // Small delay to let overlay fully hide, then paste into focused app
     await new Promise(resolve => setTimeout(resolve, 150))
     const result = await injectText(text)
-    console.log('[VoiceFlow] inject-text result:', result)
+    console.log('[VoxGen] inject-text result:', result)
     return result
   })
 
@@ -73,7 +73,7 @@ export function registerIpcHandlers() {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     }
     setHistory([entry, ...history])
-    console.log('[VoiceFlow] Saved transcription to history:', entry.cleanedText?.slice(0, 50))
+    console.log('[VoxGen] Saved transcription to history:', entry.cleanedText?.slice(0, 50))
 
     // Fire-and-forget usage tracking (don't block the user)
     trackUsage(data).catch(() => {})
@@ -85,26 +85,26 @@ export function registerIpcHandlers() {
 
   // API Key management — multi-provider support
   ipcMain.handle('api-key:save', async (_event, key: string, provider: string = 'openai') => {
-    console.log(`[VoiceFlow] IPC api-key:save for ${provider}, key length:`, key?.length)
+    console.log(`[VoxGen] IPC api-key:save for ${provider}, key length:`, key?.length)
     const result = saveApiKey(key, provider)
-    console.log(`[VoiceFlow] IPC api-key:save result:`, result)
+    console.log(`[VoxGen] IPC api-key:save result:`, result)
     return result
   })
 
   ipcMain.handle('api-key:get', async (_event, provider: string = 'openai') => {
     const key = getApiKey(provider)
-    console.log(`[VoiceFlow] IPC api-key:get for ${provider}, has key:`, !!key)
+    console.log(`[VoxGen] IPC api-key:get for ${provider}, has key:`, !!key)
     return key
   })
 
   ipcMain.handle('api-key:has', async (_event, provider: string = 'openai') => {
     const has = hasApiKey(provider)
-    console.log(`[VoiceFlow] IPC api-key:has for ${provider}:`, has)
+    console.log(`[VoxGen] IPC api-key:has for ${provider}:`, has)
     return has
   })
 
   ipcMain.handle('api-key:delete', async (_event, provider: string = 'openai') => {
-    console.log(`[VoiceFlow] IPC api-key:delete for ${provider}`)
+    console.log(`[VoxGen] IPC api-key:delete for ${provider}`)
     return deleteApiKey(provider)
   })
 
@@ -151,16 +151,16 @@ export function registerIpcHandlers() {
 
   // License
   ipcMain.handle('license:validate', async (_event, key: string) => {
-    console.log('[VoiceFlow] IPC license:validate, key length:', key?.length)
+    console.log('[VoxGen] IPC license:validate, key length:', key?.length)
     const result = await validateLicenseKey(key)
-    console.log('[VoiceFlow] IPC license:validate result:', result.valid, result.plan)
+    console.log('[VoxGen] IPC license:validate result:', result.valid, result.plan)
     return result
   })
 
   ipcMain.handle('license:validate-email', async (_event, email: string) => {
-    console.log('[VoiceFlow] IPC license:validate-email:', email)
+    console.log('[VoxGen] IPC license:validate-email:', email)
     const result = await validateByEmail(email)
-    console.log('[VoiceFlow] IPC license:validate-email result:', result.valid, result.plan)
+    console.log('[VoxGen] IPC license:validate-email result:', result.valid, result.plan)
     return result
   })
 
@@ -170,7 +170,7 @@ export function registerIpcHandlers() {
 
   ipcMain.handle('license:clear', async () => {
     clearLicense()
-    console.log('[VoiceFlow] License cleared')
+    console.log('[VoxGen] License cleared')
   })
 
   // Clipboard (reliable across Electron windows)
@@ -220,10 +220,10 @@ export function registerIpcHandlers() {
       await mkdir(recordingsDir, { recursive: true })
       const filePath = join(recordingsDir, filename)
       await writeFile(filePath, Buffer.from(buffer))
-      console.log('[VoiceFlow] Saved recording:', filePath)
+      console.log('[VoxGen] Saved recording:', filePath)
       return { success: true, path: filePath }
     } catch (err: any) {
-      console.error('[VoiceFlow] Failed to save recording:', err)
+      console.error('[VoxGen] Failed to save recording:', err)
       return { success: false, error: err.message }
     }
   })

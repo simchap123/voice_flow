@@ -15,11 +15,11 @@ export function createTray() {
   const icon = nativeImage.createFromPath(iconPath)
 
   tray = new Tray(icon)
-  tray.setToolTip('VoiceFlow - AI Dictation')
+  tray.setToolTip('VoxGen - AI Dictation')
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Show VoiceFlow',
+      label: 'Show VoxGen',
       click: () => {
         const mainWin = getMainWindow()
         mainWin?.show()
