@@ -8,6 +8,7 @@ export interface AppSettings {
   holdHotkey: string
   toggleHotkey: string
   promptHotkey: string
+  doubleTapHotkey: string
   language: string
   audioInputDeviceId: string
 
@@ -37,6 +38,7 @@ export const defaultSettings: AppSettings = {
   holdHotkey: 'Alt',
   toggleHotkey: '',
   promptHotkey: '',
+  doubleTapHotkey: '',
   language: 'en',
   audioInputDeviceId: 'default',
 

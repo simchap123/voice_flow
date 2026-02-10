@@ -9,6 +9,7 @@ export interface AppSettings {
   holdHotkey: string
   toggleHotkey: string
   promptHotkey: string
+  doubleTapHotkey: string
   language: string
   theme: 'dark' | 'light'
   autoCopy: boolean
@@ -31,6 +32,7 @@ const defaults: AppSettings = {
   holdHotkey: 'Alt',
   toggleHotkey: '',
   promptHotkey: '',
+  doubleTapHotkey: '',
   language: 'en',
   theme: 'dark',
   autoCopy: true,
@@ -101,6 +103,7 @@ export function getAllSettings(): AppSettings {
     holdHotkey: store.get('holdHotkey', defaults.holdHotkey) as string,
     toggleHotkey: store.get('toggleHotkey', defaults.toggleHotkey) as string,
     promptHotkey: store.get('promptHotkey', defaults.promptHotkey) as string,
+    doubleTapHotkey: store.get('doubleTapHotkey', defaults.doubleTapHotkey) as string,
     language: store.get('language', defaults.language) as string,
     theme: store.get('theme', defaults.theme) as 'dark' | 'light',
     autoCopy: store.get('autoCopy', defaults.autoCopy) as boolean,

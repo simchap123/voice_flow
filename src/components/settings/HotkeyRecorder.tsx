@@ -19,6 +19,15 @@ const MODIFIER_MAP: Record<string, string> = {
   'Meta': 'Super',
 }
 
+const isWindows = navigator.userAgent.includes('Windows')
+
+// Display-friendly name for saved hotkey values
+function displayHotkey(hotkey: string): string {
+  if (!isWindows) return hotkey
+  // Replace "Super" with "Windows" for display on Windows
+  return hotkey.replace(/\bSuper\b/g, 'Windows')
+}
+
 // Map browser key event to Electron accelerator format
 function keyEventToAccelerator(e: KeyboardEvent): string | null {
   const parts: string[] = []
@@ -67,7 +76,7 @@ export function HotkeyRecorder({
   value,
   onChange,
   label = 'Global Hotkey',
-  description = 'Press a key combo (e.g. Alt+J) or hold a single modifier (Alt, Ctrl, Shift)',
+  description = `Press a key combo (e.g. Alt+J) or hold a single modifier (Alt, Ctrl, Shift${isWindows ? ', Windows' : ''})`,
   allowClear = false,
 }: HotkeyRecorderProps) {
   const [recording, setRecording] = useState(false)
@@ -184,7 +193,7 @@ export function HotkeyRecorder({
             onKeyUp={handleKeyUp}
             className="flex h-10 flex-1 items-center rounded-md border border-primary/50 bg-primary/5 px-3 text-sm font-mono outline-none ring-2 ring-primary/20 animate-pulse"
           >
-            {pendingKeys ?? 'Press any key...'}
+            {pendingKeys ? displayHotkey(pendingKeys) : 'Press any key...'}
           </div>
           <Button variant="outline" size="sm" onClick={cancelRecording}>
             Cancel
@@ -193,7 +202,7 @@ export function HotkeyRecorder({
       ) : (
         <div className="flex gap-2 items-center">
           <div className="flex h-10 flex-1 items-center rounded-md border border-input bg-background px-3 text-sm font-mono">
-            {value || <span className="text-muted-foreground">Not set</span>}
+            {value ? displayHotkey(value) : <span className="text-muted-foreground">Not set</span>}
           </div>
           <Button variant="outline" size="sm" onClick={startRecording} className="gap-1.5 shrink-0">
             {saved ? <Check className="h-3 w-3 text-green-500" /> : <Keyboard className="h-3 w-3" />}

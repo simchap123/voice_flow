@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TitleBar } from '@/components/layout/TitleBar'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { OverlayShell } from '@/components/layout/OverlayShell'
@@ -37,6 +37,13 @@ function MainApp() {
 }
 
 function OverlayApp() {
+  useEffect(() => {
+    // Override the bg-background applied by index.css so the overlay
+    // window stays fully transparent (no dark rectangle behind the pill)
+    document.documentElement.style.background = 'transparent'
+    document.body.style.background = 'transparent'
+  }, [])
+
   return (
     <div className="h-screen w-screen">
       <OverlayShell />

@@ -60,6 +60,11 @@ export function SettingsPage() {
     toast({ title: 'AI Prompt hotkey updated', description: hotkey ? `Now using ${hotkey}` : 'Disabled', variant: 'success' })
   }
 
+  const handleDoubleTapHotkeyChange = (hotkey: string) => {
+    updateSetting('doubleTapHotkey', hotkey)
+    toast({ title: 'Double-tap hotkey updated', description: hotkey ? `Now using ${hotkey}` : 'Disabled', variant: 'success' })
+  }
+
   const handleSaveKey = async (key: string, provider: string) => {
     const result = await saveApiKey(key, provider)
     if (result.success) {
@@ -271,6 +276,15 @@ export function SettingsPage() {
           onChange={handlePromptHotkeyChange}
           label="AI Prompt Hotkey"
           description="Press to start, speak instructions, press again — AI generates full content (emails, docs, etc.)"
+          allowClear
+        />
+
+        {/* Double-Tap Hotkey */}
+        <HotkeyRecorder
+          value={settings.doubleTapHotkey}
+          onChange={handleDoubleTapHotkeyChange}
+          label="Double-Tap Hotkey"
+          description="Double-press a modifier key (Alt, Ctrl, Shift, or Windows) to start/stop recording"
           allowClear
         />
 

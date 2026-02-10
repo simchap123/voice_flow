@@ -19,6 +19,11 @@ let holdModifierDown = false
 let comboCancelled = false
 const HOLD_THRESHOLD_MS = 350
 
+// Double-tap state
+const DOUBLE_TAP_WINDOW_MS = 300
+let doubleTapLastKeyupTime = 0
+let doubleTapCancelled = false
+
 export function getIsRecording(): boolean {
   return isRecording
 }
@@ -224,6 +229,51 @@ function registerToggleModifier(hotkey: string): { success: boolean; error?: str
   return { success: true, keydownHandler, keyupHandler } as any
 }
 
+// Register double-tap modifier key (double-press to toggle recording on/off)
+function registerDoubleTapModifier(hotkey: string): { success: boolean; error?: string } {
+  const keycodes = MODIFIER_KEYCODES[hotkey]
+  if (!keycodes) {
+    return { success: false, error: `Unknown modifier: "${hotkey}"` }
+  }
+
+  const keydownHandler = (e: any) => {
+    if (keycodes.includes(e.keycode)) {
+      // Modifier pressed — nothing to do on down except track state
+    } else if (!ALL_MODIFIER_KEYCODES.has(e.keycode)) {
+      // A non-modifier key was pressed between taps — cancel double-tap detection
+      doubleTapCancelled = true
+    }
+  }
+
+  const keyupHandler = (e: any) => {
+    if (keycodes.includes(e.keycode)) {
+      const now = Date.now()
+
+      if (doubleTapCancelled) {
+        // Reset: a non-modifier key was pressed, so this isn't a clean double-tap
+        doubleTapCancelled = false
+        doubleTapLastKeyupTime = now
+        return
+      }
+
+      if (now - doubleTapLastKeyupTime < DOUBLE_TAP_WINDOW_MS) {
+        // Double-tap detected — toggle recording
+        doubleTapLastKeyupTime = 0 // Reset to avoid triple-tap re-trigger
+        if (!isRecording && !isProcessing) {
+          handleHotkeyAction('toggle', 'start')
+          if (hotkey === 'Alt') suppressAltMenu()
+        } else if (isRecording) {
+          handleHotkeyAction('toggle', 'stop')
+        }
+      } else {
+        doubleTapLastKeyupTime = now
+      }
+    }
+  }
+
+  return { success: true, keydownHandler, keyupHandler } as any
+}
+
 function cleanupUiohook() {
   if (uiohookKeydownHandler) {
     uIOhook.off('keydown', uiohookKeydownHandler)
@@ -241,6 +291,10 @@ function cleanupUiohook() {
   }
   holdModifierDown = false
   comboCancelled = false
+
+  // Reset double-tap state
+  doubleTapLastKeyupTime = 0
+  doubleTapCancelled = false
 }
 
 export function registerHotkeys(): { success: boolean; error?: string } {
@@ -248,8 +302,9 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   const holdHotkey = store?.get('holdHotkey', 'Alt') as string ?? 'Alt'
   const toggleHotkey = store?.get('toggleHotkey', '') as string ?? ''
   const promptHotkey = store?.get('promptHotkey', '') as string ?? ''
+  const doubleTapHotkey = store?.get('doubleTapHotkey', '') as string ?? ''
 
-  if (!holdHotkey && !toggleHotkey) {
+  if (!holdHotkey && !toggleHotkey && !doubleTapHotkey) {
     return { success: false, error: 'No hotkeys configured.' }
   }
 
@@ -333,6 +388,18 @@ export function registerHotkeys(): { success: boolean; error?: string } {
     }
   }
 
+  // Register double-tap hotkey (modifier-only: double-press to toggle recording)
+  if (doubleTapHotkey) {
+    if (isStandaloneModifier(doubleTapHotkey)) {
+      const result = registerDoubleTapModifier(doubleTapHotkey) as any
+      if (!result.success) return result
+      keydownHandlers.push(result.keydownHandler)
+      keyupHandlers.push(result.keyupHandler)
+    } else {
+      console.warn(`[VoiceFlow] Double-tap hotkey "${doubleTapHotkey}" is not a modifier key, ignoring`)
+    }
+  }
+
   // Install combined uiohook handlers if any modifier-based hotkeys
   if (keydownHandlers.length > 0 || keyupHandlers.length > 0) {
     uiohookKeydownHandler = (e: any) => {
@@ -372,6 +439,7 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   if (holdHotkey) parts.push(`hold: ${holdHotkey}`)
   if (toggleHotkey) parts.push(`toggle: ${toggleHotkey}`)
   if (promptHotkey) parts.push(`prompt: ${promptHotkey}`)
+  if (doubleTapHotkey) parts.push(`double-tap: ${doubleTapHotkey}`)
   console.log(`[VoiceFlow] Hotkeys registered: ${parts.join(', ')}`)
   return { success: true }
 }
