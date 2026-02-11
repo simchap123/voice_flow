@@ -4,6 +4,11 @@ import { app } from 'electron'
 
 let updateAvailableVersion: string | null = null
 let updateDownloaded = false
+let isQuittingForUpdate = false
+
+export function isUpdating(): boolean {
+  return isQuittingForUpdate
+}
 
 export function initAutoUpdater() {
   if (!app.isPackaged) {
@@ -81,6 +86,7 @@ export async function checkForUpdates(): Promise<{ updateAvailable: boolean; ver
 
 export function installUpdate() {
   if (updateDownloaded) {
-    autoUpdater.quitAndInstall()
+    isQuittingForUpdate = true
+    autoUpdater.quitAndInstall(false, true)
   }
 }

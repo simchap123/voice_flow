@@ -1,6 +1,7 @@
 import { BrowserWindow, screen } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isUpdating } from './updater'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -51,6 +52,8 @@ export function createMainWindow(): BrowserWindow {
   })
 
   mainWindow.on('close', (e) => {
+    // Allow quit when installing an update
+    if (isUpdating()) return
     // Minimize to tray instead of closing
     e.preventDefault()
     mainWindow?.hide()
