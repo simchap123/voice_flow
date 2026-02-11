@@ -411,8 +411,13 @@ export function registerHotkeys(): { success: boolean; error?: string } {
     uIOhook.on('keyup', uiohookKeyupHandler)
 
     if (!uiohookStarted) {
-      uIOhook.start()
-      uiohookStarted = true
+      try {
+        uIOhook.start()
+        uiohookStarted = true
+      } catch (err: any) {
+        console.error('[VoxGen] Failed to start uiohook (global keyboard hook):', err.message)
+        return { success: false, error: `Global keyboard hook failed to start: ${err.message}. Try restarting the app.` }
+      }
     }
   }
 

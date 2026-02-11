@@ -28,7 +28,8 @@
     "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false,
     "shortcutName": "VoxGen",
-    "artifactName": "VoxGen-Setup-${version}.${ext}"
+    "artifactName": "VoxGen-Setup-${version}.${ext}",
+    "include": "build/installer.nsh"
   },
   "mac": {
     "target": ["dmg"],
