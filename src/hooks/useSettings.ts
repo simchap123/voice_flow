@@ -163,10 +163,16 @@ export function useSettingsProvider(): SettingsContextValue {
       setSettings(prev => ({ ...prev, [key]: value }))
 
       // If userEmail changed, re-check managed mode
-      if (key === 'userEmail' && value) {
-        initManagedProviders(value)
-        setIsManagedMode(true)
-        setHasApiKey(true)
+      if (key === 'userEmail') {
+        if (value) {
+          initManagedProviders(value)
+          setIsManagedMode(true)
+          setHasApiKey(true)
+        } else {
+          // Email cleared (license:clear) — disable managed mode
+          setIsManagedMode(false)
+          setHasApiKey(false)
+        }
       }
     })
     return () => cleanup?.()

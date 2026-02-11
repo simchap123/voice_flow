@@ -13,18 +13,23 @@ import { formatDuration } from '@/lib/audio-utils'
 import { Keyboard } from 'lucide-react'
 
 export function DictationPage() {
-  const { settings, hasApiKey } = useSettings()
+  const { settings, hasApiKey, isManagedMode } = useSettings()
   const { snippets } = useSnippets()
   const { addEntry } = useTranscriptionHistory()
   const [showRaw, setShowRaw] = useState(false)
+
+  const effectiveSttProvider = isManagedMode ? 'managed' : settings.sttProvider
+  const effectiveCleanupProvider = isManagedMode
+    ? (settings.cleanupEnabled ? 'managed' : 'none')
+    : settings.cleanupProvider
 
   const recording = useRecordingState({
     language: settings.language,
     cleanupEnabled: settings.cleanupEnabled,
     autoCopy: settings.autoCopy,
     snippets,
-    sttProvider: settings.sttProvider,
-    cleanupProvider: settings.cleanupProvider,
+    sttProvider: effectiveSttProvider,
+    cleanupProvider: effectiveCleanupProvider,
     codeMode: settings.codeMode,
     keywordTriggersEnabled: settings.keywordTriggersEnabled,
     outputLength: settings.outputLength,
@@ -55,7 +60,7 @@ export function DictationPage() {
       <div className="text-center">
         <h1 className="text-2xl font-semibold">Dictation</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {hasApiKey ? 'Press the mic button or use your hotkey' : 'Set your API key in Settings to begin'}
+          {(hasApiKey || isManagedMode) ? 'Press the mic button or use your hotkey' : 'Set your API key in Settings to begin'}
         </p>
       </div>
 

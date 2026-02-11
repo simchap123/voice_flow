@@ -24,6 +24,17 @@ import { validateLicenseKey, validateByEmail } from './license'
 import { checkForUpdates, installUpdate } from './updater'
 import { trackUsage } from './usage-tracker'
 
+function broadcastSettingChanged(key: string, value: any) {
+  const overlay = getOverlayWindow()
+  if (overlay && !overlay.isDestroyed()) {
+    overlay.webContents.send('setting-changed', key, value)
+  }
+  const main = getMainWindow()
+  if (main && !main.isDestroyed()) {
+    main.webContents.send('setting-changed', key, value)
+  }
+}
+
 export function registerIpcHandlers() {
   // Window controls
   ipcMain.on('window:minimize', (event) => {
@@ -128,14 +139,7 @@ export function registerIpcHandlers() {
       return result
     }
     // Broadcast setting change to all windows (keeps overlay in sync)
-    const overlay = getOverlayWindow()
-    if (overlay && !overlay.isDestroyed()) {
-      overlay.webContents.send('setting-changed', key, value)
-    }
-    const main = getMainWindow()
-    if (main && !main.isDestroyed()) {
-      main.webContents.send('setting-changed', key, value)
-    }
+    broadcastSettingChanged(key, value)
     return { success: true }
   })
 
@@ -169,6 +173,8 @@ export function registerIpcHandlers() {
     console.log('[VoxGen] IPC license:validate-email:', email)
     const result = await validateByEmail(email)
     console.log('[VoxGen] IPC license:validate-email result:', result.valid, result.plan)
+    // Broadcast email change so renderers can activate managed mode
+    broadcastSettingChanged('userEmail', email.trim().toLowerCase())
     return result
   })
 
@@ -179,6 +185,8 @@ export function registerIpcHandlers() {
   ipcMain.handle('license:clear', async () => {
     clearLicense()
     console.log('[VoxGen] License cleared')
+    // Broadcast email removal so renderers can deactivate managed mode
+    broadcastSettingChanged('userEmail', '')
   })
 
   // Clipboard (reliable across Electron windows)
