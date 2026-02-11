@@ -5,6 +5,7 @@
   "type": "commonjs",
   "dependencies": {
     "@vercel/node": "^5.1.8",
+    "openai": "^4.77.0",
     "stripe": "^17.5.0",
     "@supabase/supabase-js": "^2.49.1"
   }

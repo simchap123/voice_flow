@@ -1,4 +1,4 @@
-export type CleanupProviderType = 'groq' | 'openai' | 'none'
+export type CleanupProviderType = 'groq' | 'openai' | 'none' | 'managed'
 
 export type GenerationMode = 'email' | 'code' | 'summary' | 'expand' | 'general'
 

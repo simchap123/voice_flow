@@ -8,7 +8,7 @@ import { useSnippets } from '@/hooks/useSnippets'
 export function OverlayShell() {
   const [trialExpired, setTrialExpired] = useState(false)
   const [holdHotkeyLabel, setHoldHotkeyLabel] = useState('Alt')
-  const { settings, hasApiKey, isLoaded } = useSettings()
+  const { settings, hasApiKey, isManagedMode, isLoaded } = useSettings()
   const { snippets } = useSnippets()
 
   // Listen for trial-expired event from main process
@@ -27,12 +27,18 @@ export function OverlayShell() {
     }
   }, [settings.holdHotkey])
 
+  // When in managed mode, route through proxy providers instead of direct API calls
+  const effectiveSttProvider = isManagedMode ? 'managed' : settings.sttProvider
+  const effectiveCleanupProvider = isManagedMode
+    ? (settings.cleanupEnabled ? 'managed' : 'none')
+    : settings.cleanupProvider
+
   const recording = useRecordingState({
     language: settings.language,
     cleanupEnabled: settings.cleanupEnabled,
     autoCopy: settings.autoCopy,
-    sttProvider: settings.sttProvider,
-    cleanupProvider: settings.cleanupProvider,
+    sttProvider: effectiveSttProvider,
+    cleanupProvider: effectiveCleanupProvider,
     codeMode: settings.codeMode,
     keywordTriggersEnabled: settings.keywordTriggersEnabled,
     outputLength: settings.outputLength,

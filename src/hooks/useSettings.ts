@@ -13,6 +13,7 @@ interface SettingsContextValue {
   settings: AppSettings
   updateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void
   hasApiKey: boolean
+  isManagedMode: boolean
   saveApiKey: (key: string, provider?: string) => Promise<{ success: boolean; error?: string }>
   isLoaded: boolean
 }
@@ -21,6 +22,7 @@ export const SettingsContext = createContext<SettingsContextValue>({
   settings: defaultSettings,
   updateSetting: () => {},
   hasApiKey: false,
+  isManagedMode: false,
   saveApiKey: async () => ({ success: false }),
   isLoaded: false,
 })
@@ -28,8 +30,8 @@ export const SettingsContext = createContext<SettingsContextValue>({
 // Initialize providers with their stored API keys
 async function initProvidersWithKeys(sttType: STTProviderType, cleanupType: CleanupProviderType, isElectron: boolean) {
   const providersToInit = new Set<string>()
-  if (sttType !== 'local') providersToInit.add(sttType)
-  if (cleanupType !== 'none') providersToInit.add(cleanupType)
+  if (sttType !== 'local' && sttType !== 'managed') providersToInit.add(sttType)
+  if (cleanupType !== 'none' && cleanupType !== 'managed') providersToInit.add(cleanupType)
 
   for (const provider of providersToInit) {
     let apiKey: string | null = null
@@ -51,9 +53,48 @@ async function initProvidersWithKeys(sttType: STTProviderType, cleanupType: Clea
   }
 }
 
+// Initialize managed providers with the user's email
+function initManagedProviders(email: string) {
+  try { initSTTProvider('managed', email) } catch {}
+  try { initCleanupProvider('managed', email) } catch {}
+}
+
+// Check if managed mode should be active:
+// User has email + (trial active or licensed) + no own API key for selected provider
+async function checkManagedMode(
+  settings: AppSettings,
+  isElectron: boolean,
+): Promise<{ managed: boolean; email: string }> {
+  // Get user email
+  let email = ''
+  if (isElectron) {
+    const allSettings = await window.electronAPI!.getSettings()
+    email = allSettings?.userEmail || ''
+  }
+
+  if (!email) return { managed: false, email: '' }
+
+  // Check if user has their own key for the selected STT provider
+  if (settings.sttProvider === 'local') return { managed: false, email }
+
+  let hasOwnKey = false
+  if (isElectron) {
+    hasOwnKey = await window.electronAPI!.hasApiKey(settings.sttProvider)
+  } else {
+    hasOwnKey = !!localStorage.getItem(`${LS_API_KEY_PREFIX}-${settings.sttProvider}`)
+  }
+
+  // If user has their own key, no need for managed mode
+  if (hasOwnKey) return { managed: false, email }
+
+  // User has email but no API key → use managed mode
+  return { managed: true, email }
+}
+
 export function useSettingsProvider(): SettingsContextValue {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings)
   const [hasApiKey, setHasApiKey] = useState(false)
+  const [isManagedMode, setIsManagedMode] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
   const isElectron = !!window.electronAPI
 
@@ -67,8 +108,15 @@ export function useSettingsProvider(): SettingsContextValue {
           loadedSettings = { ...defaultSettings, ...stored }
           setSettings(loadedSettings)
 
-          // Check if the current STT provider has a key (or is local = no key needed)
-          if (loadedSettings.sttProvider === 'local') {
+          // Check if managed mode should be active
+          const { managed, email } = await checkManagedMode(loadedSettings, true)
+
+          if (managed) {
+            // Trial/licensed user with no own key → use managed providers
+            setIsManagedMode(true)
+            setHasApiKey(true)
+            initManagedProviders(email)
+          } else if (loadedSettings.sttProvider === 'local') {
             setHasApiKey(true)
           } else {
             const has = await window.electronAPI!.hasApiKey(loadedSettings.sttProvider)
@@ -94,7 +142,10 @@ export function useSettingsProvider(): SettingsContextValue {
         }
       }
 
-      await initProvidersWithKeys(loadedSettings.sttProvider, loadedSettings.cleanupProvider, isElectron)
+      // Initialize BYOK providers (only when not in managed mode)
+      if (!isManagedMode) {
+        await initProvidersWithKeys(loadedSettings.sttProvider, loadedSettings.cleanupProvider, isElectron)
+      }
 
       if (loadedSettings.sttProvider === 'local') {
         const { getLocalWhisperProvider } = await import('@/lib/stt/provider-factory')
@@ -110,6 +161,13 @@ export function useSettingsProvider(): SettingsContextValue {
   useEffect(() => {
     const cleanup = window.electronAPI?.onSettingChanged?.((key: string, value: any) => {
       setSettings(prev => ({ ...prev, [key]: value }))
+
+      // If userEmail changed, re-check managed mode
+      if (key === 'userEmail' && value) {
+        initManagedProviders(value)
+        setIsManagedMode(true)
+        setHasApiKey(true)
+      }
     })
     return () => cleanup?.()
   }, [])
@@ -150,11 +208,13 @@ export function useSettingsProvider(): SettingsContextValue {
     try { initSTTProvider(provider as STTProviderType, key) } catch {}
     try { initCleanupProvider(provider as CleanupProviderType, key) } catch {}
 
+    // Switch off managed mode since user now has their own key
+    setIsManagedMode(false)
     setHasApiKey(true)
     return { success: true }
   }, [])
 
-  return { settings, updateSetting, hasApiKey, saveApiKey, isLoaded }
+  return { settings, updateSetting, hasApiKey, isManagedMode, saveApiKey, isLoaded }
 }
 
 export function useSettings() {

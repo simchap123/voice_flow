@@ -6,6 +6,12 @@
   "functions": {
     "api/**/*.ts": {
       "maxDuration": 10
+    },
+    "api/proxy-stt.ts": {
+      "maxDuration": 30
+    },
+    "api/proxy-cleanup.ts": {
+      "maxDuration": 30
     }
   }
 }

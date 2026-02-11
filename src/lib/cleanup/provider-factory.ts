@@ -1,6 +1,7 @@
 import type { CleanupProvider, CleanupProviderType } from './types'
 import { OpenAICleanupProvider } from './openai-cleanup'
 import { GroqCleanupProvider } from './groq-cleanup'
+import { ManagedCleanupProvider } from './managed-cleanup'
 
 const providers: Map<CleanupProviderType, CleanupProvider> = new Map()
 
@@ -14,6 +15,9 @@ function getOrCreateProvider(type: CleanupProviderType): CleanupProvider {
       break
     case 'groq':
       provider = new GroqCleanupProvider()
+      break
+    case 'managed':
+      provider = new ManagedCleanupProvider()
       break
     case 'none':
       // No-op provider that returns text as-is
@@ -47,6 +51,8 @@ export function initCleanupProvider(type: CleanupProviderType, apiKey: string) {
     ;(provider as OpenAICleanupProvider).init(apiKey)
   } else if (type === 'groq') {
     ;(provider as GroqCleanupProvider).init(apiKey)
+  } else if (type === 'managed') {
+    ;(provider as ManagedCleanupProvider).init(apiKey) // apiKey is actually the user's email
   }
 }
 

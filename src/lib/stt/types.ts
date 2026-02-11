@@ -1,4 +1,4 @@
-export type STTProviderType = 'local' | 'groq' | 'openai' | 'deepgram'
+export type STTProviderType = 'local' | 'groq' | 'openai' | 'deepgram' | 'managed'
 
 export interface STTProvider {
   name: string

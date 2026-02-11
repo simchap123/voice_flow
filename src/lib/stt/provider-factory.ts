@@ -2,6 +2,7 @@ import type { STTProvider, STTProviderType } from './types'
 import { OpenAIWhisperProvider } from './openai-whisper'
 import { GroqWhisperProvider } from './groq-whisper'
 import { LocalWhisperProvider } from './local-whisper'
+import { ManagedSTTProvider } from './managed-stt'
 
 const providers: Map<STTProviderType, STTProvider> = new Map()
 
@@ -19,6 +20,9 @@ function getOrCreateProvider(type: STTProviderType): STTProvider {
       break
     case 'local':
       provider = new LocalWhisperProvider()
+      break
+    case 'managed':
+      provider = new ManagedSTTProvider()
       break
     case 'deepgram':
       throw new Error('Deepgram provider not yet available. Coming soon!')
@@ -41,6 +45,8 @@ export function initSTTProvider(type: STTProviderType, apiKey: string) {
     ;(provider as OpenAIWhisperProvider).init(apiKey)
   } else if (type === 'groq') {
     ;(provider as GroqWhisperProvider).init(apiKey)
+  } else if (type === 'managed') {
+    ;(provider as ManagedSTTProvider).init(apiKey) // apiKey is actually the user's email
   }
 }
 

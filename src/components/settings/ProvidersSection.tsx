@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { toast } from '@/hooks/useToast'
+import { Cloud } from 'lucide-react'
 import type { STTProviderType } from '@/lib/stt/types'
 import type { CleanupProviderType, OutputLength } from '@/lib/cleanup/types'
 
@@ -27,7 +28,7 @@ const CLEANUP_PROVIDERS: { value: CleanupProviderType; label: string; descriptio
 ]
 
 export function ProvidersSection() {
-  const { settings, updateSetting, saveApiKey } = useSettings()
+  const { settings, updateSetting, saveApiKey, isManagedMode } = useSettings()
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false)
   const [hasGroqKey, setHasGroqKey] = useState(false)
 
@@ -71,11 +72,31 @@ export function ProvidersSection() {
         <p className="text-sm text-muted-foreground">Speech recognition, AI cleanup, and API keys</p>
       </div>
 
+      {/* Managed Mode Banner */}
+      {isManagedMode && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="flex items-center gap-3 py-4">
+            <Cloud className="h-5 w-5 text-primary shrink-0" />
+            <div>
+              <p className="text-sm font-medium">Using VoxGen Cloud</p>
+              <p className="text-xs text-muted-foreground">
+                Your trial includes managed API access — no API keys needed.
+                Add your own keys below to use your preferred provider instead.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Speech Recognition */}
       <Card>
         <CardHeader className="pb-4">
           <CardTitle className="text-base">Speech Recognition</CardTitle>
-          <CardDescription>Choose how your voice is transcribed to text</CardDescription>
+          <CardDescription>
+            {isManagedMode
+              ? 'Using Groq Whisper via VoxGen Cloud. Add your own key to choose a provider.'
+              : 'Choose how your voice is transcribed to text'}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid gap-2">
@@ -86,15 +107,15 @@ export function ProvidersSection() {
                   settings.sttProvider === p.value
                     ? 'border-primary bg-primary/5'
                     : 'border-border hover:border-muted-foreground/30'
-                } ${p.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                } ${p.disabled || isManagedMode ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <input
                   type="radio"
                   name="sttProvider"
                   value={p.value}
                   checked={settings.sttProvider === p.value}
-                  onChange={() => { if (!p.disabled) updateSetting('sttProvider', p.value) }}
-                  disabled={p.disabled}
+                  onChange={() => { if (!p.disabled && !isManagedMode) updateSetting('sttProvider', p.value) }}
+                  disabled={p.disabled || isManagedMode}
                   className="accent-primary"
                 />
                 <div>
@@ -127,7 +148,7 @@ export function ProvidersSection() {
             />
           </div>
         </CardHeader>
-        {settings.cleanupEnabled && (
+        {settings.cleanupEnabled && !isManagedMode && (
           <CardContent>
             <div className="grid gap-2">
               {CLEANUP_PROVIDERS.map((p) => (
@@ -158,37 +179,35 @@ export function ProvidersSection() {
         )}
       </Card>
 
-      {/* API Keys */}
-      {(needsOpenAI || needsGroq) && (
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base">API Keys</CardTitle>
-            <CardDescription>Your keys are encrypted on-device</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {needsOpenAI && (
-              <ProviderApiKeyInput
-                provider="openai"
-                label="OpenAI API Key"
-                placeholder="sk-..."
-                hasKey={hasOpenAIKey}
-                onSave={handleSaveKey}
-                onDelete={handleDeleteKey}
-              />
-            )}
-            {needsGroq && (
-              <ProviderApiKeyInput
-                provider="groq"
-                label="Groq API Key"
-                placeholder="gsk_..."
-                hasKey={hasGroqKey}
-                onSave={handleSaveKey}
-                onDelete={handleDeleteKey}
-              />
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {/* API Keys — always show so users can enter BYOK to override managed mode */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base">API Keys</CardTitle>
+          <CardDescription>
+            {isManagedMode
+              ? 'Optional — add your own keys to use your preferred provider and bypass VoxGen Cloud'
+              : 'Your keys are encrypted on-device'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ProviderApiKeyInput
+            provider="openai"
+            label="OpenAI API Key"
+            placeholder="sk-..."
+            hasKey={hasOpenAIKey}
+            onSave={handleSaveKey}
+            onDelete={handleDeleteKey}
+          />
+          <ProviderApiKeyInput
+            provider="groq"
+            label="Groq API Key"
+            placeholder="gsk_..."
+            hasKey={hasGroqKey}
+            onSave={handleSaveKey}
+            onDelete={handleDeleteKey}
+          />
+        </CardContent>
+      </Card>
 
       {/* Advanced */}
       <Card>
