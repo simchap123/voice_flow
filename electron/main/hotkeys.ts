@@ -422,9 +422,8 @@ export function registerHotkeys(): { success: boolean; error?: string } {
       if (isRecording || isProcessing) {
         const overlay = getOverlayWindow()
         overlay?.webContents.send('cancel-recording')
-        isRecording = false
-        isProcessing = false
-        recordingMode = null
+        setIsRecording(false)
+        setIsProcessing(false)
       }
     })
   } catch {

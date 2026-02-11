@@ -33,15 +33,18 @@ async function validateByEmail(email: string, res: VercelResponse) {
       .single()
 
     if (!user) {
-      // New user — create user record and start trial
+      // New user — upsert to handle race condition if two requests arrive simultaneously
       const { data: newUser, error: createErr } = await supabase
         .from('users')
-        .insert({ email, trial_started_at: new Date().toISOString() })
+        .upsert(
+          { email, trial_started_at: new Date().toISOString() },
+          { onConflict: 'email', ignoreDuplicates: false }
+        )
         .select('id, trial_started_at')
         .single()
 
       if (createErr || !newUser) {
-        console.error('[validate-license] Failed to create user:', createErr?.message)
+        console.error('[validate-license] Failed to upsert user:', createErr?.message)
         return res.status(500).json({ error: 'Failed to create user' })
       }
 

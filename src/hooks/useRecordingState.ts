@@ -194,6 +194,7 @@ export function useRecordingState(options: {
     startRecording,
     stopRecording,
     cancelRecording,
+    clearError: () => setError(null),
     lastResult,
   }
 }

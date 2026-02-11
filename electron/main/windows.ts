@@ -8,6 +8,7 @@ let mainWindow: BrowserWindow | null = null
 let overlayWindow: BrowserWindow | null = null
 let previousFocusedWindow: number | null = null // Track window to restore focus to
 let overlayDismissed = false
+let fadeInterval: ReturnType<typeof setInterval> | null = null
 
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 const DIST = process.env.DIST ?? path.join(__dirname, '../../dist')
@@ -114,16 +115,24 @@ export function getOverlayWindow(): BrowserWindow | null {
 export function showOverlay() {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
     overlayDismissed = false
+    // Cancel any in-progress fade to prevent competing animations
+    if (fadeInterval) {
+      clearInterval(fadeInterval)
+      fadeInterval = null
+    }
     overlayWindow.setOpacity(0)
     overlayWindow.showInactive()
     // Quick fade in
     let opacity = 0
-    const fadeIn = setInterval(() => {
+    fadeInterval = setInterval(() => {
       opacity = Math.min(opacity + 0.25, 1)
       if (overlayWindow && !overlayWindow.isDestroyed()) {
         overlayWindow.setOpacity(opacity)
       }
-      if (opacity >= 1) clearInterval(fadeIn)
+      if (opacity >= 1) {
+        clearInterval(fadeInterval!)
+        fadeInterval = null
+      }
     }, 16)
   }
 }
@@ -155,15 +164,21 @@ export function hideOverlay(instant = false) {
       overlayWindow.hide()
       return
     }
+    // Cancel any in-progress fade to prevent competing animations
+    if (fadeInterval) {
+      clearInterval(fadeInterval)
+      fadeInterval = null
+    }
     // Smooth fade out
     let opacity = 1
-    const fadeOut = setInterval(() => {
+    fadeInterval = setInterval(() => {
       opacity = Math.max(opacity - 0.2, 0)
       if (overlayWindow && !overlayWindow.isDestroyed()) {
         overlayWindow.setOpacity(opacity)
       }
       if (opacity <= 0) {
-        clearInterval(fadeOut)
+        clearInterval(fadeInterval!)
+        fadeInterval = null
         if (overlayWindow && !overlayWindow.isDestroyed()) {
           overlayWindow.hide()
         }

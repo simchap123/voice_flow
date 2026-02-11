@@ -25,6 +25,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: `Invalid eventType. Must be one of: ${VALID_EVENT_TYPES.join(', ')}` })
   }
 
+  // Limit payload size to prevent abuse (max 10KB)
+  if (payload && JSON.stringify(payload).length > 10240) {
+    return res.status(400).json({ error: 'Payload too large (max 10KB)' })
+  }
+
   try {
     // Optionally resolve user_id from email
     let userId: string | null = null

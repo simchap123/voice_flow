@@ -55,6 +55,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await handleCheckoutCompleted(session)
         break
       }
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice
+        if (invoice.billing_reason === 'subscription_cycle') {
+          await handleSubscriptionRenewal(invoice)
+        }
+        break
+      }
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
         await handleSubscriptionDeleted(subscription)
@@ -175,6 +182,63 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   console.log(`[webhook] License created for ${email}: ${license.license_key} (${plan})`)
+}
+
+async function handleSubscriptionRenewal(invoice: Stripe.Invoice) {
+  const subscriptionId = invoice.subscription
+    ? String(invoice.subscription)
+    : null
+
+  if (!subscriptionId) {
+    console.error('[webhook] Renewal invoice missing subscription ID:', invoice.id)
+    return
+  }
+
+  // Find the active license for this subscription
+  const { data: license, error: findErr } = await supabase
+    .from('user_licenses')
+    .select('id, license_type_id')
+    .eq('stripe_subscription_id', subscriptionId)
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+
+  if (findErr || !license) {
+    console.error('[webhook] No active license found for subscription:', subscriptionId, findErr?.message)
+    return
+  }
+
+  // Look up duration from license type
+  const { data: licenseType } = await supabase
+    .from('license_types')
+    .select('duration_days')
+    .eq('id', license.license_type_id)
+    .single()
+
+  const durationDays = licenseType?.duration_days
+  if (!durationDays) {
+    console.error('[webhook] No duration for license type:', license.license_type_id)
+    return
+  }
+
+  // Extend expiry from now
+  const newExpiry = new Date()
+  newExpiry.setDate(newExpiry.getDate() + durationDays)
+
+  const { error: updateErr } = await supabase
+    .from('user_licenses')
+    .update({
+      expires_at: newExpiry.toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', license.id)
+
+  if (updateErr) {
+    console.error('[webhook] Failed to extend license:', updateErr.message)
+    return
+  }
+
+  console.log(`[webhook] License renewed for subscription ${subscriptionId}, new expiry: ${newExpiry.toISOString()}`)
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {

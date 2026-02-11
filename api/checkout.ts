@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: `Invalid plan: ${plan}` })
   }
 
-  const appUrl = (process.env.APP_URL || 'https://voiceflow.app').replace(/\/+$/, '')
+  const appUrl = (process.env.APP_URL || 'https://freevoiceflow.vercel.app').replace(/\/+$/, '')
 
   try {
     const session = await stripe.checkout.sessions.create({

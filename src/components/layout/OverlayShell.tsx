@@ -64,7 +64,7 @@ export function OverlayShell() {
   useEffect(() => {
     if (recording.error) {
       const timer = setTimeout(() => {
-        // Error will auto-clear, returning to idle
+        recording.clearError()
       }, 3000)
       return () => clearTimeout(timer)
     }

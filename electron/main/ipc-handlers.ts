@@ -114,8 +114,17 @@ export function registerIpcHandlers() {
 
   ipcMain.handle('settings:set', async (_event, key: string, value: any) => {
     setSetting(key as any, value)
-    if (key === 'holdHotkey' || key === 'toggleHotkey' || key === 'promptHotkey') {
+    if (key === 'holdHotkey' || key === 'toggleHotkey' || key === 'promptHotkey' || key === 'doubleTapHotkey') {
       const result = reregisterHotkeys()
+      // Still broadcast the change so overlay/main stay in sync
+      const overlay = getOverlayWindow()
+      if (overlay && !overlay.isDestroyed()) {
+        overlay.webContents.send('setting-changed', key, value)
+      }
+      const main = getMainWindow()
+      if (main && !main.isDestroyed()) {
+        main.webContents.send('setting-changed', key, value)
+      }
       return result
     }
     // Broadcast setting change to all windows (keeps overlay in sync)

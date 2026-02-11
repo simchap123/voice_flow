@@ -46,6 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         license_types!inner ( name, slug )
       `)
       .eq('user_id', user.id)
+      .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(1)
       .single()

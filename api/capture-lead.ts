@@ -18,7 +18,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const leadPath = VALID_PATHS.includes(path ?? '') ? path! : 'free'
 
   try {
-    await supabase.from('leads').insert({ email, path: leadPath })
+    const { error: insertErr } = await supabase.from('leads').insert({ email, path: leadPath })
+    if (insertErr) {
+      console.error('[capture-lead] Insert error:', insertErr.message)
+    }
     return res.status(200).json({ success: true })
   } catch (err: any) {
     console.error('[capture-lead] Error:', err.message)
