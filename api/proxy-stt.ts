@@ -1,8 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import OpenAI from 'openai'
-import { supabase } from './lib/supabase'
+import { validateUser } from './lib/validate-user'
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY
+
+// Max audio size: 10MB base64 (~7.5MB decoded)
+const MAX_AUDIO_SIZE = 10 * 1024 * 1024
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -25,8 +28,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Missing email or audio' })
   }
 
+  // Reject oversized audio payloads
+  if (audio.length > MAX_AUDIO_SIZE) {
+    return res.status(400).json({ error: 'Audio too large (max 10MB)' })
+  }
+
   // Validate user has active trial or license
-  const validation = await validateUser(email.trim().toLowerCase())
+  const validation = await validateUser(email.trim().toLowerCase(), 'proxy-stt')
   if (!validation.valid) {
     return res.status(403).json({ error: validation.error || 'Access denied' })
   }
@@ -56,58 +64,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err: any) {
     console.error('[proxy-stt] Transcription error:', err.message)
     return res.status(500).json({ error: 'Transcription failed' })
-  }
-}
-
-async function validateUser(email: string): Promise<{ valid: boolean; error?: string }> {
-  try {
-    const { data: user } = await supabase
-      .from('users')
-      .select('id, trial_started_at')
-      .eq('email', email)
-      .single()
-
-    if (!user) {
-      return { valid: false, error: 'User not found. Enter your email in Settings to start a trial.' }
-    }
-
-    // Check for active license first
-    const { data: license } = await supabase
-      .from('user_licenses')
-      .select('id, status, expires_at, license_types!inner ( slug )')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
-
-    if (license) {
-      const licenseType = license.license_types as any
-      const isLifetime = licenseType.slug === 'lifetime' || licenseType.slug === 'free'
-
-      // Lifetime/free licenses with BYOK don't need proxy — but allow it anyway
-      if (!isLifetime && license.expires_at) {
-        if (new Date(license.expires_at) < new Date()) {
-          return { valid: false, error: 'License expired' }
-        }
-      }
-      return { valid: true }
-    }
-
-    // Check trial
-    if (!user.trial_started_at) {
-      return { valid: true } // Trial not started = still valid (will start now)
-    }
-
-    const elapsed = Date.now() - new Date(user.trial_started_at).getTime()
-    const daysUsed = elapsed / (1000 * 60 * 60 * 24)
-    if (daysUsed >= 30) {
-      return { valid: false, error: 'Trial expired' }
-    }
-
-    return { valid: true }
-  } catch (err: any) {
-    console.error('[proxy-stt] User validation error:', err.message)
-    return { valid: false, error: 'Validation failed' }
   }
 }

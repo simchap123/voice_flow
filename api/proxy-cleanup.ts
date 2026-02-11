@@ -1,9 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import OpenAI from 'openai'
-import { supabase } from './lib/supabase'
+import { validateUser } from './lib/validate-user'
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY
 const MODEL = 'llama-3.3-70b-versatile'
+
+// Max text input: 50KB
+const MAX_TEXT_SIZE = 50 * 1024
 
 const PROMPTS: Record<string, string> = {
   cleanup: `You are a transcription cleanup assistant. Your ONLY job is to clean up speech-to-text output. Rules:
@@ -47,7 +50,6 @@ const ACTION_CONFIGS: Record<string, { temperature: number; maxTokens: number }>
   generateWithTemplate: { temperature: 0.7, maxTokens: 4096 },
 }
 
-// Template prompts (duplicated from generation-templates.ts since API has its own package)
 const MODE_PROMPTS: Record<string, string> = {
   email: `You are a professional email writer. Write the email body based on the user's instructions.
 - Use appropriate greeting and sign-off
@@ -98,8 +100,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Missing email, action, or text' })
   }
 
+  // Reject oversized text input
+  if (text.length > MAX_TEXT_SIZE) {
+    return res.status(400).json({ error: 'Text too large (max 50KB)' })
+  }
+
   // Validate user
-  const validation = await validateUser(email.trim().toLowerCase())
+  const validation = await validateUser(email.trim().toLowerCase(), 'proxy-cleanup')
   if (!validation.valid) {
     return res.status(403).json({ error: validation.error || 'Access denied' })
   }
@@ -145,53 +152,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err: any) {
     console.error('[proxy-cleanup] Error:', err.message)
     return res.status(500).json({ error: 'Processing failed' })
-  }
-}
-
-async function validateUser(email: string): Promise<{ valid: boolean; error?: string }> {
-  try {
-    const { data: user } = await supabase
-      .from('users')
-      .select('id, trial_started_at')
-      .eq('email', email)
-      .single()
-
-    if (!user) {
-      return { valid: false, error: 'User not found' }
-    }
-
-    // Check for active license
-    const { data: license } = await supabase
-      .from('user_licenses')
-      .select('id, status, expires_at, license_types!inner ( slug )')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
-
-    if (license) {
-      const licenseType = license.license_types as any
-      const isLifetime = licenseType.slug === 'lifetime' || licenseType.slug === 'free'
-      if (!isLifetime && license.expires_at) {
-        if (new Date(license.expires_at) < new Date()) {
-          return { valid: false, error: 'License expired' }
-        }
-      }
-      return { valid: true }
-    }
-
-    // Check trial
-    if (!user.trial_started_at) return { valid: true }
-
-    const elapsed = Date.now() - new Date(user.trial_started_at).getTime()
-    if (elapsed / (1000 * 60 * 60 * 24) >= 30) {
-      return { valid: false, error: 'Trial expired' }
-    }
-
-    return { valid: true }
-  } catch (err: any) {
-    console.error('[proxy-cleanup] Validation error:', err.message)
-    return { valid: false, error: 'Validation failed' }
   }
 }
