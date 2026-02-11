@@ -75,7 +75,6 @@
     .stagger-1 { transition-delay: 0.1s; }
     .stagger-2 { transition-delay: 0.2s; }
     .stagger-3 { transition-delay: 0.3s; }
-    .stagger-4 { transition-delay: 0.4s; }
 
     .page {
       max-width: 560px;
@@ -191,122 +190,42 @@
       color: var(--primary-light);
     }
 
-    /* API key callout */
-    .api-callout {
-      background: var(--bg-card);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: left;
-      margin-bottom: 32px;
-    }
-    .api-callout-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .api-callout-header svg { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; }
-    .api-callout-header h3 {
-      font-size: 15px;
-      font-weight: 600;
-    }
-    .api-callout p {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 12px;
-    }
-    .api-callout p:last-child { margin-bottom: 0; }
-    .api-callout a {
-      color: var(--accent);
+    /* Retry link */
+    .retry-link {
+      display: inline-block;
+      font-size: 14px;
+      color: var(--primary-light);
       text-decoration: none;
       font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 24px;
     }
-    .api-callout a:hover { text-decoration: underline; }
-    .api-callout ol {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.8;
-      padding-left: 18px;
-      margin-bottom: 12px;
-    }
-    .api-callout code {
-      background: rgba(124, 58, 237, 0.12);
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-size: 12px;
-      color: var(--primary-light);
-    }
+    .retry-link:hover { text-decoration: underline; }
 
-    /* Download status area */
-    .download-status {
-      margin-top: 8px;
-      margin-bottom: 32px;
-    }
-
-    .download-status-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    .download-status-box.downloading {
-      border-color: rgba(124, 58, 237, 0.3);
-    }
-
-    .download-status-box.failed {
-      border-color: rgba(239, 68, 68, 0.3);
-      background: rgba(239, 68, 68, 0.05);
-    }
-
-    /* Progress bar */
-    .download-progress {
-      width: 100%;
-      height: 4px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-    .download-progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      border-radius: 4px;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    .download-progress-bar.indeterminate {
-      width: 30%;
-      animation: progress-slide 1.5s ease-in-out infinite;
-    }
-    @keyframes progress-slide {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(400%); }
-    }
-    .download-progress-bar.done {
-      width: 100%;
-      background: var(--green);
-    }
-    .download-progress-bar.error {
-      width: 100%;
-      background: #ef4444;
-    }
-
-    .download-status-text {
+    /* Back link */
+    .back-link {
+      display: inline-block;
       font-size: 14px;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      text-decoration: none;
     }
-    .download-status-text strong {
-      color: var(--text);
-    }
+    .back-link:hover { color: var(--text); }
 
-    /* Retry button — big and obvious */
-    .retry-btn {
+    /* Email gate styles */
+    .gate-input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .gate-input:focus { border-color: var(--primary); }
+    .gate-btn {
       display: inline-flex;
       align-items: center;
       gap: 10px;
@@ -320,55 +239,12 @@
       background: linear-gradient(135deg, var(--primary), #6d28d9);
       color: white;
       box-shadow: 0 4px 24px var(--primary-glow);
-      transition: all 0.2s ease;
-      margin-top: 16px;
-      animation: retry-pulse 2s ease-in-out infinite;
+      transition: all 0.2s;
     }
-    .retry-btn:hover {
+    .gate-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 32px var(--primary-glow);
     }
-    @keyframes retry-pulse {
-      0%, 100% { box-shadow: 0 4px 24px var(--primary-glow); }
-      50% { box-shadow: 0 4px 32px rgba(124, 58, 237, 0.5); }
-    }
-    .retry-btn svg { width: 20px; height: 20px; }
-
-    .retry-count {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 8px;
-    }
-
-    /* Troubleshoot tips */
-    .troubleshoot {
-      margin-top: 16px;
-      text-align: left;
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-    .troubleshoot summary {
-      cursor: pointer;
-      color: var(--primary-light);
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
-    .troubleshoot ul {
-      padding-left: 20px;
-      margin-top: 8px;
-    }
-    .troubleshoot li { margin-bottom: 4px; }
-
-    /* Back link */
-    .back-link {
-      display: inline-block;
-      margin-top: 16px;
-      font-size: 14px;
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-    .back-link:hover { color: var(--text); }
   </style>
 </head>
 <body>
@@ -388,10 +264,10 @@
     <h1 class="reveal">Download <span class="gradient">VoxGen</span></h1>
     <p class="subtitle reveal stagger-1">Enter your email to get the download.</p>
     <div class="reveal stagger-2" style="max-width:400px;margin:0 auto 16px;">
-      <input type="email" id="gate-email" placeholder="your@email.com" style="width:100%;padding:14px 18px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;font-family:inherit;outline:none;" />
+      <input type="email" id="gate-email" placeholder="your@email.com" class="gate-input" />
       <div id="gate-error" style="color:#ef4444;font-size:13px;margin-top:8px;display:none;"></div>
     </div>
-    <button id="gate-btn" class="reveal stagger-3" style="display:inline-flex;align-items:center;gap:10px;padding:14px 32px;border-radius:12px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;border:none;background:linear-gradient(135deg,var(--primary),#6d28d9);color:white;box-shadow:0 4px 24px var(--primary-glow);transition:all 0.2s;">
+    <button id="gate-btn" class="reveal stagger-3 gate-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
       Download Free
     </button>
@@ -399,90 +275,40 @@
 
   <!-- Main content: shown only with valid email -->
   <div id="download-content" style="display:none;">
-  <div class="download-badge reveal" id="download-badge">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-    Downloading VoxGen...
+  <div class="download-badge reveal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    Your download has started
   </div>
 
-  <h1 class="reveal stagger-1">Open VoxGen in <span class="gradient">3 steps</span></h1>
-  <p class="subtitle reveal stagger-2">Get up and running in under a minute.</p>
+  <h1 class="reveal stagger-1">Get started in <span class="gradient">3 steps</span></h1>
+  <p class="subtitle reveal stagger-2">Up and running in under a minute.</p>
 
   <div class="steps">
     <div class="step reveal stagger-1">
       <div class="step-num">1</div>
       <div class="step-content">
-        <h3>Open your Downloads</h3>
-        <p>Look for <strong>VoxGen Setup.exe</strong> in your Downloads folder or at the bottom of your browser.</p>
+        <h3>Open the installer</h3>
+        <p>Find <strong>VoxGen-Setup.exe</strong> in your downloads folder or at the bottom of your browser.</p>
       </div>
     </div>
     <div class="step reveal stagger-2">
       <div class="step-num">2</div>
       <div class="step-content">
         <h3>Run the installer</h3>
-        <p>Double-click <strong>VoxGen-Setup.exe</strong>. If Windows SmartScreen appears, click <strong>"More info"</strong> then <strong>"Run anyway"</strong> &mdash; the app is safe. Follow the installer steps and wait for it to finish.</p>
+        <p>If Windows SmartScreen appears, click <strong>"More info"</strong> then <strong>"Run anyway"</strong>.</p>
       </div>
     </div>
     <div class="step reveal stagger-3">
       <div class="step-num">3</div>
       <div class="step-content">
-        <h3>Launch VoxGen &mdash; start dictating</h3>
-        <p>VoxGen launches automatically after install. Look for the purple mic icon in your <strong>system tray</strong> (bottom-right of your screen). Hold <kbd>Alt</kbd> from any app to dictate &mdash; release to stop.</p>
-        <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">Not seeing the tray icon? Try restarting your computer, or find VoxGen in your Start menu.</p>
+        <h3>Start dictating</h3>
+        <p>Hold <kbd>Alt</kbd> from any app to dictate. Release to stop and paste.</p>
       </div>
     </div>
   </div>
 
-  <div class="api-callout reveal stagger-4">
-    <div class="api-callout-header">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
-      <h3>Set up your API key</h3>
-    </div>
-    <p>VoxGen uses your own API key for transcription and text cleanup. Your key is encrypted on your device and never sent to us.</p>
-    <p><strong>Groq (recommended &mdash; fast &amp; cheap):</strong></p>
-    <ol>
-      <li>Go to <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a></li>
-      <li>Create an API key and copy it</li>
-      <li>In VoxGen Settings, select <strong>Groq</strong> as your provider and paste the key</li>
-    </ol>
-    <p><strong>OpenAI (alternative):</strong></p>
-    <ol>
-      <li>Go to <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a></li>
-      <li>Click <strong>"Create new secret key"</strong> and copy it</li>
-      <li>In VoxGen Settings, select <strong>OpenAI</strong> as your provider and paste the key</li>
-    </ol>
-    <p>That's it! Groq is ~8x cheaper than OpenAI. Typical usage costs less than a penny per day.</p>
-  </div>
-
-  <!-- Download status -->
-  <div class="download-status reveal stagger-4" id="download-status">
-    <div class="download-status-box" id="status-box">
-      <div class="download-progress">
-        <div class="download-progress-bar indeterminate" id="progress-bar"></div>
-      </div>
-      <p class="download-status-text" id="status-text">
-        <strong>Preparing your download...</strong>
-      </p>
-
-      <!-- Retry button — hidden initially, shown if download stalls -->
-      <button class="retry-btn" id="retry-btn" style="display:none" onclick="retryDownload()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-        Download Again
-      </button>
-      <p class="retry-count" id="retry-count" style="display:none"></p>
-
-      <details class="troubleshoot" id="troubleshoot" style="display:none">
-        <summary>Download not working?</summary>
-        <ul>
-          <li>Check your browser's download bar at the bottom of the screen</li>
-          <li>Your browser may have blocked the download &mdash; check the address bar for a blocked download icon</li>
-          <li>Try right-clicking the button above and choosing "Save link as..."</li>
-          <li>Try a different browser (Chrome or Edge work best)</li>
-          <li>If using a company computer, your IT policy may block .exe downloads</li>
-        </ul>
-      </details>
-    </div>
-  </div>
-
+  <a class="retry-link" id="retry-link" href="#" onclick="retryDownload(); return false;">Not working? Try again.</a>
+  <br />
   <a href="index.html" class="back-link reveal">Back to home</a>
   </div><!-- end download-content -->
 </div>
@@ -508,17 +334,8 @@
 
   // --- Download state ---
   var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
+  var hasDirectExe = false;
   var downloadReady = false;
-  var retryAttempts = 0;
-  var downloadTriggered = false;
-
-  // --- DOM refs ---
-  var statusBox = document.getElementById('status-box');
-  var statusText = document.getElementById('status-text');
-  var progressBar = document.getElementById('progress-bar');
-  var retryBtn = document.getElementById('retry-btn');
-  var retryCount = document.getElementById('retry-count');
-  var troubleshoot = document.getElementById('troubleshoot');
 
   // --- Resolve actual exe URL from GitHub ---
   fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
@@ -527,94 +344,49 @@
       return r.json();
     })
     .then(function(release) {
-      var exe = release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
+      var exe = release.assets && release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
       if (exe) {
         DOWNLOAD_URL = exe.browser_download_url;
-        downloadReady = true;
+        hasDirectExe = true;
       }
+      downloadReady = true;
     })
     .catch(function() {
-      // Fallback: keep releases/latest URL (GitHub will show the page)
       downloadReady = true;
     });
 
-  function triggerDownload(force) {
-    if (downloadTriggered && !force) return;
-    downloadTriggered = true;
-    var link = document.createElement('a');
-    link.href = DOWNLOAD_URL;
-    link.download = '';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(function() { document.body.removeChild(link); }, 100);
-  }
-
-  function showDownloading() {
-    statusBox.className = 'download-status-box downloading';
-    progressBar.className = 'download-progress-bar indeterminate';
-    statusText.innerHTML = '<strong>Preparing your download...</strong>';
-    retryBtn.style.display = 'none';
-  }
-
-  function showSuccess() {
-    statusBox.className = 'download-status-box';
-    progressBar.className = 'download-progress-bar done';
-    statusText.innerHTML = '<strong>Download started!</strong> Check your browser\'s download bar below.';
-    // After 5 seconds, show the retry option in case it didn't actually work
-    setTimeout(function() {
-      showRetryOption();
-    }, 6000);
-  }
-
-  function showRetryOption() {
-    statusText.innerHTML = 'Didn\'t get the file? Your browser may have blocked it.';
-    retryBtn.style.display = 'inline-flex';
-    troubleshoot.style.display = 'block';
-    if (retryAttempts > 0) {
-      retryCount.style.display = 'block';
-      retryCount.textContent = 'Attempted ' + retryAttempts + ' time' + (retryAttempts > 1 ? 's' : '');
+  function triggerDownload() {
+    if (hasDirectExe) {
+      var link = document.createElement('a');
+      link.href = DOWNLOAD_URL;
+      link.download = '';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(function() { document.body.removeChild(link); }, 100);
+    } else {
+      window.open(DOWNLOAD_URL, '_blank');
     }
   }
 
-  function showError() {
-    statusBox.className = 'download-status-box failed';
-    progressBar.className = 'download-progress-bar error';
-    statusText.innerHTML = 'Download couldn\'t start. Click below to try again.';
-    retryBtn.style.display = 'inline-flex';
-    troubleshoot.style.display = 'block';
-  }
-
   function retryDownload() {
-    retryAttempts++;
-    showDownloading();
-    // Small delay so user sees the status change
-    setTimeout(function() {
-      triggerDownload(true);
-      showSuccess();
-    }, 800);
+    triggerDownload();
   }
 
   // --- Auto-start download when URL is ready ---
   function startAutoDownload() {
     if (downloadReady) {
       triggerDownload();
-      // Show success after brief delay
-      setTimeout(showSuccess, 1500);
     } else {
-      // Wait for GitHub API, retry every 500ms up to 10s
       var waited = 0;
       var interval = setInterval(function() {
         waited += 500;
         if (downloadReady) {
           clearInterval(interval);
           triggerDownload();
-          setTimeout(showSuccess, 1500);
         } else if (waited >= 10000) {
           clearInterval(interval);
-          // Try anyway with fallback URL
           triggerDownload();
-          setTimeout(showSuccess, 1500);
         }
       }, 500);
     }
@@ -636,8 +408,6 @@
 
   if (email && email.includes('@')) {
     document.getElementById('download-content').style.display = 'block';
-    // Auto-trigger download when arriving with email
-    showDownloading();
     startAutoDownload();
   } else {
     document.getElementById('email-gate').style.display = 'block';
@@ -659,7 +429,6 @@
     await captureLead(val);
     document.getElementById('email-gate').style.display = 'none';
     document.getElementById('download-content').style.display = 'block';
-    showDownloading();
     startAutoDownload();
   });
 

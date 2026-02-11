@@ -6,8 +6,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { email, words, audioSeconds, sttProvider, cleanupProvider, language } = req.body as {
+  const { email, deviceId, words, audioSeconds, sttProvider, cleanupProvider, language } = req.body as {
     email?: string
+    deviceId?: string
     words?: number
     audioSeconds?: number
     sttProvider?: string
@@ -15,27 +16,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     language?: string
   }
 
-  if (!email || typeof email !== 'string') {
-    return res.status(400).json({ error: 'Missing email' })
+  // Require at least a deviceId or email for tracking
+  if (!deviceId && !email) {
+    return res.status(400).json({ error: 'Missing deviceId or email' })
   }
 
   try {
-    // Look up user by email
-    const { data: user } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email.trim().toLowerCase())
-      .single()
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' })
+    // Optionally resolve user_id from email
+    let userId: string | null = null
+    if (email && typeof email === 'string') {
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', email.trim().toLowerCase())
+        .single()
+      if (user) userId = user.id
     }
 
     // Insert usage log
     const { error: insertErr } = await supabase
       .from('usage_logs')
       .insert({
-        user_id: user.id,
+        user_id: userId,
+        device_id: deviceId ?? null,
         words: words ?? 0,
         audio_seconds: audioSeconds ?? 0,
         stt_provider: sttProvider ?? 'unknown',

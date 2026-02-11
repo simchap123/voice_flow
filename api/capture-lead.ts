@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { supabase } from './lib/supabase'
+import { isValidEmail } from './lib/validate-email'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -8,12 +9,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { email: rawEmail, path } = req.body as { email?: string; path?: string }
 
-  if (!rawEmail || !rawEmail.includes('@')) {
+  if (!rawEmail || !isValidEmail(rawEmail)) {
     return res.status(400).json({ error: 'A valid email is required' })
   }
 
   const email = rawEmail.trim().toLowerCase()
-  const leadPath = path === 'pro' ? 'pro' : 'free'
+  const VALID_PATHS = ['free', 'pro', 'free-download-page']
+  const leadPath = VALID_PATHS.includes(path ?? '') ? path! : 'free'
 
   try {
     await supabase.from('leads').insert({ email, path: leadPath })

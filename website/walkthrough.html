@@ -517,6 +517,12 @@
       color: var(--text-muted);
     }
 
+    /* ---- Pause animations when out of viewport ---- */
+    .step-mockup.paused,
+    .step-mockup.paused * {
+      animation-play-state: paused !important;
+    }
+
     /* ---- Responsive ---- */
     @media (max-width: 960px) {
       .nav-links { gap: 16px; }
@@ -597,7 +603,7 @@
               <div class="dl-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
               </div>
-              <div class="dl-filename">VoxGen-Setup-1.8.0.exe</div>
+              <div class="dl-filename" id="dl-filename">VoxGen-Setup.exe</div>
               <div class="dl-bar-wrap">
                 <div class="dl-bar-fill"></div>
               </div>
@@ -735,6 +741,38 @@
       reveals.forEach(function(el) { el.classList.add('visible'); });
     }
   })();
+
+  // Pause animations when step mockups are out of viewport
+  (function() {
+    var mockups = document.querySelectorAll('.step-mockup');
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('paused');
+          } else {
+            entry.target.classList.add('paused');
+          }
+        });
+      }, { threshold: 0.1 });
+      mockups.forEach(function(el) {
+        el.classList.add('paused');
+        observer.observe(el);
+      });
+    }
+  })();
+
+  // Fetch version for download filename
+  fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
+    .then(function(r) { return r.json(); })
+    .then(function(release) {
+      if (release.tag_name) {
+        var version = release.tag_name.replace(/^v/, '');
+        var el = document.getElementById('dl-filename');
+        if (el) el.textContent = 'VoxGen-Setup-' + version + '.exe';
+      }
+    })
+    .catch(function() { /* keep default filename */ });
 
   // Step 3 typewriter
   (function() {

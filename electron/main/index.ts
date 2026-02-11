@@ -5,9 +5,10 @@ import { createMainWindow, createOverlayWindow, getMainWindow, getOverlayWindow 
 import { registerHotkeys, unregisterAllHotkeys } from './hotkeys'
 import { createTray, destroyTray } from './tray'
 import { registerIpcHandlers } from './ipc-handlers'
-import { initStore } from './store'
+import { initStore, getSetting } from './store'
 import { checkLicenseOnStartup } from './license'
 import { initAutoUpdater } from './updater'
+import { trackAppLaunch, setupErrorReporting } from './event-tracker'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -48,6 +49,13 @@ app.whenReady().then(async () => {
 
   // Check for updates (non-blocking)
   initAutoUpdater()
+
+  // Setup error reporting (non-blocking)
+  setupErrorReporting()
+
+  // Track app launch (non-blocking, fire-and-forget)
+  const isFirstLaunch = getSetting('trialStartedAt') > Date.now() - 10000 // within 10s = first launch
+  trackAppLaunch(isFirstLaunch)
 
   app.on('activate', () => {
     const mainWin = getMainWindow()

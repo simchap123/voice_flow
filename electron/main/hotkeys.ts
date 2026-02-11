@@ -1,6 +1,6 @@
 import { globalShortcut } from 'electron'
 import { uIOhook, UiohookKey } from 'uiohook-napi'
-import { getOverlayWindow, showOverlay, hideOverlay, isOverlayReady, shrinkOverlay } from './windows'
+import { getOverlayWindow, showOverlay, isOverlayReady, shrinkOverlay } from './windows'
 import { getStore } from './store'
 import { canUseApp } from './license'
 
@@ -51,7 +51,6 @@ export function setIsProcessing(value: boolean) {
         isProcessing = false
         isRecording = false
         recordingMode = null
-        hideOverlay()
       }
       processingTimeout = null
     }, PROCESSING_TIMEOUT_MS)
@@ -108,7 +107,6 @@ function handleHotkeyAction(mode: 'hold' | 'toggle' | 'prompt', action: 'start' 
       showOverlay()
       setTimeout(() => {
         overlay.webContents.send('trial-expired')
-        setTimeout(() => hideOverlay(), 2000)
       }, 100)
       console.log('[VoxGen] Recording blocked: trial expired and no active license')
       return
@@ -424,8 +422,6 @@ export function registerHotkeys(): { success: boolean; error?: string } {
       if (isRecording || isProcessing) {
         const overlay = getOverlayWindow()
         overlay?.webContents.send('cancel-recording')
-        shrinkOverlay()
-        hideOverlay()
         isRecording = false
         isProcessing = false
         recordingMode = null

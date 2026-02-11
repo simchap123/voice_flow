@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Stripe from 'stripe'
+import { isValidEmail } from './lib/validate-email'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -16,8 +17,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { plan, email: rawEmail } = req.body as { plan?: string; email?: string }
 
-  if (!plan || !rawEmail) {
-    return res.status(400).json({ error: 'Missing plan or email' })
+  if (!plan || !rawEmail || !isValidEmail(rawEmail)) {
+    return res.status(400).json({ error: 'Missing plan or valid email' })
   }
 
   const email = rawEmail.trim().toLowerCase()
@@ -27,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: `Invalid plan: ${plan}` })
   }
 
-  const appUrl = process.env.APP_URL || 'https://voiceflow.app'
+  const appUrl = (process.env.APP_URL || 'https://voiceflow.app').replace(/\/+$/, '')
 
   try {
     const session = await stripe.checkout.sessions.create({

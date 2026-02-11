@@ -1,4 +1,5 @@
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const LANGUAGES = [
   { code: 'auto', name: 'Auto-detect' },
@@ -32,15 +33,16 @@ export function LanguageSelect({ value, onChange }: LanguageSelectProps) {
   return (
     <div className="space-y-2">
       <Label>Language</Label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        {LANGUAGES.map(({ code, name }) => (
-          <option key={code} value={code}>{name}</option>
-        ))}
-      </select>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select language" />
+        </SelectTrigger>
+        <SelectContent>
+          {LANGUAGES.map(({ code, name }) => (
+            <SelectItem key={code} value={code}>{name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   )
 }

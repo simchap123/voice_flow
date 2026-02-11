@@ -131,6 +131,27 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     ? String(session.customer)
     : null
 
+  // Idempotency: check if a license already exists for this session/subscription
+  const idempotencyKey = stripeSubscriptionId || session.id
+  const { data: existingLicense } = await supabase
+    .from('user_licenses')
+    .select('id, license_key')
+    .eq('user_id', user.id)
+    .eq('license_type_id', licenseType.id)
+    .or(
+      stripeSubscriptionId
+        ? `stripe_subscription_id.eq.${stripeSubscriptionId}`
+        : `stripe_customer_id.eq.${stripeCustomerId}`
+    )
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+
+  if (existingLicense) {
+    console.log(`[webhook] License already exists for ${email} (${plan}), skipping duplicate: ${existingLicense.license_key}`)
+    return
+  }
+
   // Insert license
   const { data: license, error: licErr } = await supabase
     .from('user_licenses')

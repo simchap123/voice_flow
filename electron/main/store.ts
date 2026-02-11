@@ -2,6 +2,7 @@ import { safeStorage, app } from 'electron'
 import Store from 'electron-store'
 import { existsSync, readFileSync, unlinkSync, mkdirSync, readdirSync, copyFileSync, renameSync } from 'fs'
 import { join } from 'path'
+import { randomUUID } from 'crypto'
 
 let store: Store | null = null
 
@@ -31,6 +32,7 @@ export interface AppSettings {
   trialStartedAt: number
   lastLicenseCheck: number
   userEmail: string
+  deviceId: string
 }
 
 const defaults: AppSettings = {
@@ -57,6 +59,7 @@ const defaults: AppSettings = {
   trialStartedAt: 0,
   lastLicenseCheck: 0,
   userEmail: '',
+  deviceId: '',
 }
 
 export function initStore() {
@@ -182,6 +185,14 @@ export function initStore() {
       store.set('trialStartedAt', Date.now())
       console.log('[VoxGen] Trial period started')
     }
+
+    // Generate persistent device ID on first launch
+    const existingDeviceId = store.get('deviceId', '') as string
+    if (!existingDeviceId) {
+      const deviceId = randomUUID()
+      store.set('deviceId', deviceId)
+      console.log('[VoxGen] Device ID generated:', deviceId)
+    }
   } catch (err) {
     console.error('[VoxGen] Failed to init store:', err)
   }
@@ -225,6 +236,7 @@ export function getAllSettings(): AppSettings {
     trialStartedAt: store.get('trialStartedAt', defaults.trialStartedAt) as number,
     lastLicenseCheck: store.get('lastLicenseCheck', defaults.lastLicenseCheck) as number,
     userEmail: store.get('userEmail', defaults.userEmail) as string,
+    deviceId: store.get('deviceId', defaults.deviceId) as string,
   }
 }
 
@@ -281,6 +293,10 @@ export function ensureTrialStarted() {
     store.set('trialStartedAt', Date.now())
     console.log('[VoxGen] Trial started')
   }
+}
+
+export function getDeviceId(): string {
+  return getSetting('deviceId') || 'unknown'
 }
 
 // Secure API key storage — supports multiple providers (openai, groq, deepgram)

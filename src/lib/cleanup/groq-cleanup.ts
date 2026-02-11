@@ -5,12 +5,12 @@ import { getGenerationPrompt, getMaxTokensForLength, getRefinementPrompt } from 
 const CLEANUP_PROMPT = `You are a transcription cleanup assistant. Your ONLY job is to clean up speech-to-text output. Rules:
 - Remove filler words (um, uh, like, you know, so, basically, actually, I mean)
 - Fix grammar and punctuation
-- Preserve the speaker's original meaning exactly
-- Do NOT add, change, or rephrase content
-- Do NOT add formatting, headings, or bullet points unless the speaker clearly intended them
+- Resolve self-corrections: if the speaker changes their mind (e.g. "1 o'clock, no wait, 5 o'clock"), keep ONLY the final decision ("5 o'clock")
+- Preserve the speaker's intended meaning — use common sense to understand what they actually want to say
+- Do NOT add markdown formatting, asterisks, stars, headings, or bullet points — return plain text only
 - Keep the same tone and register (formal/informal)
 - If the text is already clean, return it unchanged
-- Return ONLY the cleaned text, nothing else`
+- Return ONLY the cleaned text as plain text, nothing else`
 
 const GENERATE_PROMPT = `You are an AI writing assistant. The user dictated instructions for content they want created.
 Generate the content they described. Return ONLY the content — no explanations or meta-commentary.

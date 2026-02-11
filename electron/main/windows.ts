@@ -7,17 +7,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 let mainWindow: BrowserWindow | null = null
 let overlayWindow: BrowserWindow | null = null
 let previousFocusedWindow: number | null = null // Track window to restore focus to
+let overlayDismissed = false
 
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 const DIST = process.env.DIST ?? path.join(__dirname, '../../dist')
 const preloadPath = path.join(__dirname, '../preload/index.cjs')
 
+// Overlay constants — fixed bounds, CSS handles visual states
+const OVERLAY_WIDTH = 340
+const OVERLAY_HEIGHT = 50
+
 export function createMainWindow(): BrowserWindow {
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
-    minWidth: 700,
-    minHeight: 500,
+    width: 1050,
+    height: 720,
+    minWidth: 850,
+    minHeight: 550,
     frame: false,
     titleBarStyle: 'hidden',
     show: false,
@@ -57,10 +62,10 @@ export function createOverlayWindow(): BrowserWindow {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
 
   overlayWindow = new BrowserWindow({
-    width: 48,
-    height: 48,
-    x: Math.round(screenWidth / 2 - 24),
-    y: screenHeight - 60,
+    width: OVERLAY_WIDTH,
+    height: OVERLAY_HEIGHT,
+    x: Math.round(screenWidth / 2 - OVERLAY_WIDTH / 2),
+    y: screenHeight - OVERLAY_HEIGHT - 10,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -83,17 +88,11 @@ export function createOverlayWindow(): BrowserWindow {
     overlayWindow.loadFile(path.join(DIST, 'index.html'), { hash: '/overlay' })
   }
 
-  // Track when overlay has finished loading (API key + settings ready)
+  // Show overlay once loaded — always visible by default
   overlayWindow.webContents.on('did-finish-load', () => {
     console.log('[VoxGen] Overlay window loaded and ready')
-    // Briefly show and hide to initialize mic permissions, then hide
     if (overlayWindow && !overlayWindow.isDestroyed()) {
-      overlayWindow.show()
-      setTimeout(() => {
-        if (overlayWindow && !overlayWindow.isDestroyed()) {
-          overlayWindow.hide()
-        }
-      }, 100)
+      overlayWindow.showInactive()
     }
   })
 
@@ -114,6 +113,7 @@ export function getOverlayWindow(): BrowserWindow | null {
 
 export function showOverlay() {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
+    overlayDismissed = false
     overlayWindow.setOpacity(0)
     overlayWindow.showInactive()
     // Quick fade in
@@ -130,53 +130,26 @@ export function showOverlay() {
 
 export function showOverlayIdle() {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
-    expandOverlayIdle()
     showOverlay()
   }
 }
 
+// Kept for API compatibility — bounds are now fixed, CSS handles visual states
 export function expandOverlay() {
-  if (overlayWindow && !overlayWindow.isDestroyed()) {
-    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
-    const expandedWidth = 160
-    const expandedHeight = 44
-    overlayWindow.setBounds({
-      x: Math.round(screenWidth / 2 - expandedWidth / 2),
-      y: screenHeight - 56,
-      width: expandedWidth,
-      height: expandedHeight,
-    })
-  }
+  // No-op: overlay bounds are fixed at 340x50, recording UI handled by CSS
 }
 
 export function expandOverlayIdle() {
-  if (overlayWindow && !overlayWindow.isDestroyed()) {
-    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
-    const idleWidth = 160
-    const idleHeight = 40
-    overlayWindow.setBounds({
-      x: Math.round(screenWidth / 2 - idleWidth / 2),
-      y: screenHeight - 52,
-      width: idleWidth,
-      height: idleHeight,
-    })
-  }
+  // No-op: overlay bounds are fixed at 340x50, idle UI handled by CSS
 }
 
 export function shrinkOverlay() {
-  if (overlayWindow && !overlayWindow.isDestroyed()) {
-    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
-    overlayWindow.setBounds({
-      x: Math.round(screenWidth / 2 - 24),
-      y: screenHeight - 56,
-      width: 48,
-      height: 48,
-    })
-  }
+  // No-op: overlay bounds are fixed at 340x50, CSS handles minimized state
 }
 
 export function hideOverlay(instant = false) {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
+    overlayDismissed = true
     if (instant) {
       overlayWindow.setOpacity(0)
       overlayWindow.hide()
@@ -197,4 +170,8 @@ export function hideOverlay(instant = false) {
       }
     }, 16)
   }
+}
+
+export function isOverlayDismissed(): boolean {
+  return overlayDismissed
 }

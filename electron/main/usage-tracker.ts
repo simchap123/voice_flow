@@ -1,5 +1,5 @@
 import { net } from 'electron'
-import { getSetting } from './store'
+import { getSetting, getDeviceId } from './store'
 
 const API_BASE = 'https://freevoiceflow.vercel.app'
 
@@ -16,6 +16,7 @@ export async function trackUsage(data: {
 
   const body = JSON.stringify({
     email,
+    deviceId: getDeviceId(),
     words: data.wordCount ?? 0,
     audioSeconds: data.duration ?? 0,
     sttProvider: sttProvider ?? 'unknown',

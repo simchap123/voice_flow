@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { supabase } from './lib/supabase'
+import { isValidEmail } from './lib/validate-email'
 
 const TRIAL_DAYS = 30
 
@@ -11,7 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { licenseKey, email } = req.body as { licenseKey?: string; email?: string }
 
   // Support both email-based and legacy license key validation
-  if (email && typeof email === 'string') {
+  if (email && typeof email === 'string' && isValidEmail(email)) {
     return validateByEmail(email.trim().toLowerCase(), res)
   }
 

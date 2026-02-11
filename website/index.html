@@ -958,11 +958,15 @@
 
   // Dynamically resolve the latest .exe from GitHub Releases
   var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
+  var hasDirectExe = false;
   fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
     .then(function(r) { return r.json(); })
     .then(function(release) {
-      var exe = release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
-      if (exe) DOWNLOAD_URL = exe.browser_download_url;
+      var exe = release.assets && release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
+      if (exe) {
+        DOWNLOAD_URL = exe.browser_download_url;
+        hasDirectExe = true;
+      }
     })
     .catch(function() { /* fallback to releases page */ });
 
@@ -1003,12 +1007,17 @@
   }
 
   function triggerDownload() {
-    var link = document.createElement('a');
-    link.href = DOWNLOAD_URL;
-    link.download = 'VoxGen Setup.exe';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (hasDirectExe) {
+      var link = document.createElement('a');
+      link.href = DOWNLOAD_URL;
+      link.download = '';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // Fallback: open releases page in new tab so user can download manually
+      window.open(DOWNLOAD_URL, '_blank');
+    }
   }
 
   // --- Get Started: "Download Free" ---
@@ -1083,6 +1092,10 @@
   async function doCheckout(plan, email) {
     checkoutPlans.style.pointerEvents = 'none';
     checkoutPlans.style.opacity = '0.5';
+    if (checkoutSubmit) {
+      checkoutSubmit.disabled = true;
+      checkoutSubmit.textContent = 'Processing...';
+    }
 
     try {
       var resp = await fetch('/api/checkout', {
@@ -1101,6 +1114,10 @@
       checkoutError.style.display = 'block';
       checkoutPlans.style.pointerEvents = '';
       checkoutPlans.style.opacity = '';
+      if (checkoutSubmit) {
+        checkoutSubmit.disabled = false;
+        checkoutSubmit.textContent = 'Continue to Payment';
+      }
     }
   }
 

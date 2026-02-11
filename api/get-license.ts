@@ -40,6 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { data: license } = await supabase
       .from('user_licenses')
       .select(`
+        license_key,
         status,
         expires_at,
         license_types!inner ( name, slug )
@@ -57,6 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({
       email: email,
+      licenseKey: license.license_key,
       plan: licenseType.name,
       planSlug: licenseType.slug,
       expiresAt: license.expires_at,

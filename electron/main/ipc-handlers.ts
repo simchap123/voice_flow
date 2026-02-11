@@ -46,12 +46,11 @@ export function registerIpcHandlers() {
   // Text injection
   ipcMain.handle('inject-text', async (_event, text: string) => {
     console.log('[VoxGen] inject-text IPC received, text length:', text?.length)
-    hideOverlay(true) // instant hide
     setIsRecording(false)
     setIsProcessing(false)
 
-    // Small delay to let overlay fully hide, then paste into focused app
-    await new Promise(resolve => setTimeout(resolve, 150))
+    // Small delay then paste into focused app
+    await new Promise(resolve => setTimeout(resolve, 100))
     const result = await injectText(text)
     console.log('[VoxGen] inject-text result:', result)
     return result

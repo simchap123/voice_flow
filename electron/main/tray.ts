@@ -1,7 +1,7 @@
 import { Tray, Menu, app, nativeImage } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { getMainWindow } from './windows'
+import { getMainWindow, getOverlayWindow, showOverlay, hideOverlay, isOverlayDismissed } from './windows'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -24,6 +24,20 @@ export function createTray() {
         const mainWin = getMainWindow()
         mainWin?.show()
         mainWin?.focus()
+      },
+    },
+    { type: 'separator' },
+    {
+      label: 'Show/Hide Overlay',
+      click: () => {
+        const overlayWin = getOverlayWindow()
+        if (overlayWin && !overlayWin.isDestroyed()) {
+          if (isOverlayDismissed() || !overlayWin.isVisible()) {
+            showOverlay()
+          } else {
+            hideOverlay()
+          }
+        }
       },
     },
     { type: 'separator' },

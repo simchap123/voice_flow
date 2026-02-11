@@ -77,11 +77,9 @@
       color: var(--text-muted);
       margin-bottom: 8px;
     }
-    .license-key {
-      font-family: 'Courier New', monospace;
+    .license-email {
       font-size: 18px;
       font-weight: 600;
-      word-break: break-all;
       color: var(--primary-light);
       min-height: 24px;
     }
@@ -110,6 +108,23 @@
     .copy-btn:hover { transform: translateY(-2px); }
     .copy-btn:active { transform: translateY(0); }
     .copy-btn svg { width: 18px; height: 18px; }
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--primary-light);
+      transition: all 0.2s ease;
+      margin-top: 12px;
+    }
+    .retry-btn:hover { background: rgba(124, 58, 237, 0.1); }
     .instructions {
       text-align: left;
       background: rgba(124, 58, 237, 0.05);
@@ -166,21 +181,23 @@
 
     <div id="content">
       <div class="loading">
-        <span class="spinner"></span> Retrieving your license key...
+        <span class="spinner"></span> Retrieving your license...
       </div>
     </div>
 
-    <a href="/" class="back-link">Back to VoxGen</a>
+    <a href="index.html" class="back-link">Back to VoxGen</a>
   </div>
 
   <script>
+    var sessionId = null;
+
     async function fetchLicense() {
       var content = document.getElementById('content');
       var params = new URLSearchParams(window.location.search);
-      var sessionId = params.get('session_id');
+      sessionId = params.get('session_id');
 
       if (!sessionId) {
-        content.innerHTML = '<p class="error-msg">No session ID found. If you completed payment, check your email for your license key.</p>';
+        content.innerHTML = '<p class="error-msg">No session ID found. If you completed payment, check your email for activation instructions.</p>';
         return;
       }
 
@@ -192,23 +209,23 @@
           var resp = await fetch('/api/get-license?session_id=' + encodeURIComponent(sessionId));
           var data = await resp.json();
 
-          if (data.licenseKey) {
+          if (resp.ok && data.email) {
             content.innerHTML =
               '<div class="license-box">' +
-                '<div class="license-label">Your License Key</div>' +
-                '<div class="license-key" id="license-key">' + escapeHtml(data.licenseKey) + '</div>' +
+                '<div class="license-label">Your Activation Email</div>' +
+                '<div class="license-email" id="activation-email">' + escapeHtml(data.email) + '</div>' +
                 '<div class="plan-info">Plan: ' + escapeHtml(data.plan) + (data.expiresAt ? ' &bull; Expires: ' + new Date(data.expiresAt).toLocaleDateString() : ' &bull; Never expires') + '</div>' +
               '</div>' +
-              '<button class="copy-btn" onclick="copyKey()">' +
+              '<button class="copy-btn" onclick="copyEmail()">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
-                '<span id="copy-text">Copy License Key</span>' +
+                '<span id="copy-text">Copy Email</span>' +
               '</button>' +
               '<div class="instructions">' +
                 '<h3>How to activate:</h3>' +
                 '<ol>' +
                   '<li>Open <strong>VoxGen</strong> on your computer</li>' +
-                  '<li>Go to <strong>Settings</strong></li>' +
-                  '<li>Paste your license key in the <strong>License</strong> section</li>' +
+                  '<li>Go to <strong>Settings</strong> &rarr; <strong>Account</strong></li>' +
+                  '<li>Enter your email: <strong>' + escapeHtml(data.email) + '</strong></li>' +
                   '<li>Click <strong>Activate</strong></li>' +
                 '</ol>' +
               '</div>';
@@ -217,22 +234,33 @@
 
           attempts++;
           if (attempts < maxAttempts) {
-            content.innerHTML = '<div class="loading"><span class="spinner"></span> Retrieving your license key... (attempt ' + (attempts + 1) + ')</div>';
+            content.innerHTML = '<div class="loading"><span class="spinner"></span> Retrieving your license... (attempt ' + (attempts + 1) + ')</div>';
             setTimeout(tryFetch, 2000);
           } else {
-            content.innerHTML = '<p class="error-msg">License is still being processed. Please check back in a moment or contact support.</p>';
+            content.innerHTML =
+              '<p class="error-msg">License is still being processed. This can take up to a minute.</p>' +
+              '<button class="retry-btn" onclick="retryFetch()">Try Again</button>';
           }
         } catch (err) {
           attempts++;
           if (attempts < maxAttempts) {
             setTimeout(tryFetch, 2000);
           } else {
-            content.innerHTML = '<p class="error-msg">Failed to retrieve license. Please contact support.</p>';
+            content.innerHTML =
+              '<p class="error-msg">Failed to retrieve license. Please try again.</p>' +
+              '<button class="retry-btn" onclick="retryFetch()">Try Again</button>';
           }
         }
       }
 
       tryFetch();
+    }
+
+    function retryFetch() {
+      var content = document.getElementById('content');
+      content.innerHTML = '<div class="loading"><span class="spinner"></span> Retrying...</div>';
+      // Re-run the whole fetch with fresh attempts
+      fetchLicense();
     }
 
     function escapeHtml(str) {
@@ -241,12 +269,12 @@
       return div.innerHTML;
     }
 
-    function copyKey() {
-      var key = document.getElementById('license-key').textContent;
-      navigator.clipboard.writeText(key).then(function() {
+    function copyEmail() {
+      var email = document.getElementById('activation-email').textContent;
+      navigator.clipboard.writeText(email).then(function() {
         var btn = document.getElementById('copy-text');
         btn.textContent = 'Copied!';
-        setTimeout(function() { btn.textContent = 'Copy License Key'; }, 2000);
+        setTimeout(function() { btn.textContent = 'Copy Email'; }, 2000);
       });
     }
 
