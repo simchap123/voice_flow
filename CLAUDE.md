@@ -71,6 +71,7 @@ Cleanup: OpenAI GPT-4o-mini | Groq Llama 3.3 | None (disabled)
 
 ### Environment Variables (Vercel)
 ```
+GROQ_API_KEY                  # Server-side Groq key for managed mode (free trial / Pro users)
 STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
 STRIPE_PRICE_MONTHLY, STRIPE_PRICE_YEARLY, STRIPE_PRICE_LIFETIME
 SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY

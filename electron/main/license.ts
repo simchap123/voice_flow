@@ -45,7 +45,7 @@ export async function validateByEmail(email: string): Promise<LicenseValidationR
         plan: data.plan || '',
         expiresAt: data.expiresAt || '',
       })
-      setSetting('userEmail', email.trim().toLowerCase())
+      // Don't persist email on failed validation — prevents invalid managed mode
     }
 
     return data

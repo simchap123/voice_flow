@@ -163,8 +163,10 @@ export function registerIpcHandlers() {
     console.log('[VoxGen] IPC license:validate-email:', email)
     const result = await validateByEmail(email)
     console.log('[VoxGen] IPC license:validate-email result:', result.valid, result.plan)
-    // Broadcast email change so renderers can activate managed mode
-    broadcastSettingChanged('userEmail', email.trim().toLowerCase())
+    // Only broadcast email when validation succeeds — prevents invalid managed mode
+    if (result.valid) {
+      broadcastSettingChanged('userEmail', email.trim().toLowerCase())
+    }
     return result
   })
 

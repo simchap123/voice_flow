@@ -101,6 +101,7 @@ export function useSettingsProvider(): SettingsContextValue {
   useEffect(() => {
     async function load() {
       let loadedSettings = defaultSettings
+      let managedModeActive = false
 
       if (isElectron) {
         try {
@@ -113,6 +114,7 @@ export function useSettingsProvider(): SettingsContextValue {
 
           if (managed) {
             // Trial/licensed user with no own key → use managed providers
+            managedModeActive = true
             setIsManagedMode(true)
             setHasApiKey(true)
             initManagedProviders(email)
@@ -143,7 +145,7 @@ export function useSettingsProvider(): SettingsContextValue {
       }
 
       // Initialize BYOK providers (only when not in managed mode)
-      if (!isManagedMode) {
+      if (!managedModeActive) {
         await initProvidersWithKeys(loadedSettings.sttProvider, loadedSettings.cleanupProvider, isElectron)
       }
 

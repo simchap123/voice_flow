@@ -37,6 +37,9 @@ export interface AppSettings {
   licenseExpiresAt: string
   trialStartedAt: number
   lastLicenseCheck: number
+
+  // Onboarding
+  onboardingComplete: boolean
 }
 
 export const defaultSettings: AppSettings = {
@@ -67,4 +70,6 @@ export const defaultSettings: AppSettings = {
   licenseExpiresAt: '',
   trialStartedAt: 0,
   lastLicenseCheck: 0,
+
+  onboardingComplete: false,
 }

@@ -6,12 +6,20 @@ import { DictationPage } from '@/pages/DictationPage'
 import { HistoryPage } from '@/pages/HistoryPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { SnippetsPage } from '@/pages/SnippetsPage'
-import { SettingsContext, useSettingsProvider } from '@/hooks/useSettings'
+import { SettingsContext, useSettingsProvider, useSettings } from '@/hooks/useSettings'
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from '@/components/ui/toast'
 import { useToastProvider } from '@/hooks/useToast'
+import { WelcomeModal } from '@/components/onboarding/WelcomeModal'
 
 function MainApp() {
   const [currentPage, setCurrentPage] = useState('dictation')
+  const { settings, updateSetting, isLoaded } = useSettings()
+
+  const showOnboarding = isLoaded && !settings.onboardingComplete
+
+  function handleOnboardingComplete() {
+    updateSetting('onboardingComplete', true)
+  }
 
   const renderPage = () => {
     switch (currentPage) {
@@ -32,6 +40,7 @@ function MainApp() {
           {renderPage()}
         </main>
       </div>
+      {showOnboarding && <WelcomeModal onComplete={handleOnboardingComplete} />}
     </div>
   )
 }

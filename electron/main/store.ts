@@ -33,6 +33,7 @@ export interface AppSettings {
   lastLicenseCheck: number
   userEmail: string
   deviceId: string
+  onboardingComplete: boolean
 }
 
 const defaults: AppSettings = {
@@ -60,6 +61,7 @@ const defaults: AppSettings = {
   lastLicenseCheck: 0,
   userEmail: '',
   deviceId: '',
+  onboardingComplete: false,
 }
 
 export function initStore() {
@@ -193,6 +195,17 @@ export function initStore() {
       store.set('deviceId', deviceId)
       console.log('[VoxGen] Device ID generated:', deviceId)
     }
+
+    // Migration: existing users (who had a trial before this update) skip onboarding
+    if (store.get('onboardingComplete') === undefined || store.get('onboardingComplete') === null) {
+      if (trialStarted) {
+        // Existing user upgrading — skip onboarding
+        store.set('onboardingComplete', true)
+        console.log('[VoxGen] Existing user — onboarding auto-completed')
+      } else {
+        store.set('onboardingComplete', false)
+      }
+    }
   } catch (err) {
     console.error('[VoxGen] Failed to init store:', err)
   }
@@ -237,6 +250,7 @@ export function getAllSettings(): AppSettings {
     lastLicenseCheck: store.get('lastLicenseCheck', defaults.lastLicenseCheck) as number,
     userEmail: store.get('userEmail', defaults.userEmail) as string,
     deviceId: store.get('deviceId', defaults.deviceId) as string,
+    onboardingComplete: store.get('onboardingComplete', defaults.onboardingComplete) as boolean,
   }
 }
 
