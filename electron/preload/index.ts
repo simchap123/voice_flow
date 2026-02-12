@@ -108,6 +108,11 @@ const api: ElectronAPI = {
   // Auto-update
   checkForUpdates: () => ipcRenderer.invoke('update:check'),
   installUpdate: () => ipcRenderer.invoke('update:install'),
+  onUpdateStatus: (callback: (data: { status: string; version?: string }) => void) => {
+    const handler = (_event: any, data: { status: string; version?: string }) => callback(data)
+    ipcRenderer.on('update-status', handler)
+    return () => ipcRenderer.removeListener('update-status', handler)
+  },
 }
 
 contextBridge.exposeInMainWorld('electronAPI', api)

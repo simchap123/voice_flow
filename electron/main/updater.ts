@@ -1,6 +1,7 @@
 import pkg from 'electron-updater'
 const { autoUpdater } = pkg
 import { app } from 'electron'
+import { getMainWindow } from './windows'
 
 let updateAvailableVersion: string | null = null
 let updateDownloaded = false
@@ -8,6 +9,13 @@ let isQuittingForUpdate = false
 
 export function isUpdating(): boolean {
   return isQuittingForUpdate
+}
+
+function broadcastUpdateStatus(status: string, version?: string) {
+  const main = getMainWindow()
+  if (main && !main.isDestroyed()) {
+    main.webContents.send('update-status', { status, version })
+  }
 }
 
 export function initAutoUpdater() {
@@ -27,6 +35,7 @@ export function initAutoUpdater() {
   autoUpdater.on('update-available', (info) => {
     console.log('[VoxGen] Update available:', info.version)
     updateAvailableVersion = info.version
+    broadcastUpdateStatus('downloading', info.version)
   })
 
   autoUpdater.on('update-not-available', () => {
@@ -41,6 +50,7 @@ export function initAutoUpdater() {
     console.log('[VoxGen] Update downloaded:', info.version)
     updateDownloaded = true
     updateAvailableVersion = info.version
+    broadcastUpdateStatus('ready', info.version)
   })
 
   autoUpdater.on('error', (err) => {
@@ -87,6 +97,8 @@ export async function checkForUpdates(): Promise<{ updateAvailable: boolean; ver
 export function installUpdate() {
   if (updateDownloaded) {
     isQuittingForUpdate = true
-    autoUpdater.quitAndInstall(false, true)
+    // silent=true: no installer UI shown, just installs and relaunches
+    // forceRunAfter=true: relaunch app after install
+    autoUpdater.quitAndInstall(true, true)
   }
 }

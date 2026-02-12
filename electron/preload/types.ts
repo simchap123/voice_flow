@@ -74,4 +74,5 @@ export interface ElectronAPI {
   // Auto-update
   checkForUpdates: () => Promise<{ updateAvailable: boolean; version?: string; downloaded?: boolean }>
   installUpdate: () => Promise<void>
+  onUpdateStatus: (callback: (data: { status: string; version?: string }) => void) => () => void
 }
