@@ -1,6 +1,6 @@
 {
   "name": "voxgen",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "AI-powered system-wide dictation with smart content generation",
   "type": "module",
   "main": "dist-electron/main/index.js",

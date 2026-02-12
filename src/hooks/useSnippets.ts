@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Snippet } from '@/types/snippets'
 import { generateId } from '@/lib/audio-utils'
 
 export function useSnippets() {
   const [snippets, setSnippets] = useState<Snippet[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const isSaving = useRef(false)
 
   useEffect(() => {
     async function load() {
@@ -17,9 +18,25 @@ export function useSnippets() {
     load()
   }, [])
 
+  // Listen for snippet changes from other windows (e.g. main window → overlay)
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onSnippetsChanged?.(() => {
+      // Skip reload if this window just saved (avoid echo)
+      if (isSaving.current) return
+      window.electronAPI?.getSnippets().then(data => {
+        setSnippets(data ?? [])
+      })
+    })
+    return () => cleanup?.()
+  }, [])
+
   useEffect(() => {
     if (isLoaded && window.electronAPI) {
-      window.electronAPI.setSnippets(snippets)
+      isSaving.current = true
+      window.electronAPI.setSnippets(snippets).finally(() => {
+        // Reset after a short delay to allow the broadcast echo to pass
+        setTimeout(() => { isSaving.current = false }, 100)
+      })
     }
   }, [snippets, isLoaded])
 

@@ -55,6 +55,11 @@ const api: ElectronAPI = {
   // Snippets
   getSnippets: () => ipcRenderer.invoke('snippets:get'),
   setSnippets: (snippets: any[]) => ipcRenderer.invoke('snippets:set', snippets),
+  onSnippetsChanged: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('snippets-changed', handler)
+    return () => ipcRenderer.removeListener('snippets-changed', handler)
+  },
 
   // License
   validateLicense: (key: string) => ipcRenderer.invoke('license:validate', key),

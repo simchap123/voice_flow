@@ -12,8 +12,10 @@ interface TriggerPattern {
   patterns: RegExp[]
 }
 
-// Priority-ordered: email > code > summary > expand > general
+// Priority-ordered: email > code > summary > expand
 // Patterns match at the START of transcribed text only to prevent false positives
+// NOTE: No "general" catch-all — too many false positives on normal speech.
+// For open-ended generation, users should use the dedicated AI Prompt hotkey.
 const TRIGGER_PATTERNS: TriggerPattern[] = [
   {
     mode: 'email',
@@ -47,15 +49,6 @@ const TRIGGER_PATTERNS: TriggerPattern[] = [
       /^expand\s+(?:on\s+)?(.+)/i,
       /^elaborate\s+(?:on\s+)?(.+)/i,
       /^(?:go\s+)?(?:more\s+)?(?:in|into)\s+(?:detail|depth)\s+(?:about|on)\s+(.+)/i,
-    ],
-  },
-  {
-    mode: 'general',
-    patterns: [
-      // Require explicit generation intent — must say "generate/compose/draft" (not "write/create/make" which are too common in normal speech)
-      /^generate\s+(?:me\s+)?(?:a\s+|an\s+)?(.+)/i,
-      /^(?:compose|draft)\s+(?:me\s+)?(?:a\s+|an\s+)?(.+)/i,
-      /^(?:write|create|make)\s+(?:me\s+)(?:a\s+|an\s+)(.+)/i, // requires "me" — "write me a..." vs just "write a..."
     ],
   },
 ]

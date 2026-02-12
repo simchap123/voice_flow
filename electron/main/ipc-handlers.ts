@@ -149,6 +149,15 @@ export function registerIpcHandlers() {
 
   ipcMain.handle('snippets:set', async (_event, snippets: any[]) => {
     setSnippets(snippets)
+    // Broadcast to all windows so overlay stays in sync with main window
+    const overlay = getOverlayWindow()
+    if (overlay && !overlay.isDestroyed()) {
+      overlay.webContents.send('snippets-changed')
+    }
+    const main = getMainWindow()
+    if (main && !main.isDestroyed()) {
+      main.webContents.send('snippets-changed')
+    }
   })
 
   // License
