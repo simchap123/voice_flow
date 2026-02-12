@@ -1,6 +1,7 @@
 import { useSettings } from '@/hooks/useSettings'
 import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { LanguageSelect } from '@/components/settings/LanguageSelect'
+import { MicrophoneSelect } from '@/components/settings/MicrophoneSelect'
 import { ThemeToggle } from '@/components/settings/ThemeToggle'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -75,13 +76,17 @@ export function GeneralSection() {
         </CardContent>
       </Card>
 
-      {/* Language */}
+      {/* Language & Microphone */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-base">Language</CardTitle>
-          <CardDescription>Choose the language for speech recognition</CardDescription>
+          <CardTitle className="text-base">Recording</CardTitle>
+          <CardDescription>Language and audio input settings</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-5">
+          <MicrophoneSelect
+            value={settings.audioInputDeviceId}
+            onChange={(v) => updateSetting('audioInputDeviceId', v)}
+          />
           <LanguageSelect
             value={settings.language}
             onChange={(v) => updateSetting('language', v)}
