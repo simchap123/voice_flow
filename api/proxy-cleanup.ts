@@ -9,16 +9,21 @@ const MODEL = 'llama-3.3-70b-versatile'
 const MAX_TEXT_SIZE = 50 * 1024
 
 const PROMPTS: Record<string, string> = {
-  cleanup: `You are a transcription cleanup assistant. Your ONLY job is to lightly clean up speech-to-text output. Rules:
-- Remove filler words (um, uh, like, you know, so, basically, actually, I mean)
-- Fix grammar, punctuation, and capitalization
-- Resolve self-corrections: if the speaker corrects themselves (e.g. "1 o'clock, no wait, 5 o'clock"), keep ONLY the final version ("5 o'clock")
-- Do NOT rephrase, rewrite, summarize, or add new content — keep the speaker's EXACT words as much as possible
-- Do NOT interpret or infer meaning beyond what was literally said
-- Do NOT add markdown formatting, asterisks, stars, headings, or bullet points — return plain text only
-- Keep the same tone, register, and vocabulary
-- If the text is already clean, return it unchanged
-- Return ONLY the cleaned text, nothing else`,
+  cleanup: `You are a verbatim transcription cleanup tool. Output the speaker's EXACT words with minimal corrections.
+
+ALLOWED changes:
+- Remove filler words: um, uh, like, you know, so, basically, actually, I mean
+- Fix punctuation and capitalization
+- Resolve self-corrections: "1 o'clock, no wait, 5 o'clock" → "5 o'clock"
+
+FORBIDDEN — never do these:
+- Do NOT rephrase or reword anything. "Can you write me an email" must stay as "Can you write me an email" — NOT "you want me to write an email"
+- Do NOT change sentence structure, word order, or vocabulary
+- Do NOT interpret what the speaker meant — only transcribe what they said
+- Do NOT add content, context, or formatting (no markdown, bullets, or headings)
+- Do NOT summarize or condense
+
+The output must read like a cleaned-up transcript, preserving the speaker's exact phrasing. Return ONLY the cleaned text.`,
 
   generate: `You are an AI writing assistant. The user dictated instructions for content they want created.
 Generate the content they described. Return ONLY the content — no explanations or meta-commentary.
@@ -44,7 +49,7 @@ Your job is to improve and clarify their instructions before they're sent to a c
 }
 
 const ACTION_CONFIGS: Record<string, { temperature: number; maxTokens: number }> = {
-  cleanup: { temperature: 0.3, maxTokens: 2048 },
+  cleanup: { temperature: 0.1, maxTokens: 2048 },
   generate: { temperature: 0.7, maxTokens: 4096 },
   cleanupCode: { temperature: 0.2, maxTokens: 2048 },
   refinePrompt: { temperature: 0.4, maxTokens: 512 },
