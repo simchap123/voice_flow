@@ -52,7 +52,10 @@ const TRIGGER_PATTERNS: TriggerPattern[] = [
   {
     mode: 'general',
     patterns: [
-      /^(?:write|create|generate|make)\s+(?:me\s+)?(?:a\s+|an\s+)?(.+)/i,
+      // Require explicit generation intent — must say "generate/compose/draft" (not "write/create/make" which are too common in normal speech)
+      /^generate\s+(?:me\s+)?(?:a\s+|an\s+)?(.+)/i,
+      /^(?:compose|draft)\s+(?:me\s+)?(?:a\s+|an\s+)?(.+)/i,
+      /^(?:write|create|make)\s+(?:me\s+)(?:a\s+|an\s+)(.+)/i, // requires "me" — "write me a..." vs just "write a..."
     ],
   },
 ]

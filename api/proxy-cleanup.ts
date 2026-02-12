@@ -9,15 +9,16 @@ const MODEL = 'llama-3.3-70b-versatile'
 const MAX_TEXT_SIZE = 50 * 1024
 
 const PROMPTS: Record<string, string> = {
-  cleanup: `You are a transcription cleanup assistant. Your ONLY job is to clean up speech-to-text output. Rules:
+  cleanup: `You are a transcription cleanup assistant. Your ONLY job is to lightly clean up speech-to-text output. Rules:
 - Remove filler words (um, uh, like, you know, so, basically, actually, I mean)
-- Fix grammar and punctuation
-- Resolve self-corrections: if the speaker changes their mind (e.g. "1 o'clock, no wait, 5 o'clock"), keep ONLY the final decision ("5 o'clock")
-- Preserve the speaker's intended meaning — use common sense to understand what they actually want to say
+- Fix grammar, punctuation, and capitalization
+- Resolve self-corrections: if the speaker corrects themselves (e.g. "1 o'clock, no wait, 5 o'clock"), keep ONLY the final version ("5 o'clock")
+- Do NOT rephrase, rewrite, summarize, or add new content — keep the speaker's EXACT words as much as possible
+- Do NOT interpret or infer meaning beyond what was literally said
 - Do NOT add markdown formatting, asterisks, stars, headings, or bullet points — return plain text only
-- Keep the same tone and register (formal/informal)
+- Keep the same tone, register, and vocabulary
 - If the text is already clean, return it unchanged
-- Return ONLY the cleaned text as plain text, nothing else`,
+- Return ONLY the cleaned text, nothing else`,
 
   generate: `You are an AI writing assistant. The user dictated instructions for content they want created.
 Generate the content they described. Return ONLY the content — no explanations or meta-commentary.
