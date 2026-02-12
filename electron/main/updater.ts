@@ -2,10 +2,12 @@ import pkg from 'electron-updater'
 const { autoUpdater } = pkg
 import { app } from 'electron'
 import { getMainWindow } from './windows'
+import { getIsRecording } from './hotkeys'
 
 let updateAvailableVersion: string | null = null
 let updateDownloaded = false
 let isQuittingForUpdate = false
+let autoInstallTimer: ReturnType<typeof setInterval> | null = null
 
 export function isUpdating(): boolean {
   return isQuittingForUpdate
@@ -16,6 +18,24 @@ function broadcastUpdateStatus(status: string, version?: string) {
   if (main && !main.isDestroyed()) {
     main.webContents.send('update-status', { status, version })
   }
+}
+
+// Try to auto-install: wait until user is not recording, then quit and install
+function scheduleAutoInstall() {
+  if (autoInstallTimer) return // already scheduled
+
+  console.log('[VoxGen] Auto-install scheduled — waiting for idle...')
+
+  // Check every 5 seconds if user is idle (not recording)
+  autoInstallTimer = setInterval(() => {
+    if (!getIsRecording()) {
+      console.log('[VoxGen] User idle — auto-installing update...')
+      if (autoInstallTimer) clearInterval(autoInstallTimer)
+      autoInstallTimer = null
+      isQuittingForUpdate = true
+      autoUpdater.quitAndInstall(true, true)
+    }
+  }, 5000)
 }
 
 export function initAutoUpdater() {
@@ -51,6 +71,9 @@ export function initAutoUpdater() {
     updateDownloaded = true
     updateAvailableVersion = info.version
     broadcastUpdateStatus('ready', info.version)
+
+    // Auto-install when user is idle (not recording)
+    scheduleAutoInstall()
   })
 
   autoUpdater.on('error', (err) => {
@@ -96,9 +119,9 @@ export async function checkForUpdates(): Promise<{ updateAvailable: boolean; ver
 
 export function installUpdate() {
   if (updateDownloaded) {
+    if (autoInstallTimer) clearInterval(autoInstallTimer)
+    autoInstallTimer = null
     isQuittingForUpdate = true
-    // silent=true: no installer UI shown, just installs and relaunches
-    // forceRunAfter=true: relaunch app after install
     autoUpdater.quitAndInstall(true, true)
   }
 }

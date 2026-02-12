@@ -12,17 +12,31 @@ interface TriggerPattern {
   patterns: RegExp[]
 }
 
+// Common preamble words STT captures before the actual command.
+// We strip these iteratively (up to 3 rounds) before checking triggers.
+const PREAMBLE_RE = /^(?:ok(?:ay)?|perfect|alright|all\s*right|so|hey|hi|um+|uh+|well|right|yeah|yes|sure|now|let's\s+see|let\s+me\s+see|I\s+want\s+you\s+to|I\s+need\s+you\s+to|can\s+you(?:\s+please)?|please)\s*[,.]?\s*/i
+
+function stripPreamble(text: string): string {
+  let stripped = text.trim()
+  for (let i = 0; i < 3; i++) {
+    const before = stripped
+    stripped = stripped.replace(PREAMBLE_RE, '')
+    if (stripped === before) break
+  }
+  return stripped
+}
+
 // Priority-ordered: email > code > summary > expand
-// Patterns match at the START of transcribed text only to prevent false positives
+// Patterns match at the START of text (after preamble stripping).
 // NOTE: No "general" catch-all — too many false positives on normal speech.
 // For open-ended generation, users should use the dedicated AI Prompt hotkey.
 const TRIGGER_PATTERNS: TriggerPattern[] = [
   {
     mode: 'email',
     patterns: [
-      /^(?:write|draft|compose)\s+(?:me\s+)?(?:an?\s+)?email\s+(?:about|regarding|for|to)\s+(.+)/i,
+      /^(?:write|draft|compose|send)\s+(?:me\s+)?(?:an?\s+)?email\s+(?:about|regarding|for|to|saying|that)\s+(.+)/i,
       /^email\s+(?:about|regarding|for)\s+(.+)/i,
-      /^(?:write|draft|compose)\s+(?:me\s+)?(?:an?\s+)?email\s*[:.]\s*(.+)/i,
+      /^(?:write|draft|compose|send)\s+(?:me\s+)?(?:an?\s+)?email\s*[,:.]?\s+(.+)/i,
     ],
   },
   {
@@ -63,7 +77,9 @@ export function detectKeywordTrigger(rawText: string, enabled: boolean): Keyword
 
   if (!enabled || !rawText.trim()) return noDetection
 
-  const text = rawText.trim()
+  // Strip common preamble so "OK perfect write me an email about X" works
+  const text = stripPreamble(rawText)
+  if (!text) return noDetection
 
   for (const { mode, patterns } of TRIGGER_PATTERNS) {
     for (const pattern of patterns) {

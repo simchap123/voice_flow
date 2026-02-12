@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef } from 'react'
 import type { RecordingState, TranscriptionResult } from '@/types/transcription'
 import type { STTProviderType } from '@/lib/stt/types'
-import type { CleanupProviderType, GenerationMode } from '@/lib/cleanup/types'
+import type { CleanupProviderType, GenerationMode, OutputLength } from '@/lib/cleanup/types'
+import { detectKeywordTrigger } from '@/lib/cleanup/keyword-detector'
 import { useAudioRecorder } from './useAudioRecorder'
 import { useWhisperTranscription } from './useWhisperTranscription'
 import { useGptCleanup } from './useGptCleanup'
@@ -109,26 +110,58 @@ export function useRecordingState(options: {
       setRawText(raw)
 
       // Cleanup / Generate phase
-      // prompt mode → generation (code or general)
-      // hold/toggle mode → pure dictation cleanup (no keyword interception)
       let cleaned = raw
+      let generatedMode: GenerationMode | null = null
       setDetectedMode(null)
 
       if (mode === 'prompt' && raw.trim()) {
-        // AI Prompt mode: generate content from spoken instructions
-        // Code mode applies only here — spoken code instructions → actual code
+        // AI Prompt mode: always generate content
         setState('PROCESSING_CLEANUP')
-        cleaned = codeMode ? await gpt.cleanupCode(raw) : await gpt.generate(raw)
-      } else if (raw.trim() && cleanupEnabled) {
-        // Hold/Toggle modes: pure dictation — transcribe exactly what was said,
-        // only clean up filler words, grammar, punctuation. Never intercept or
-        // reinterpret the user's words.
-        setState('PROCESSING_CLEANUP')
-        cleaned = await gpt.cleanup(raw)
+
+        if (codeMode) {
+          // Code mode overrides everything — generate code
+          let instructions = raw
+          if (promptRefinementEnabled) instructions = await gpt.refinePrompt(instructions)
+          cleaned = await gpt.generateWithTemplate('code', instructions, outputLength)
+          generatedMode = 'code'
+        } else {
+          // Check for keyword triggers to pick the right template (email, code, summary, etc.)
+          const trigger = detectKeywordTrigger(raw, keywordTriggersEnabled)
+          if (trigger.detected && trigger.triggerType) {
+            generatedMode = trigger.triggerType
+            let instructions = trigger.contentAfterTrigger
+            if (promptRefinementEnabled) instructions = await gpt.refinePrompt(instructions)
+            cleaned = await gpt.generateWithTemplate(trigger.triggerType, instructions, outputLength)
+          } else {
+            // No keyword — general generation with full text as instructions
+            let instructions = raw
+            if (promptRefinementEnabled) instructions = await gpt.refinePrompt(instructions)
+            cleaned = await gpt.generateWithTemplate('general', instructions, outputLength)
+            generatedMode = 'general'
+          }
+        }
+      } else if (raw.trim()) {
+        // Hold/Toggle/Double-tap modes: dictation with optional keyword triggers
+        const trigger = keywordTriggersEnabled ? detectKeywordTrigger(raw, true) : null
+
+        if (trigger?.detected && trigger.triggerType) {
+          // Keyword trigger detected — generate content instead of dictating
+          setState('PROCESSING_CLEANUP')
+          generatedMode = trigger.triggerType
+          let instructions = trigger.contentAfterTrigger
+          if (promptRefinementEnabled) instructions = await gpt.refinePrompt(instructions)
+          cleaned = await gpt.generateWithTemplate(trigger.triggerType, instructions, outputLength)
+        } else if (cleanupEnabled) {
+          // Normal dictation cleanup
+          setState('PROCESSING_CLEANUP')
+          cleaned = await gpt.cleanup(raw)
+        }
       }
 
-      // Snippet expansion (skip for prompt mode — generated content shouldn't be snippet-expanded)
-      if (mode !== 'prompt' && snippets.length > 0) {
+      setDetectedMode(generatedMode)
+
+      // Snippet expansion (skip for generated content — only expand in pure dictation)
+      if (!generatedMode && snippets.length > 0) {
         cleaned = expandSnippets(cleaned, snippets)
       }
       setCleanedText(cleaned)
@@ -156,7 +189,7 @@ export function useRecordingState(options: {
       setError(err.message ?? 'Processing failed')
       setState('IDLE')
     }
-  }, [state, recorder, whisper, gpt, language, cleanupEnabled, codeMode, autoCopy, snippets, injectText, onComplete])
+  }, [state, recorder, whisper, gpt, language, cleanupEnabled, codeMode, keywordTriggersEnabled, outputLength, promptRefinementEnabled, autoCopy, snippets, injectText, onComplete])
 
   const cancelRecording = useCallback(() => {
     recorder.cancelRecording()

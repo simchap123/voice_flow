@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.1.0',
+    date: '2026-02-12',
+    highlights: [
+      'Keyword triggers now work — say "write me an email about..." during dictation to generate content',
+      'Output length (Concise/Medium/Detailed) now controls generated content length',
+      'Prompt refinement cleans up spoken instructions before generation',
+      'Smart preamble handling — "OK perfect write me an email about..." is detected correctly',
+      'Updates auto-install silently when you\'re not recording',
+    ],
+  },
+  {
     version: '2.0.9',
     date: '2026-02-12',
     highlights: [
