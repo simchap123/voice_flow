@@ -10,6 +10,8 @@ let overlayWindow: BrowserWindow | null = null
 let previousFocusedWindow: number | null = null // Track window to restore focus to
 let overlayDismissed = false
 let fadeInterval: ReturnType<typeof setInterval> | null = null
+let mouseTrackInterval: ReturnType<typeof setInterval> | null = null
+let lastDisplayId: number | null = null
 
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 const DIST = process.env.DIST ?? path.join(__dirname, '../../dist')
@@ -62,14 +64,49 @@ export function createMainWindow(): BrowserWindow {
   return mainWindow
 }
 
+/** Move overlay to the bottom-center of the display the cursor is on */
+function moveOverlayToCurrentDisplay() {
+  if (!overlayWindow || overlayWindow.isDestroyed()) return
+
+  const cursorPoint = screen.getCursorScreenPoint()
+  const display = screen.getDisplayNearestPoint(cursorPoint)
+
+  // Only move if the cursor changed displays
+  if (display.id === lastDisplayId) return
+  lastDisplayId = display.id
+
+  const { x: dx, y: dy, width: dw, height: dh } = display.workArea
+  const newX = Math.round(dx + dw / 2 - OVERLAY_WIDTH / 2)
+  const newY = dy + dh - OVERLAY_HEIGHT - 10
+  overlayWindow.setBounds({ x: newX, y: newY, width: OVERLAY_WIDTH, height: OVERLAY_HEIGHT })
+}
+
+/** Start polling the cursor position to keep overlay on the active display */
+function startMouseTracking() {
+  if (mouseTrackInterval) return
+  lastDisplayId = null // Force initial move
+  moveOverlayToCurrentDisplay()
+  mouseTrackInterval = setInterval(moveOverlayToCurrentDisplay, 250)
+}
+
+function stopMouseTracking() {
+  if (mouseTrackInterval) {
+    clearInterval(mouseTrackInterval)
+    mouseTrackInterval = null
+  }
+}
+
 export function createOverlayWindow(): BrowserWindow {
-  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+  const cursorPoint = screen.getCursorScreenPoint()
+  const display = screen.getDisplayNearestPoint(cursorPoint)
+  const { x: dx, y: dy, width: dw, height: dh } = display.workArea
+  lastDisplayId = display.id
 
   overlayWindow = new BrowserWindow({
     width: OVERLAY_WIDTH,
     height: OVERLAY_HEIGHT,
-    x: Math.round(screenWidth / 2 - OVERLAY_WIDTH / 2),
-    y: screenHeight - OVERLAY_HEIGHT - 10,
+    x: Math.round(dx + dw / 2 - OVERLAY_WIDTH / 2),
+    y: dy + dh - OVERLAY_HEIGHT - 10,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -86,6 +123,9 @@ export function createOverlayWindow(): BrowserWindow {
     },
   })
 
+  // Use highest z-level so overlay is truly on top of everything
+  overlayWindow.setAlwaysOnTop(true, 'screen-saver')
+
   if (VITE_DEV_SERVER_URL) {
     overlayWindow.loadURL(`${VITE_DEV_SERVER_URL}#/overlay`)
   } else {
@@ -97,6 +137,7 @@ export function createOverlayWindow(): BrowserWindow {
     console.log('[VoxGen] Overlay window loaded and ready')
     if (overlayWindow && !overlayWindow.isDestroyed()) {
       overlayWindow.showInactive()
+      startMouseTracking()
     }
   })
 
@@ -123,8 +164,14 @@ export function showOverlay() {
       clearInterval(fadeInterval)
       fadeInterval = null
     }
+    // Snap to current display before showing
+    lastDisplayId = null
+    moveOverlayToCurrentDisplay()
     overlayWindow.setOpacity(0)
     overlayWindow.showInactive()
+    // Re-assert top-most level (Windows can lose it after focus changes)
+    overlayWindow.setAlwaysOnTop(true, 'screen-saver')
+    startMouseTracking()
     // Quick fade in
     let opacity = 0
     fadeInterval = setInterval(() => {
@@ -162,6 +209,7 @@ export function shrinkOverlay() {
 export function hideOverlay(instant = false) {
   if (overlayWindow && !overlayWindow.isDestroyed()) {
     overlayDismissed = true
+    stopMouseTracking()
     if (instant) {
       overlayWindow.setOpacity(0)
       overlayWindow.hide()
