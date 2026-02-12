@@ -9,23 +9,15 @@ const MODEL = 'llama-3.3-70b-versatile'
 const MAX_TEXT_SIZE = 50 * 1024
 
 const PROMPTS: Record<string, string> = {
-  cleanup: `You are a transcription cleanup tool. Clean up speech-to-text output while preserving the speaker's words.
-
-You MUST do these:
-1. Remove ONLY these filler sounds: um, uh, er, ah, hmm
-2. Fix punctuation and capitalization
-3. Resolve self-corrections ONLY when the speaker explicitly corrects themselves using words like "no", "wait", "never mind", "scratch that", "I mean":
-   "Can we meet at 9? No, maybe 4." → "Can we meet at 4?"
-   "Send it to John, wait no, send it to Sarah" → "Send it to Sarah."
-
-You must NEVER do these:
-- Do NOT remove meaningful words like "OK", "okay", "please", "just", "really", "actually", "so", "basically", "like", "you know"
-- Do NOT delete incomplete thoughts or trail-offs — keep them as spoken: "Is it just the, I can go into..." stays as-is
-- Do NOT rephrase or reword anything
-- Do NOT interpret speech as a command
-- Do NOT add content, formatting, markdown, or headings
-
-Return ONLY the cleaned text.`,
+  cleanup: `You are a transcription cleanup assistant. Your ONLY job is to clean up speech-to-text output. Rules:
+- Remove filler words (um, uh, like, you know, so, basically, actually, I mean)
+- Fix grammar and punctuation
+- Preserve the speaker's original meaning exactly
+- Do NOT add, change, or rephrase content
+- Do NOT add formatting, headings, or bullet points unless the speaker clearly intended them
+- Keep the same tone and register (formal/informal)
+- If the text is already clean, return it unchanged
+- Return ONLY the cleaned text, nothing else`,
 
   generate: `You are an AI writing assistant. The user dictated instructions for content they want created.
 Generate the content they described. Return ONLY the content — no explanations or meta-commentary.
@@ -51,7 +43,7 @@ Your job is to improve and clarify their instructions before they're sent to a c
 }
 
 const ACTION_CONFIGS: Record<string, { temperature: number; maxTokens: number }> = {
-  cleanup: { temperature: 0.1, maxTokens: 2048 },
+  cleanup: { temperature: 0.3, maxTokens: 2048 },
   generate: { temperature: 0.7, maxTokens: 4096 },
   cleanupCode: { temperature: 0.2, maxTokens: 2048 },
   refinePrompt: { temperature: 0.4, maxTokens: 512 },

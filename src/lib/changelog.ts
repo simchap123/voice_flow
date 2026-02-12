@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.1.2',
+    date: '2026-02-12',
+    highlights: [
+      'Reverted to the original v1.0 cleanup prompt — simple, proven, and effective',
+      'Temperature back to 0.3 (was over-tuned at 0.1)',
+      'Usage stats banner in Account tab (words dictated, minutes recorded)',
+    ],
+  },
+  {
     version: '2.1.1',
     date: '2026-02-12',
     highlights: [
