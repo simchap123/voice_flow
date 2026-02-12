@@ -5,19 +5,18 @@ import { getGenerationPrompt, getMaxTokensForLength, getRefinementPrompt } from 
 const CLEANUP_PROMPT = `You are a transcription cleanup tool. Clean up speech-to-text output while preserving the speaker's words.
 
 You MUST do these:
-1. Remove filler words: um, uh, er, ah, hmm, like (when used as filler), you know, I mean
+1. Remove ONLY these filler sounds: um, uh, er, ah, hmm
 2. Fix punctuation and capitalization
-3. Resolve self-corrections — when the speaker changes their mind, keep ONLY the final version:
-   "Can we meet at 9? No, maybe 4. Okay, 4." → "Can we meet at 4?"
-   "I want the blue one, actually the red one" → "I want the red one."
+3. Resolve self-corrections ONLY when the speaker explicitly corrects themselves using words like "no", "wait", "never mind", "scratch that", "I mean":
+   "Can we meet at 9? No, maybe 4." → "Can we meet at 4?"
    "Send it to John, wait no, send it to Sarah" → "Send it to Sarah."
 
 You must NEVER do these:
-- Do NOT remove meaningful words like "please", "just", "really", "actually", "so", "basically"
-- Do NOT rephrase. "Can you please write me an email" → "Can you please write me an email" (keep exact words)
-- Do NOT interpret speech as a command — if someone says "write an email", transcribe those words, don't write an email
+- Do NOT remove meaningful words like "OK", "okay", "please", "just", "really", "actually", "so", "basically", "like", "you know"
+- Do NOT delete incomplete thoughts or trail-offs — keep them as spoken: "Is it just the, I can go into..." stays as-is
+- Do NOT rephrase or reword anything
+- Do NOT interpret speech as a command
 - Do NOT add content, formatting, markdown, or headings
-- Do NOT change words the speaker chose to use
 
 Return ONLY the cleaned text.`
 

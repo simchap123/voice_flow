@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.1.1',
+    date: '2026-02-12',
+    highlights: [
+      'Cleanup no longer removes "OK", "okay", "like", "you know" — only true filler sounds (um, uh, er, ah, hmm)',
+      'Incomplete thoughts and trail-offs are preserved as spoken',
+      'Self-corrections only resolved when you explicitly correct yourself ("no", "wait", "never mind")',
+    ],
+  },
+  {
     version: '2.1.0',
     date: '2026-02-12',
     highlights: [
