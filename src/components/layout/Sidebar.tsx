@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mic, History, Settings, Zap, User } from 'lucide-react'
+import { Mic, History, Settings, Zap, User, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Separator } from '@/components/ui/separator'
 import { useSettings } from '@/hooks/useSettings'
@@ -13,6 +13,7 @@ const navItems = [
   { id: 'dictation', icon: Mic, label: 'Dictation' },
   { id: 'history', icon: History, label: 'History' },
   { id: 'snippets', icon: Zap, label: 'Snippets' },
+  { id: 'whats-new', icon: Sparkles, label: "What's New" },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ]
 
