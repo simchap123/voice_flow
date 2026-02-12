@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Mic, History, Settings, Zap } from 'lucide-react'
+import { Mic, History, Settings, Zap, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Separator } from '@/components/ui/separator'
+import { useSettings } from '@/hooks/useSettings'
 
 interface SidebarProps {
   currentPage: string
@@ -17,10 +18,13 @@ const navItems = [
 
 export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
   const [version, setVersion] = useState('')
+  const { settings, isManagedMode } = useSettings()
 
   useEffect(() => {
     window.electronAPI?.getAppVersion().then(setVersion)
   }, [])
+
+  const userEmail = settings.userEmail
 
   return (
     <div className="flex h-full w-52 flex-col border-r border-border/50 bg-card/50 px-3 py-5">
@@ -53,7 +57,26 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
 
       {/* Footer */}
       <Separator className="mb-3" />
-      <div className="px-2 text-xs text-muted-foreground/60">
+      {userEmail ? (
+        <button
+          onClick={() => onNavigate('settings')}
+          className="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/50"
+          title={userEmail}
+        >
+          <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 group-hover:text-foreground/60" />
+          <span className="truncate text-xs text-muted-foreground/80 group-hover:text-foreground/80">
+            {userEmail}
+          </span>
+        </button>
+      ) : (
+        <button
+          onClick={() => onNavigate('settings')}
+          className="px-2 text-xs text-muted-foreground/60 hover:text-primary transition-colors"
+        >
+          Sign in
+        </button>
+      )}
+      <div className="mt-1 px-2 text-xs text-muted-foreground/60">
         {version ? `v${version}` : ''}
       </div>
     </div>

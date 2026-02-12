@@ -23,13 +23,11 @@
     "icon": "resources/icon.ico"
   },
   "nsis": {
-    "oneClick": false,
+    "oneClick": true,
     "perMachine": false,
-    "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false,
     "shortcutName": "VoxGen",
-    "artifactName": "VoxGen-Setup-${version}.${ext}",
-    "include": "build/installer.nsh"
+    "artifactName": "VoxGen-Setup-${version}.${ext}"
   },
   "mac": {
     "target": ["dmg"],
