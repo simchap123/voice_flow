@@ -763,7 +763,7 @@
   })();
 
   // Fetch version for download filename
-  fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
+  fetch('https://api.github.com/repos/simchap123/VoxGen/releases/latest')
     .then(function(r) { return r.json(); })
     .then(function(release) {
       if (release.tag_name) {

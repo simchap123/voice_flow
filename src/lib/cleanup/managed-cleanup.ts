@@ -1,6 +1,6 @@
 import type { CleanupProvider, GenerationMode, OutputLength } from './types'
 
-const API_BASE = 'https://freevoiceflow.vercel.app'
+const API_BASE = 'https://voxgenflow.vercel.app'
 
 export class ManagedCleanupProvider implements CleanupProvider {
   name = 'VoxGen Cloud'

@@ -8,7 +8,7 @@ import {
   type LicenseStatus,
 } from './store'
 
-const API_BASE = 'https://freevoiceflow.vercel.app'
+const API_BASE = 'https://voxgenflow.vercel.app'
 const REVALIDATION_INTERVAL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 export interface LicenseValidationResult {

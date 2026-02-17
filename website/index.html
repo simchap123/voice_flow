@@ -957,9 +957,9 @@
   })();
 
   // Dynamically resolve the latest .exe from GitHub Releases
-  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
+  var DOWNLOAD_URL = 'https://github.com/simchap123/VoxGen/releases/latest';
   var hasDirectExe = false;
-  fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
+  fetch('https://api.github.com/repos/simchap123/VoxGen/releases/latest')
     .then(function(r) { return r.json(); })
     .then(function(release) {
       var exe = release.assets && release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });

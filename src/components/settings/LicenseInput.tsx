@@ -91,7 +91,7 @@ export function LicenseInput() {
               <p className="text-xs text-muted-foreground mt-1">
                 Enter the email you used to purchase a license, or{' '}
                 <a
-                  href="https://freevoiceflow.com/#pricing"
+                  href="https://voxgenflow.vercel.app/#pricing"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
@@ -157,7 +157,7 @@ export function LicenseInput() {
               </span>
               <p className="text-xs text-muted-foreground mt-1">
                 <a
-                  href="https://freevoiceflow.com/#pricing"
+                  href="https://voxgenflow.vercel.app/#pricing"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
@@ -207,7 +207,7 @@ export function LicenseInput() {
       {!isActive && !trialExpired && !hasEmail && (
         <p className="text-xs text-muted-foreground">
           <a
-            href="https://freevoiceflow.com/#pricing"
+            href="https://voxgenflow.vercel.app/#pricing"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"

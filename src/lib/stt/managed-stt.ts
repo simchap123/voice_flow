@@ -1,6 +1,6 @@
 import type { STTProvider } from './types'
 
-const API_BASE = 'https://freevoiceflow.vercel.app'
+const API_BASE = 'https://voxgenflow.vercel.app'
 
 export class ManagedSTTProvider implements STTProvider {
   name = 'VoxGen Cloud'

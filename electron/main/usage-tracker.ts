@@ -1,7 +1,7 @@
 import { net } from 'electron'
 import { getSetting, getDeviceId } from './store'
 
-const API_BASE = 'https://freevoiceflow.vercel.app'
+const API_BASE = 'https://voxgenflow.vercel.app'
 
 export async function trackUsage(data: {
   wordCount?: number

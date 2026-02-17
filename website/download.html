@@ -333,12 +333,12 @@
   })();
 
   // --- Download state ---
-  var DOWNLOAD_URL = 'https://github.com/simchap123/voice_flow/releases/latest';
+  var DOWNLOAD_URL = 'https://github.com/simchap123/VoxGen/releases/latest';
   var hasDirectExe = false;
   var downloadReady = false;
 
   // --- Resolve actual exe URL from GitHub ---
-  fetch('https://api.github.com/repos/simchap123/voice_flow/releases/latest')
+  fetch('https://api.github.com/repos/simchap123/VoxGen/releases/latest')
     .then(function(r) {
       if (!r.ok) throw new Error('GitHub API error');
       return r.json();

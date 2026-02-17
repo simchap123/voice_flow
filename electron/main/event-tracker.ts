@@ -1,7 +1,7 @@
 import { app, net } from 'electron'
 import { getSetting, getDeviceId } from './store'
 
-const API_BASE = 'https://freevoiceflow.vercel.app'
+const API_BASE = 'https://voxgenflow.vercel.app'
 
 type EventType = 'app_launch' | 'app_error' | 'feature_used'
 

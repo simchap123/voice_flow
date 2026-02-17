@@ -1,5 +1,5 @@
 {
-  "name": "voiceflow-api",
+  "name": "voxgen-api",
   "version": "2.0.0",
   "private": true,
   "type": "commonjs",
