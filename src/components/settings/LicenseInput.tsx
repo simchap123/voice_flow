@@ -144,7 +144,27 @@ export function LicenseInput() {
               {licenseInfo?.userEmail && (
                 <p className="text-xs text-muted-foreground mt-1">{licenseInfo.userEmail}</p>
               )}
-              {licenseInfo?.licenseExpiresAt && (
+              {/* Trial — show days remaining + progress bar */}
+              {licenseInfo?.licensePlan === 'Trial' && (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    {trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} remaining of 30-day free trial
+                  </p>
+                  <div className="h-1.5 rounded-full bg-white/10 overflow-hidden w-48">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${Math.max(4, ((30 - trialDaysLeft) / 30) * 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground/60">
+                    After trial,{' '}
+                    <a href="https://voxgenflow.vercel.app/#pricing" target="_blank" rel="noopener noreferrer"
+                      className="text-primary hover:underline">upgrade to Pro</a>{' '}
+                    or continue with your own API key.
+                  </p>
+                </div>
+              )}
+              {licenseInfo?.licenseExpiresAt && licenseInfo?.licensePlan !== 'Trial' && (
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Expires: {new Date(licenseInfo.licenseExpiresAt).toLocaleDateString()}
                 </p>

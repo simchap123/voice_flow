@@ -17,6 +17,8 @@ import {
   setHistory,
   getSnippets,
   setSnippets,
+  getCustomPrompts,
+  setCustomPrompts,
   getLicenseInfo,
   clearLicense,
 } from './store'
@@ -216,6 +218,15 @@ export function registerIpcHandlers() {
   // Clipboard (reliable across Electron windows)
   ipcMain.handle('clipboard:write', async (_event, text: string) => {
     clipboard.writeText(text)
+  })
+
+  // Custom prompts
+  ipcMain.handle('prompts:get', async () => {
+    return getCustomPrompts()
+  })
+
+  ipcMain.handle('prompts:set', async (_event, prompts: any[]) => {
+    setCustomPrompts(prompts)
   })
 
   // Read clipboard text (for context injection at recording start)

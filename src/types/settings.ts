@@ -47,6 +47,9 @@ export interface AppSettings {
 
   // Onboarding
   onboardingComplete: boolean
+
+  // Phase 3: Custom Prompts
+  activePromptId: string
 }
 
 export const defaultSettings: AppSettings = {
@@ -85,4 +88,5 @@ export const defaultSettings: AppSettings = {
   lastLicenseCheck: 0,
 
   onboardingComplete: false,
+  activePromptId: 'default',
 }

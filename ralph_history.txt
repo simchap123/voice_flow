@@ -1,0 +1,6 @@
+# Ralph History — VoxGen License UX
+# Each iteration logs breakthroughs, blockers, and learnings
+
+---
+Session started: 2026-02-17
+Specs: 01-trial-urgency-warnings, 02-stripe-customer-portal, 03-better-expired-state, 04-first-launch-email-prompt

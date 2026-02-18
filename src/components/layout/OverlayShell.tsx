@@ -4,6 +4,7 @@ import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
 import { useSnippets } from '@/hooks/useSnippets'
+import { useCustomPrompts } from '@/hooks/useCustomPrompts'
 
 export function OverlayShell() {
   const [trialExpired, setTrialExpired] = useState(false)
@@ -11,6 +12,7 @@ export function OverlayShell() {
   const [overlayError, setOverlayError] = useState<string | null>(null)
   const { settings, hasApiKey, isManagedMode, isLoaded } = useSettings()
   const { snippets } = useSnippets()
+  const { userPrompts } = useCustomPrompts()
 
   // Listen for trial-expired event from main process
   useEffect(() => {
@@ -48,6 +50,8 @@ export function OverlayShell() {
     useWindowContext: settings.useWindowContext,
     customVocabulary: settings.customVocabulary,
     wordReplacements: settings.wordReplacements,
+    activePromptId: settings.activePromptId,
+    userPrompts,
     snippets,
     onComplete: (result) => {
       window.electronAPI?.notifyTranscriptionComplete(result)

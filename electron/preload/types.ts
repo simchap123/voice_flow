@@ -51,6 +51,10 @@ export interface ElectronAPI {
   // Active window info (Phase 2 context injection)
   getActiveWindowInfo: () => Promise<{ processName: string; title: string } | null>
 
+  // Custom prompts (Phase 3)
+  getCustomPrompts: () => Promise<any[]>
+  setCustomPrompts: (prompts: any[]) => Promise<void>
+
   // Overlay resize
   expandOverlay: () => void
   expandOverlayIdle: () => void

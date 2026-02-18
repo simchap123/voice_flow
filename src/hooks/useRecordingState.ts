@@ -3,6 +3,8 @@ import type { RecordingState, TranscriptionResult } from '@/types/transcription'
 import type { STTProviderType } from '@/lib/stt/types'
 import type { CleanupProviderType, GenerationMode, OutputLength } from '@/lib/cleanup/types'
 import { runCleanupPipeline, type PipelineOptions } from '@/lib/cleanup/pipeline'
+import { getPromptById } from '@/lib/cleanup/predefined-prompts'
+import type { CustomPrompt } from '@/types/custom-prompt'
 import { useAudioRecorder } from './useAudioRecorder'
 import { useWhisperTranscription } from './useWhisperTranscription'
 import { useElectronBridge } from './useElectronBridge'
@@ -41,6 +43,8 @@ export function useRecordingState(options: {
   useWindowContext?: boolean
   customVocabulary?: string[]
   wordReplacements?: Array<{ original: string; replacement: string; enabled: boolean }>
+  activePromptId?: string
+  userPrompts?: CustomPrompt[]
   onComplete?: (result: TranscriptionResult) => void
 }): UseRecordingStateReturn {
   const {
@@ -59,6 +63,8 @@ export function useRecordingState(options: {
     useWindowContext = true,
     customVocabulary = [],
     wordReplacements = [],
+    activePromptId = 'default',
+    userPrompts = [],
     onComplete,
   } = options
 
@@ -162,6 +168,11 @@ export function useRecordingState(options: {
         context.customVocabulary = customVocabulary
       }
 
+      // Phase 3: look up active prompt instructions
+      const activePrompt = getPromptById(activePromptId, userPrompts)
+      const customPromptInstructions = activePrompt?.promptText
+      const useSystemInstructions = activePrompt?.useSystemInstructions ?? true
+
       const pipelineOptions: PipelineOptions = {
         cleanupProvider,
         cleanupEnabled,
@@ -174,6 +185,8 @@ export function useRecordingState(options: {
         mode,
         wordReplacements,
         context: Object.keys(context).length > 0 ? context : undefined,
+        customPromptInstructions,
+        useSystemInstructions,
       }
 
       const result = await runCleanupPipeline(raw, pipelineOptions)

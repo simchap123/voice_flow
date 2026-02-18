@@ -41,6 +41,8 @@ export interface AppSettings {
   useWindowContext: boolean
   customVocabulary: string[]
   wordReplacements: Array<{ original: string; replacement: string; enabled: boolean }>
+  // Phase 3: Custom Prompts
+  activePromptId: string
 }
 
 const defaults: AppSettings = {
@@ -76,6 +78,8 @@ const defaults: AppSettings = {
   useWindowContext: true,
   customVocabulary: [],
   wordReplacements: [],
+  // Phase 3: Custom Prompts
+  activePromptId: 'default',
 }
 
 export function initStore() {
@@ -276,6 +280,7 @@ export function getAllSettings(): AppSettings {
     useWindowContext: store.get('useWindowContext', defaults.useWindowContext) as boolean,
     customVocabulary: store.get('customVocabulary', defaults.customVocabulary) as string[],
     wordReplacements: store.get('wordReplacements', defaults.wordReplacements) as AppSettings['wordReplacements'],
+    activePromptId: store.get('activePromptId', defaults.activePromptId) as string,
   }
 }
 
@@ -432,4 +437,13 @@ export function getSnippets(): any[] {
 
 export function setSnippets(snippets: any[]) {
   store?.set('snippets', snippets)
+}
+
+// Custom prompts persistence (user-created prompts only, not predefined)
+export function getCustomPrompts(): any[] {
+  return (store?.get('custom_prompts', []) as any[]) ?? []
+}
+
+export function setCustomPrompts(prompts: any[]) {
+  store?.set('custom_prompts', prompts)
 }

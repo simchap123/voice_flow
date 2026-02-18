@@ -1,11 +1,13 @@
-import { Settings2, Key, User, Info } from 'lucide-react'
+import { Settings2, Key, User, Info, Sparkles, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
-export type SettingsSection = 'general' | 'providers' | 'account' | 'about'
+export type SettingsSection = 'general' | 'providers' | 'enhancement' | 'prompts' | 'account' | 'about'
 
 const sections: { id: SettingsSection; icon: typeof Settings2; label: string }[] = [
   { id: 'general', icon: Settings2, label: 'General' },
   { id: 'providers', icon: Key, label: 'Providers' },
+  { id: 'enhancement', icon: Sparkles, label: 'Enhancement' },
+  { id: 'prompts', icon: MessageSquare, label: 'Prompts' },
   { id: 'account', icon: User, label: 'Account' },
   { id: 'about', icon: Info, label: 'About' },
 ]

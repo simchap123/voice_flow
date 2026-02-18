@@ -3,6 +3,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { SettingsNav, type SettingsSection } from '@/components/settings/SettingsNav'
 import { GeneralSection } from '@/components/settings/GeneralSection'
 import { ProvidersSection } from '@/components/settings/ProvidersSection'
+import { EnhancementSection } from '@/components/settings/EnhancementSection'
+import { PromptsSection } from '@/components/settings/PromptsSection'
 import { AccountSection } from '@/components/settings/AccountSection'
 import { AboutSection } from '@/components/settings/AboutSection'
 
@@ -13,6 +15,8 @@ export function SettingsPage() {
     switch (activeSection) {
       case 'general': return <GeneralSection />
       case 'providers': return <ProvidersSection />
+      case 'enhancement': return <EnhancementSection />
+      case 'prompts': return <PromptsSection />
       case 'account': return <AccountSection />
       case 'about': return <AboutSection />
     }

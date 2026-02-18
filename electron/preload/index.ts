@@ -81,6 +81,10 @@ const api: ElectronAPI = {
   // Active window info (Phase 2 context injection)
   getActiveWindowInfo: () => ipcRenderer.invoke('window:get-active-info'),
 
+  // Custom prompts (Phase 3)
+  getCustomPrompts: () => ipcRenderer.invoke('prompts:get'),
+  setCustomPrompts: (prompts: any[]) => ipcRenderer.invoke('prompts:set', prompts),
+
   // Overlay resize
   expandOverlay: () => ipcRenderer.send('overlay:expand'),
   expandOverlayIdle: () => ipcRenderer.send('overlay:expand-idle'),

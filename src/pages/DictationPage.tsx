@@ -4,6 +4,7 @@ import { useWaveform } from '@/hooks/useWaveform'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
 import { useSnippets } from '@/hooks/useSnippets'
+import { useCustomPrompts } from '@/hooks/useCustomPrompts'
 import { useTranscriptionHistory } from '@/hooks/useTranscriptionHistory'
 import { MicButton } from '@/components/dictation/MicButton'
 import { WaveformVisualizer } from '@/components/dictation/WaveformVisualizer'
@@ -15,6 +16,7 @@ import { Keyboard } from 'lucide-react'
 export function DictationPage() {
   const { settings, hasApiKey, isManagedMode } = useSettings()
   const { snippets } = useSnippets()
+  const { userPrompts } = useCustomPrompts()
   const { addEntry } = useTranscriptionHistory()
   const [showRaw, setShowRaw] = useState(false)
 
@@ -39,6 +41,8 @@ export function DictationPage() {
     useWindowContext: settings.useWindowContext,
     customVocabulary: settings.customVocabulary,
     wordReplacements: settings.wordReplacements,
+    activePromptId: settings.activePromptId,
+    userPrompts,
     onComplete: (result) => {
       addEntry({
         rawText: result.rawText,
