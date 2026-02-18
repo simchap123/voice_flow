@@ -7,6 +7,35 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.1.5',
+    date: '2026-02-18',
+    highlights: [
+      'Fixed checkout — purchases now work correctly on the website',
+      '"Manage Subscription" button only shows for paid subscription plans (not Trial or Lifetime)',
+      'Fixed Stripe Customer Portal for subscription management and cancellation',
+    ],
+  },
+  {
+    version: '2.1.4',
+    date: '2026-02-18',
+    highlights: [
+      'Trial urgency warnings — toast notifications at 7, 3, and 1 days left',
+      '"Manage Subscription" button for paid users — opens Stripe Customer Portal to cancel or update billing',
+      'Better trial-expired overlay — actionable buttons to add your own API key or upgrade',
+      'Email reminder banner for users who haven\'t entered their email yet',
+      'Fixed auto-update (was pointing to wrong GitHub repo)',
+    ],
+  },
+  {
+    version: '2.1.3',
+    date: '2026-02-17',
+    highlights: [
+      'Rebranded VoiceFlow → VoxGen across the entire app',
+      'Fixed license flow — download no longer requires email gate',
+      'Updated all URLs, titles, and references to VoxGen',
+    ],
+  },
+  {
     version: '2.1.2',
     date: '2026-02-12',
     highlights: [
