@@ -304,8 +304,13 @@ export function registerIpcHandlers() {
   const recordingsDir = join(app.getPath('userData'), 'recordings')
   ipcMain.handle('recording:save', async (_event, filename: string, buffer: ArrayBuffer) => {
     try {
+      // Prevent path traversal — only allow plain filenames (no slashes or ..)
+      const safeName = filename.replace(/[/\\]/g, '').replace(/\.\./g, '')
+      if (!safeName || safeName !== filename) {
+        return { success: false, error: 'Invalid filename' }
+      }
       await mkdir(recordingsDir, { recursive: true })
-      const filePath = join(recordingsDir, filename)
+      const filePath = join(recordingsDir, safeName)
       await writeFile(filePath, Buffer.from(buffer))
       console.log('[VoxGen] Saved recording:', filePath)
       return { success: true, path: filePath }
