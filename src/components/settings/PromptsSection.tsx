@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { toast } from '@/hooks/useToast'
 import { Plus, Pencil, Trash2, Check, X } from 'lucide-react'
-import { randomUUID } from 'crypto'
 
 export function PromptsSection() {
   const { settings, updateSetting } = useSettings()
@@ -63,7 +62,7 @@ export function PromptsSection() {
   async function addCustomPrompt() {
     if (!newPrompt.title.trim() || !newPrompt.promptText.trim()) return
     const prompt: CustomPrompt = {
-      id: crypto.randomUUID(),
+      id: window.crypto.randomUUID(),
       title: newPrompt.title.trim(),
       icon: newPrompt.icon || '🎙️',
       description: newPrompt.description.trim(),

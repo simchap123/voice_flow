@@ -101,7 +101,7 @@ export function useRecordingState(options: {
       contextCaptures.push(
         window.electronAPI.readClipboard()
           .then(text => { capturedClipboard.current = text || undefined })
-          .catch(() => {})
+          .catch((err: any) => { console.debug('[VoxGen] Clipboard read failed:', err?.message) })
       )
     }
 
@@ -109,12 +109,18 @@ export function useRecordingState(options: {
       contextCaptures.push(
         window.electronAPI.getActiveWindowInfo()
           .then(info => { capturedWindowInfo.current = info })
-          .catch(() => {})
+          .catch((err: any) => { console.debug('[VoxGen] Window info failed:', err?.message) })
       )
     }
 
-    // Fire context captures in parallel — don't block recording start
-    Promise.all(contextCaptures).catch(() => {})
+    // Await context with a short timeout — captures must complete before recording starts
+    // 500ms is plenty for local IPC calls; if they fail/timeout, we proceed without context
+    if (contextCaptures.length > 0) {
+      await Promise.race([
+        Promise.all(contextCaptures),
+        new Promise<void>(resolve => setTimeout(resolve, 500)),
+      ]).catch(() => {})
+    }
 
     try {
       await recorder.startRecording(deviceId)
@@ -189,7 +195,12 @@ export function useRecordingState(options: {
         useSystemInstructions,
       }
 
-      const result = await runCleanupPipeline(raw, pipelineOptions)
+      const result = await Promise.race([
+        runCleanupPipeline(raw, pipelineOptions),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('AI cleanup timed out after 30s')), 30000)
+        ),
+      ])
       let cleaned = result.text
       const generatedMode = result.detectedMode
 
