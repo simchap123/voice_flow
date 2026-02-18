@@ -5,6 +5,9 @@ import type { CleanupProviderType, GenerationMode, OutputLength } from '@/lib/cl
 import { runCleanupPipeline, type PipelineOptions } from '@/lib/cleanup/pipeline'
 import { getPromptById } from '@/lib/cleanup/predefined-prompts'
 import type { CustomPrompt } from '@/types/custom-prompt'
+import type { PowerMode } from '@/types/power-mode'
+import { matchPowerMode } from '@/lib/power-modes/matcher'
+import { getSTTProvider } from '@/lib/stt/provider-factory'
 import { useAudioRecorder } from './useAudioRecorder'
 import { useWhisperTranscription } from './useWhisperTranscription'
 import { useElectronBridge } from './useElectronBridge'
@@ -20,6 +23,7 @@ interface UseRecordingStateReturn {
   analyserNode: AnalyserNode | null
   error: string | null
   detectedMode: GenerationMode | null
+  matchedMode: { name: string; emoji: string } | null
   startRecording: (deviceId?: string, mode?: string) => void
   stopRecording: () => void
   cancelRecording: () => void
@@ -45,6 +49,8 @@ export function useRecordingState(options: {
   wordReplacements?: Array<{ original: string; replacement: string; enabled: boolean }>
   activePromptId?: string
   userPrompts?: CustomPrompt[]
+  powerModes?: PowerMode[]
+  powerModesEnabled?: boolean
   onComplete?: (result: TranscriptionResult) => void
 }): UseRecordingStateReturn {
   const {
@@ -65,6 +71,8 @@ export function useRecordingState(options: {
     wordReplacements = [],
     activePromptId = 'default',
     userPrompts = [],
+    powerModes = [],
+    powerModesEnabled = false,
     onComplete,
   } = options
 
@@ -74,6 +82,7 @@ export function useRecordingState(options: {
   const [error, setError] = useState<string | null>(null)
   const [lastResult, setLastResult] = useState<TranscriptionResult | null>(null)
   const [detectedMode, setDetectedMode] = useState<GenerationMode | null>(null)
+  const [matchedMode, setMatchedMode] = useState<{ name: string; emoji: string } | null>(null)
 
   const recorder = useAudioRecorder()
   const whisper = useWhisperTranscription(sttProvider)
@@ -153,9 +162,27 @@ export function useRecordingState(options: {
         )
       })
 
-      // STT phase
+      // Phase 4: apply power mode overrides if a mode matches the captured window
+      let effectivePromptId = activePromptId
+      let effectiveStt = sttProvider
+      let effectiveCleanup = cleanupProvider
+      if (powerModesEnabled && capturedWindowInfo.current) {
+        const matched = matchPowerMode(capturedWindowInfo.current, powerModes)
+        if (matched) {
+          effectivePromptId = matched.selectedPromptId
+          if (matched.sttProvider) effectiveStt = matched.sttProvider as STTProviderType
+          if (matched.cleanupProvider) effectiveCleanup = matched.cleanupProvider as CleanupProviderType
+          setMatchedMode({ name: matched.name, emoji: matched.emoji })
+        } else {
+          setMatchedMode(null)
+        }
+      }
+
+      // STT phase — use effectiveStt (may be overridden by power mode)
       setState('PROCESSING_STT')
-      const raw = await whisper.transcribe(audioBlob, language)
+      const raw = effectiveStt !== sttProvider
+        ? await getSTTProvider(effectiveStt).transcribe(audioBlob, language)
+        : await whisper.transcribe(audioBlob, language)
       setRawText(raw)
 
       // Cleanup phase — now runs through the multi-stage pipeline
@@ -175,12 +202,12 @@ export function useRecordingState(options: {
       }
 
       // Phase 3: look up active prompt instructions
-      const activePrompt = getPromptById(activePromptId, userPrompts)
+      const activePrompt = getPromptById(effectivePromptId, userPrompts)
       const customPromptInstructions = activePrompt?.promptText
       const useSystemInstructions = activePrompt?.useSystemInstructions ?? true
 
       const pipelineOptions: PipelineOptions = {
-        cleanupProvider,
+        cleanupProvider: effectiveCleanup,
         cleanupEnabled,
         fillerWordRemoval,
         autoFormatParagraphs: true,
@@ -235,7 +262,7 @@ export function useRecordingState(options: {
       setError(err.message ?? 'Processing failed')
       setState('IDLE')
     }
-  }, [state, recorder, whisper, language, cleanupEnabled, cleanupProvider, codeMode, keywordTriggersEnabled, outputLength, promptRefinementEnabled, fillerWordRemoval, wordReplacements, customVocabulary, autoCopy, snippets, injectText, onComplete])
+  }, [state, recorder, whisper, language, cleanupEnabled, cleanupProvider, sttProvider, codeMode, keywordTriggersEnabled, outputLength, promptRefinementEnabled, fillerWordRemoval, wordReplacements, customVocabulary, autoCopy, snippets, injectText, onComplete, activePromptId, userPrompts, powerModes, powerModesEnabled])
 
   const cancelRecording = useCallback(() => {
     recorder.cancelRecording()
@@ -255,6 +282,7 @@ export function useRecordingState(options: {
     analyserNode: recorder.analyserNode,
     error,
     detectedMode,
+    matchedMode,
     startRecording,
     stopRecording,
     cancelRecording,

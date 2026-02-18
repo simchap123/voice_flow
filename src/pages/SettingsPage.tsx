@@ -5,6 +5,7 @@ import { GeneralSection } from '@/components/settings/GeneralSection'
 import { ProvidersSection } from '@/components/settings/ProvidersSection'
 import { EnhancementSection } from '@/components/settings/EnhancementSection'
 import { PromptsSection } from '@/components/settings/PromptsSection'
+import { PowerModesSection } from '@/components/settings/PowerModesSection'
 import { AccountSection } from '@/components/settings/AccountSection'
 import { AboutSection } from '@/components/settings/AboutSection'
 
@@ -17,6 +18,7 @@ export function SettingsPage() {
       case 'providers': return <ProvidersSection />
       case 'enhancement': return <EnhancementSection />
       case 'prompts': return <PromptsSection />
+      case 'power-modes': return <PowerModesSection />
       case 'account': return <AccountSection />
       case 'about': return <AboutSection />
     }

@@ -23,6 +23,12 @@ export interface ElectronAPI {
   getLicenseInfo: () => Promise<any>
   clearLicense: () => Promise<void>
   onTrialExpired: (callback: () => void) => () => void
+  // Overlay prompt picker (US-305)
+  expandForPrompts?: (count: number) => void
+  shrinkToIdle?: () => void
+  // Power modes (Phase 4)
+  getPowerModes?: () => Promise<any[]>
+  setPowerModes?: (modes: any[]) => Promise<void>
 }
 
 declare global {

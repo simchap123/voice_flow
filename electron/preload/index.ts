@@ -90,6 +90,14 @@ const api: ElectronAPI = {
   expandOverlayIdle: () => ipcRenderer.send('overlay:expand-idle'),
   shrinkOverlay: () => ipcRenderer.send('overlay:shrink'),
 
+  // Overlay prompt picker (US-305)
+  expandForPrompts: (count: number) => ipcRenderer.send('overlay:expand-for-prompts', count),
+  shrinkToIdle: () => ipcRenderer.send('overlay:shrink-to-idle'),
+
+  // Power modes (Phase 4)
+  getPowerModes: () => ipcRenderer.invoke('power-modes:get'),
+  setPowerModes: (modes: any[]) => ipcRenderer.invoke('power-modes:set', modes),
+
   // Settings sync across windows
   onSettingChanged: (callback: (key: string, value: any) => void) => {
     const handler = (_event: any, key: string, value: any) => callback(key, value)

@@ -43,6 +43,8 @@ export interface AppSettings {
   wordReplacements: Array<{ original: string; replacement: string; enabled: boolean }>
   // Phase 3: Custom Prompts
   activePromptId: string
+  // Phase 4: Power Modes
+  powerModesEnabled: boolean
 }
 
 const defaults: AppSettings = {
@@ -80,6 +82,8 @@ const defaults: AppSettings = {
   wordReplacements: [],
   // Phase 3: Custom Prompts
   activePromptId: 'default',
+  // Phase 4: Power Modes
+  powerModesEnabled: false,
 }
 
 export function initStore() {
@@ -281,6 +285,7 @@ export function getAllSettings(): AppSettings {
     customVocabulary: store.get('customVocabulary', defaults.customVocabulary) as string[],
     wordReplacements: store.get('wordReplacements', defaults.wordReplacements) as AppSettings['wordReplacements'],
     activePromptId: store.get('activePromptId', defaults.activePromptId) as string,
+    powerModesEnabled: store.get('powerModesEnabled', defaults.powerModesEnabled) as boolean,
   }
 }
 
@@ -446,4 +451,13 @@ export function getCustomPrompts(): any[] {
 
 export function setCustomPrompts(prompts: any[]) {
   store?.set('custom_prompts', prompts)
+}
+
+// Power modes persistence (Phase 4)
+export function getPowerModes(): any[] {
+  return (store?.get('power_modes', []) as any[]) ?? []
+}
+
+export function setPowerModes(modes: any[]) {
+  store?.set('power_modes', modes)
 }

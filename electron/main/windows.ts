@@ -64,7 +64,7 @@ export function createMainWindow(): BrowserWindow {
   return mainWindow
 }
 
-/** Move overlay to the bottom-center of the display the cursor is on */
+/** Move overlay to the top-center of the display the cursor is on */
 function moveOverlayToCurrentDisplay() {
   if (!overlayWindow || overlayWindow.isDestroyed()) return
 
@@ -75,9 +75,9 @@ function moveOverlayToCurrentDisplay() {
   if (display.id === lastDisplayId) return
   lastDisplayId = display.id
 
-  const { x: dx, y: dy, width: dw, height: dh } = display.workArea
+  const { x: dx, y: dy, width: dw } = display.workArea
   const newX = Math.round(dx + dw / 2 - OVERLAY_WIDTH / 2)
-  const newY = dy + dh - OVERLAY_HEIGHT - 10
+  const newY = dy + 6
   overlayWindow.setBounds({ x: newX, y: newY, width: OVERLAY_WIDTH, height: OVERLAY_HEIGHT })
 }
 
@@ -106,7 +106,7 @@ export function createOverlayWindow(): BrowserWindow {
     width: OVERLAY_WIDTH,
     height: OVERLAY_HEIGHT,
     x: Math.round(dx + dw / 2 - OVERLAY_WIDTH / 2),
-    y: dy + dh - OVERLAY_HEIGHT - 10,
+    y: dy + 6,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -204,6 +204,21 @@ export function expandOverlayIdle() {
 
 export function shrinkOverlay() {
   // No-op: overlay bounds are fixed at 340x50, CSS handles minimized state
+}
+
+/** Expand overlay vertically to show inline prompt picker (US-305) — expands downward */
+export function expandOverlayForPrompts(count: number) {
+  if (!overlayWindow || overlayWindow.isDestroyed()) return
+  const height = OVERLAY_HEIGHT + count * 44 + 8
+  const { x, y, width } = overlayWindow.getBounds()
+  overlayWindow.setBounds({ x, y, width, height })
+}
+
+/** Shrink overlay back to idle size after prompt picker closes */
+export function shrinkOverlayToIdle() {
+  if (!overlayWindow || overlayWindow.isDestroyed()) return
+  const { x, y, width } = overlayWindow.getBounds()
+  overlayWindow.setBounds({ x, y, width, height: OVERLAY_HEIGHT })
 }
 
 export function hideOverlay(instant = false) {

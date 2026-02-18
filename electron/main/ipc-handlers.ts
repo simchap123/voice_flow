@@ -2,7 +2,7 @@ import { ipcMain, BrowserWindow, clipboard, app, shell, dialog } from 'electron'
 import { copyFile } from 'node:fs/promises'
 import { writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
-import { hideOverlay, getMainWindow, getOverlayWindow, expandOverlay, expandOverlayIdle, shrinkOverlay } from './windows'
+import { hideOverlay, getMainWindow, getOverlayWindow, expandOverlay, expandOverlayIdle, shrinkOverlay, expandOverlayForPrompts, shrinkOverlayToIdle } from './windows'
 import { injectText } from './text-injection'
 import { setIsRecording, setIsProcessing } from './hotkeys'
 import { reregisterHotkeys } from './hotkeys'
@@ -21,6 +21,8 @@ import {
   setCustomPrompts,
   getLicenseInfo,
   clearLicense,
+  getPowerModes,
+  setPowerModes,
 } from './store'
 import { validateLicenseKey, validateByEmail } from './license'
 import { checkForUpdates, installUpdate } from './updater'
@@ -276,6 +278,24 @@ export function registerIpcHandlers() {
 
   ipcMain.on('overlay:shrink', () => {
     shrinkOverlay()
+  })
+
+  // Overlay prompt picker expand/shrink (US-305)
+  ipcMain.on('overlay:expand-for-prompts', (_e, count: number) => {
+    expandOverlayForPrompts(count)
+  })
+
+  ipcMain.on('overlay:shrink-to-idle', () => {
+    shrinkOverlayToIdle()
+  })
+
+  // Power modes (Phase 4)
+  ipcMain.handle('power-modes:get', () => {
+    return getPowerModes()
+  })
+
+  ipcMain.handle('power-modes:set', (_e, modes: any[]) => {
+    setPowerModes(modes)
   })
 
   // Recording stopped from overlay UI — mark as processing

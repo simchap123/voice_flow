@@ -50,6 +50,8 @@ export interface AppSettings {
 
   // Phase 3: Custom Prompts
   activePromptId: string
+  // Phase 4: Power Modes
+  powerModesEnabled: boolean
 }
 
 export const defaultSettings: AppSettings = {
@@ -89,4 +91,5 @@ export const defaultSettings: AppSettings = {
 
   onboardingComplete: false,
   activePromptId: 'default',
+  powerModesEnabled: false,
 }

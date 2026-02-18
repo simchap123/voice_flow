@@ -60,6 +60,14 @@ export interface ElectronAPI {
   expandOverlayIdle: () => void
   shrinkOverlay: () => void
 
+  // Overlay prompt picker (US-305)
+  expandForPrompts: (count: number) => void
+  shrinkToIdle: () => void
+
+  // Power modes (Phase 4)
+  getPowerModes: () => Promise<any[]>
+  setPowerModes: (modes: any[]) => Promise<void>
+
   // Settings sync across windows
   onSettingChanged: (callback: (key: string, value: any) => void) => () => void
 
