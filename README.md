@@ -16,7 +16,7 @@ AI-powered dictation and smart content generation that works everywhere. Hold a 
 
 ## Download
 
-Get the latest release from [freevoiceflow.vercel.app](https://freevoiceflow.vercel.app) or the [GitHub Releases](https://github.com/simchap123/VoxGen/releases) page.
+Get the latest release from [voxgenflow.vercel.app](https://voxgenflow.vercel.app) or the [GitHub Releases](https://github.com/simchap123/VoxGen/releases) page.
 
 ## Quick Start
 
@@ -44,10 +44,11 @@ npm run electron:build:win  # Build Windows installer
 
 ## Pricing
 
-- **Free** — bring your own API key, use forever
-- **Pro Monthly** — $8/mo
-- **Pro Yearly** — $48/yr (save 50%)
-- **Lifetime** — $39 one-time
+- **Free trial** — 30 days with managed API key
+- **Free forever** — bring your own API key
+- **Pro Monthly** — $9/mo
+- **Pro Yearly** — $59/yr
+- **Lifetime** — $149 one-time (BYOK)
 
 ## Documentation
 
