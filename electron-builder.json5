@@ -40,6 +40,6 @@
   "publish": {
     "provider": "github",
     "owner": "simchap123",
-    "repo": "voice_flow"
+    "repo": "VoxGen"
   }
 }

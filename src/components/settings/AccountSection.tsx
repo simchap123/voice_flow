@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { LicenseInput } from '@/components/settings/LicenseInput'
+import { EmailReminder } from '@/components/settings/EmailReminder'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Type, Clock } from 'lucide-react'
 
@@ -51,6 +52,8 @@ export function AccountSection() {
         <h2 className="text-lg font-semibold">Account</h2>
         <p className="text-sm text-muted-foreground">License activation and trial status</p>
       </div>
+
+      <EmailReminder />
 
       <UsageBanner />
 

@@ -11,11 +11,10 @@ export function OverlayShell() {
   const { settings, hasApiKey, isManagedMode, isLoaded } = useSettings()
   const { snippets } = useSnippets()
 
-  // Listen for trial-expired event from main process
+  // Listen for trial-expired event from main process — stays visible until dismissed
   useEffect(() => {
     const cleanup = window.electronAPI?.onTrialExpired?.(() => {
       setTrialExpired(true)
-      setTimeout(() => setTrialExpired(false), 2000)
     })
     return () => cleanup?.()
   }, [])
@@ -126,22 +125,62 @@ export function OverlayShell() {
     )
   }
 
-  // --- ERROR / TRIAL EXPIRED ---
-  if (hasError || trialExpired) {
+  // --- TRIAL EXPIRED: persistent actionable message ---
+  if (trialExpired) {
+    return (
+      <div className="flex h-full w-full items-end justify-center pb-1">
+        <div className="flex flex-col items-center gap-2 rounded-2xl bg-black/90 border border-white/10 shadow-2xl p-4 max-w-[340px]">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Lock className="h-4 w-4 text-yellow-400" />
+              <span className="text-xs font-medium text-yellow-400">Trial expired</span>
+            </div>
+            <button
+              onClick={() => {
+                setTrialExpired(false)
+                window.electronAPI?.hideOverlay()
+              }}
+              className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
+            >
+              <X className="h-3 w-3 text-white/40" />
+            </button>
+          </div>
+          <p className="text-[11px] text-white/50 text-center">
+            Add your own API key to keep using VoxGen for free, or upgrade to Pro.
+          </p>
+          <div className="flex items-center gap-2 w-full">
+            <button
+              onClick={() => {
+                setTrialExpired(false)
+                window.electronAPI?.showMainWindow()
+              }}
+              className="flex-1 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-1.5 text-[11px] font-medium text-white/80 transition-colors"
+            >
+              Use Own API Key
+            </button>
+            <button
+              onClick={() => {
+                setTrialExpired(false)
+                window.electronAPI?.openExternal('https://voxgenflow.vercel.app/#pricing')
+                window.electronAPI?.hideOverlay()
+              }}
+              className="flex-1 rounded-lg bg-purple-600 hover:bg-purple-500 px-3 py-1.5 text-[11px] font-medium text-white transition-colors"
+            >
+              Upgrade to Pro
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // --- ERROR: auto-hides after 3 seconds ---
+  if (hasError) {
     return (
       <div className="flex h-full w-full items-end justify-center pb-1">
         <div className="flex h-11 items-center gap-2.5 rounded-full bg-black/90 border border-white/10 shadow-2xl px-5">
-          {trialExpired ? (
-            <>
-              <Lock className="h-4 w-4 text-yellow-400" />
-              <span className="text-xs font-medium text-yellow-400">Trial expired</span>
-            </>
-          ) : (
-            <>
-              <X className="h-4 w-4 text-red-400" />
-              <span className="text-xs font-medium text-red-400">Error</span>
-            </>
-          )}
+          <X className="h-4 w-4 text-red-400" />
+          <span className="text-xs font-medium text-red-400">Error</span>
         </div>
       </div>
     )

@@ -40,6 +40,8 @@ export interface ElectronAPI {
   validateByEmail: (email: string) => Promise<{ valid: boolean; plan?: string; expiresAt?: string | null; error?: string; trialDaysLeft?: number }>
   getLicenseInfo: () => Promise<{ licenseKey: string; licenseStatus: string; licensePlan: string; licenseExpiresAt: string; trialStartedAt: number; lastLicenseCheck: number }>
   clearLicense: () => Promise<void>
+  openCustomerPortal: (email: string) => Promise<{ success: boolean; error?: string }>
+  openExternal: (url: string) => Promise<void>
   onTrialExpired: (callback: () => void) => () => void
 
   // Clipboard

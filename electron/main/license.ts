@@ -152,6 +152,12 @@ export function canUseApp(): boolean {
   return !trial.isExpired
 }
 
+// JSON fetch helper — used by ipc-handlers for customer-portal etc.
+export async function netFetchJson(url: string, options: { method: string; headers: Record<string, string>; body: string }): Promise<any> {
+  const raw = await netFetch(url, options)
+  return JSON.parse(raw)
+}
+
 // Simple fetch using Electron's net module
 function netFetch(url: string, options: { method: string; headers: Record<string, string>; body: string }): Promise<string> {
   return new Promise((resolve, reject) => {

@@ -34,6 +34,7 @@ export interface AppSettings {
   userEmail: string
   deviceId: string
   onboardingComplete: boolean
+  sessionCount: number
 }
 
 const defaults: AppSettings = {
@@ -62,6 +63,7 @@ const defaults: AppSettings = {
   userEmail: '',
   deviceId: '',
   onboardingComplete: false,
+  sessionCount: 0,
 }
 
 export function initStore() {
@@ -196,6 +198,11 @@ export function initStore() {
       console.log('[VoxGen] Device ID generated:', deviceId)
     }
 
+    // Increment session counter
+    const currentSessionCount = (store.get('sessionCount', 0) as number) || 0
+    store.set('sessionCount', currentSessionCount + 1)
+    console.log(`[VoxGen] Session count: ${currentSessionCount + 1}`)
+
     // Migration: existing users (who had a trial before this update) skip onboarding
     if (store.get('onboardingComplete') === undefined || store.get('onboardingComplete') === null) {
       if (trialStarted) {
@@ -251,6 +258,7 @@ export function getAllSettings(): AppSettings {
     userEmail: store.get('userEmail', defaults.userEmail) as string,
     deviceId: store.get('deviceId', defaults.deviceId) as string,
     onboardingComplete: store.get('onboardingComplete', defaults.onboardingComplete) as boolean,
+    sessionCount: store.get('sessionCount', defaults.sessionCount) as number,
   }
 }
 

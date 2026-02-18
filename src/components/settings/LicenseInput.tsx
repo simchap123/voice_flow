@@ -17,6 +17,7 @@ export function LicenseInput() {
   const [licenseInfo, setLicenseInfo] = useState<LicenseInfo | null>(null)
   const [inputEmail, setInputEmail] = useState('')
   const [checking, setChecking] = useState(false)
+  const [portalLoading, setPortalLoading] = useState(false)
   const [error, setError] = useState('')
   const [trialDaysLeft, setTrialDaysLeft] = useState(30)
 
@@ -56,6 +57,21 @@ export function LicenseInput() {
       setError('Failed to validate. Check your internet connection.')
     } finally {
       setChecking(false)
+    }
+  }
+
+  async function handleManageSubscription() {
+    if (!licenseInfo?.userEmail || !window.electronAPI) return
+    setPortalLoading(true)
+    try {
+      const result = await window.electronAPI.openCustomerPortal(licenseInfo.userEmail)
+      if (!result.success) {
+        setError(result.error || 'Could not open subscription management')
+      }
+    } catch {
+      setError('Failed to open subscription management')
+    } finally {
+      setPortalLoading(false)
     }
   }
 
@@ -137,9 +153,20 @@ export function LicenseInput() {
                 <p className="text-xs text-muted-foreground mt-0.5">Never expires</p>
               )}
             </div>
-            <Button variant="ghost" size="sm" onClick={handleRemove} className="text-xs text-muted-foreground">
-              Remove
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleManageSubscription}
+                disabled={portalLoading}
+                className="text-xs"
+              >
+                {portalLoading ? 'Opening...' : 'Manage Subscription'}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleRemove} className="text-xs text-muted-foreground">
+                Remove
+              </Button>
+            </div>
           </div>
         </div>
       )}

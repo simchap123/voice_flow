@@ -190,6 +190,29 @@ export function registerIpcHandlers() {
     broadcastSettingChanged('userEmail', '')
   })
 
+  ipcMain.handle('license:customer-portal', async (_event, email: string) => {
+    const { netFetchJson } = await import('./license')
+    try {
+      const data = await netFetchJson('https://voxgenflow.vercel.app/api/customer-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      })
+      if (data.url) {
+        await shell.openExternal(data.url)
+        return { success: true }
+      }
+      return { success: false, error: data.error || 'No portal URL returned' }
+    } catch (err: any) {
+      console.error('[VoxGen] Customer portal error:', err.message)
+      return { success: false, error: err.message }
+    }
+  })
+
+  ipcMain.handle('open-external', async (_event, url: string) => {
+    await shell.openExternal(url)
+  })
+
   // Clipboard (reliable across Electron windows)
   ipcMain.handle('clipboard:write', async (_event, text: string) => {
     clipboard.writeText(text)
