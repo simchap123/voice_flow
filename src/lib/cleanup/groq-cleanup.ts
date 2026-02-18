@@ -65,6 +65,32 @@ export class GroqCleanupProvider implements CleanupProvider {
     }
   }
 
+  async cleanupWithPrompt(systemPrompt: string, userMessage: string): Promise<string> {
+    if (!this.client) throw new Error('Groq not configured.')
+    if (!userMessage.trim()) return userMessage
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000)
+
+    try {
+      const response = await this.client.chat.completions.create(
+        {
+          model: 'llama-3.3-70b-versatile',
+          temperature: 0.3,
+          max_tokens: 2048,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+        },
+        { signal: controller.signal }
+      )
+      return response.choices[0]?.message?.content?.trim() ?? userMessage
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
   async generate(instructions: string): Promise<string> {
     if (!this.client) throw new Error('Groq not configured.')
     if (!instructions.trim()) return instructions

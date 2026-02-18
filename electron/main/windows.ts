@@ -17,9 +17,9 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 const DIST = process.env.DIST ?? path.join(__dirname, '../../dist')
 const preloadPath = path.join(__dirname, '../preload/index.cjs')
 
-// Overlay constants — fixed bounds, CSS handles visual states
-const OVERLAY_WIDTH = 340
-const OVERLAY_HEIGHT = 50
+// Overlay constants — VoiceInk-inspired compact floating pill
+const OVERLAY_WIDTH = 220
+const OVERLAY_HEIGHT = 56
 
 export function createMainWindow(): BrowserWindow {
   mainWindow = new BrowserWindow({
@@ -112,7 +112,7 @@ export function createOverlayWindow(): BrowserWindow {
     alwaysOnTop: true,
     skipTaskbar: true,
     resizable: false,
-    focusable: true, // Must be focusable for mic permission + MediaRecorder
+    focusable: false, // Non-focus-stealing — never takes keyboard focus from user's active app
     show: false,
     backgroundColor: '#00000000',
     webPreferences: {

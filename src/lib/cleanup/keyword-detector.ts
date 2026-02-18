@@ -67,6 +67,69 @@ const TRIGGER_PATTERNS: TriggerPattern[] = [
   },
 ]
 
+// Trailing trigger phrases — matched at the END of text.
+// Sorted longest-first at runtime for most-specific matching.
+const TRAILING_TRIGGERS: { mode: GenerationMode; phrases: string[] }[] = [
+  {
+    mode: 'email',
+    phrases: ['email mode', 'as an email', 'make it an email', 'format as email', 'send as email'],
+  },
+  {
+    mode: 'code',
+    phrases: ['code mode', 'as code', 'make it code', 'format as code'],
+  },
+  {
+    mode: 'summary',
+    phrases: ['summary mode', 'summarize that', 'make it a summary'],
+  },
+  {
+    mode: 'expand',
+    phrases: ['expand mode', 'expand on that', 'elaborate on that'],
+  },
+]
+
+/**
+ * Check if text ends with a trailing trigger phrase.
+ * Returns the mode + remaining text with trigger stripped, or null.
+ */
+function detectTrailingTrigger(text: string): { mode: GenerationMode; content: string; phrase: string } | null {
+  const trimmed = text.trim()
+  // Remove trailing punctuation for matching
+  const cleaned = trimmed.replace(/[,.!?;:]+$/, '').trim()
+  const lower = cleaned.toLowerCase()
+
+  // Flatten and sort by length (longest first) for most-specific matching
+  const allTrailing = TRAILING_TRIGGERS.flatMap(t =>
+    t.phrases.map(p => ({ mode: t.mode, phrase: p }))
+  ).sort((a, b) => b.phrase.length - a.phrase.length)
+
+  for (const { mode, phrase } of allTrailing) {
+    if (lower.endsWith(phrase)) {
+      // Check word boundary before the trigger phrase
+      const beforeIndex = cleaned.length - phrase.length
+      if (beforeIndex > 0) {
+        const charBefore = cleaned[beforeIndex - 1]
+        if (/[a-zA-Z0-9]/.test(charBefore)) continue // Not a word boundary
+      }
+
+      let content = cleaned.slice(0, beforeIndex).trim()
+      // Clean up trailing punctuation/separators
+      content = content.replace(/[,.!?;:\s]+$/, '').trim()
+
+      if (!content) continue // No content before trigger
+
+      // Capitalize first letter
+      if (content.length > 0) {
+        content = content.charAt(0).toUpperCase() + content.slice(1)
+      }
+
+      return { mode, content, phrase }
+    }
+  }
+
+  return null
+}
+
 export function detectKeywordTrigger(rawText: string, enabled: boolean): KeywordDetection {
   const noDetection: KeywordDetection = {
     detected: false,
@@ -81,6 +144,7 @@ export function detectKeywordTrigger(rawText: string, enabled: boolean): Keyword
   const text = stripPreamble(rawText)
   if (!text) return noDetection
 
+  // 1. Check START-of-text triggers first (original behavior)
   for (const { mode, patterns } of TRIGGER_PATTERNS) {
     for (const pattern of patterns) {
       const match = text.match(pattern)
@@ -96,6 +160,17 @@ export function detectKeywordTrigger(rawText: string, enabled: boolean): Keyword
           triggerPhrase: text.slice(0, text.indexOf(contentAfterTrigger)).trim(),
         }
       }
+    }
+  }
+
+  // 2. Check END-of-text triggers (new: "book a flight to NYC, email mode")
+  const trailing = detectTrailingTrigger(text)
+  if (trailing) {
+    return {
+      detected: true,
+      triggerType: trailing.mode,
+      contentAfterTrigger: trailing.content,
+      triggerPhrase: trailing.phrase,
     }
   }
 

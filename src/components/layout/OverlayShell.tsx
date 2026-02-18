@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mic, Loader2, X, Lock, Square } from 'lucide-react'
+import { Mic, Loader2, X, Lock, Square, Settings } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
@@ -11,7 +11,7 @@ export function OverlayShell() {
   const { settings, hasApiKey, isManagedMode, isLoaded } = useSettings()
   const { snippets } = useSnippets()
 
-  // Listen for trial-expired event from main process — stays visible until dismissed
+  // Listen for trial-expired event from main process
   useEffect(() => {
     const cleanup = window.electronAPI?.onTrialExpired?.(() => {
       setTrialExpired(true)
@@ -26,7 +26,7 @@ export function OverlayShell() {
     }
   }, [settings.holdHotkey])
 
-  // When in managed mode, route through proxy providers instead of direct API calls
+  // When in managed mode, route through proxy providers
   const effectiveSttProvider = isManagedMode ? 'managed' : settings.sttProvider
   const effectiveCleanupProvider = isManagedMode
     ? (settings.cleanupEnabled ? 'managed' : 'none')
@@ -80,83 +80,106 @@ export function OverlayShell() {
   const hasError = !!recording.error
   const isIdle = !isRecording && !isProcessing && !hasError && !trialExpired
 
-  // --- RECORDING STATE: dark pill with mic + stop + cancel ---
+  // Format duration as m:ss
+  const formatDuration = (secs: number) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  // --- RECORDING STATE: pill with pulsing mic + duration + controls ---
   if (isRecording) {
     return (
-      <div className="flex h-full w-full items-end justify-center pb-1">
-        <div className="flex h-11 items-center gap-2 rounded-full bg-black/90 border border-white/10 shadow-2xl px-4">
-          <Mic className="h-4 w-4 text-red-400 animate-mic-pulse shrink-0" />
-          <span className="text-xs font-medium text-white/70">Recording...</span>
-          <div className="w-px h-5 bg-white/10" />
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-11 items-center gap-2.5 rounded-full bg-black/95 border border-white/[0.08] shadow-2xl shadow-black/50 px-4 backdrop-blur-xl">
+          {/* Pulsing recording indicator */}
+          <div className="relative flex items-center justify-center">
+            <div className="absolute h-6 w-6 rounded-full bg-red-500/20 animate-ping" />
+            <Mic className="relative h-4 w-4 text-red-400" />
+          </div>
+
+          {/* Duration */}
+          <span className="text-xs font-mono font-medium text-white/60 tabular-nums min-w-[2.5rem]">
+            {formatDuration(recording.duration)}
+          </span>
+
+          <div className="w-px h-4 bg-white/[0.08]" />
+
+          {/* Stop */}
           <button
             onClick={() => {
               window.electronAPI?.notifyRecordingStopped()
               recording.stopRecording()
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.12] transition-colors"
             title="Stop recording"
           >
             <Square className="h-3 w-3 text-white/80 fill-white/80" />
           </button>
+
+          {/* Cancel */}
           <button
             onClick={() => {
               window.electronAPI?.notifyRecordingCancelled()
               recording.cancelRecording()
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/[0.08] transition-colors"
             title="Cancel recording"
           >
-            <X className="h-3.5 w-3.5 text-white/50" />
+            <X className="h-3.5 w-3.5 text-white/40" />
           </button>
         </div>
       </div>
     )
   }
 
-  // --- PROCESSING STATE: pill with spinner ---
+  // --- PROCESSING STATE: pill with spinner + stage label ---
   if (isProcessing) {
+    const stageLabel = recording.state === 'PROCESSING_STT'
+      ? 'Transcribing...'
+      : recording.state === 'INJECTING'
+        ? 'Typing...'
+        : 'Enhancing...'
+
     return (
-      <div className="flex h-full w-full items-end justify-center pb-1">
-        <div className="flex h-11 items-center gap-2.5 rounded-full bg-black/90 border border-white/10 shadow-2xl px-5">
-          <Loader2 className="h-4 w-4 text-white/80 animate-spin" />
-          <span className="text-xs font-medium text-white/70">Processing...</span>
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-11 items-center gap-2.5 rounded-full bg-black/95 border border-white/[0.08] shadow-2xl shadow-black/50 px-5 backdrop-blur-xl">
+          <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />
+          <span className="text-xs font-medium text-white/60">{stageLabel}</span>
         </div>
       </div>
     )
   }
 
-  // --- TRIAL EXPIRED: persistent actionable message ---
+  // --- TRIAL EXPIRED: compact persistent message ---
   if (trialExpired) {
     return (
-      <div className="flex h-full w-full items-end justify-center pb-1">
-        <div className="flex flex-col items-center gap-2 rounded-2xl bg-black/90 border border-white/10 shadow-2xl p-4 max-w-[340px]">
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-2 rounded-2xl bg-black/95 border border-white/[0.08] shadow-2xl shadow-black/50 p-3.5 max-w-[210px] backdrop-blur-xl">
           <div className="flex w-full items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Lock className="h-4 w-4 text-yellow-400" />
-              <span className="text-xs font-medium text-yellow-400">Trial expired</span>
+            <div className="flex items-center gap-1.5">
+              <Lock className="h-3.5 w-3.5 text-amber-400" />
+              <span className="text-[11px] font-medium text-amber-400">Trial expired</span>
             </div>
             <button
               onClick={() => {
                 setTrialExpired(false)
                 window.electronAPI?.hideOverlay()
               }}
-              className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
+              className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-white/[0.08] transition-colors"
             >
-              <X className="h-3 w-3 text-white/40" />
+              <X className="h-2.5 w-2.5 text-white/30" />
             </button>
           </div>
-          <p className="text-[11px] text-white/50 text-center">
-            Add your own API key to keep using VoxGen for free, or upgrade to Pro.
-          </p>
-          <div className="flex items-center gap-2 w-full">
+          <div className="flex items-center gap-1.5 w-full">
             <button
               onClick={() => {
                 setTrialExpired(false)
                 window.electronAPI?.showMainWindow()
               }}
-              className="flex-1 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 px-3 py-1.5 text-[11px] font-medium text-white/80 transition-colors"
+              className="flex-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] px-2 py-1 text-[10px] font-medium text-white/70 transition-colors"
             >
-              Use Own API Key
+              Own Key
             </button>
             <button
               onClick={() => {
@@ -164,9 +187,9 @@ export function OverlayShell() {
                 window.electronAPI?.openExternal('https://voxgenflow.vercel.app/#pricing')
                 window.electronAPI?.hideOverlay()
               }}
-              className="flex-1 rounded-lg bg-purple-600 hover:bg-purple-500 px-3 py-1.5 text-[11px] font-medium text-white transition-colors"
+              className="flex-1 rounded-lg bg-purple-600 hover:bg-purple-500 px-2 py-1 text-[10px] font-medium text-white transition-colors"
             >
-              Upgrade to Pro
+              Upgrade
             </button>
           </div>
         </div>
@@ -177,36 +200,43 @@ export function OverlayShell() {
   // --- ERROR: auto-hides after 3 seconds ---
   if (hasError) {
     return (
-      <div className="flex h-full w-full items-end justify-center pb-1">
-        <div className="flex h-11 items-center gap-2.5 rounded-full bg-black/90 border border-white/10 shadow-2xl px-5">
-          <X className="h-4 w-4 text-red-400" />
-          <span className="text-xs font-medium text-red-400">Error</span>
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-11 items-center gap-2 rounded-full bg-black/95 border border-red-500/20 shadow-2xl shadow-black/50 px-4 backdrop-blur-xl">
+          <div className="h-2 w-2 rounded-full bg-red-400" />
+          <span className="text-[11px] font-medium text-red-400/80">Error</span>
         </div>
       </div>
     )
   }
 
-  // --- IDLE STATE: thin bar → expands on hover with CSS ---
+  // --- IDLE STATE: minimal floating pill (VoiceInk-inspired) ---
   return (
-    <div className="group flex h-full w-full items-end justify-center pb-1">
-      {/* Thin minimized bar — visible when NOT hovering */}
-      <div className="flex items-center justify-center transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-95 group-hover:pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2">
-        <div className="h-1 w-24 rounded-full bg-white/20" />
+    <div className="group flex h-full w-full items-center justify-center">
+      {/* Minimized dot — visible when NOT hovering */}
+      <div className="flex items-center justify-center transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-90 absolute inset-0">
+        <div className="h-1.5 w-10 rounded-full bg-white/15" />
       </div>
 
-      {/* Expanded hover bar — visible on hover */}
-      <div className="flex h-10 items-center gap-2 rounded-full bg-black/90 border border-white/10 shadow-2xl px-4 opacity-0 scale-95 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100">
-        <Mic className="h-4 w-4 text-white/60 shrink-0" />
-        <span className="text-xs text-white/50 whitespace-nowrap">
-          Hold <kbd className="mx-0.5 rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-white/70">{holdHotkeyLabel}</kbd> to dictate
+      {/* Expanded pill — visible on hover */}
+      <div className="flex h-10 items-center gap-2 rounded-full bg-black/95 border border-white/[0.08] shadow-2xl shadow-black/50 px-3.5 opacity-0 scale-90 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 backdrop-blur-xl">
+        <Mic className="h-3.5 w-3.5 text-white/50 shrink-0" />
+        <span className="text-[11px] text-white/40 whitespace-nowrap">
+          Hold <kbd className="mx-0.5 rounded bg-white/[0.08] px-1 py-px text-[9px] font-medium text-white/60">{holdHotkeyLabel}</kbd>
         </span>
-        <div className="w-px h-4 bg-white/10" />
+        <div className="w-px h-3.5 bg-white/[0.06]" />
+        <button
+          onClick={() => window.electronAPI?.showMainWindow()}
+          className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/[0.08] transition-colors"
+          title="Open VoxGen"
+        >
+          <Settings className="h-3 w-3 text-white/30" />
+        </button>
         <button
           onClick={() => window.electronAPI?.hideOverlay()}
-          className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
+          className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/[0.08] transition-colors"
           title="Hide overlay"
         >
-          <X className="h-3 w-3 text-white/40" />
+          <X className="h-3 w-3 text-white/30" />
         </button>
       </div>
     </div>

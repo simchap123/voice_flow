@@ -8,6 +8,8 @@ export interface CleanupProvider {
   name: string
   type: CleanupProviderType
   cleanup(rawText: string): Promise<string>
+  /** Cleanup with custom system prompt and user message (new pipeline) */
+  cleanupWithPrompt?(systemPrompt: string, userMessage: string): Promise<string>
   generate(instructions: string): Promise<string>
   cleanupCode(rawText: string): Promise<string>
   generateWithTemplate(mode: GenerationMode, instructions: string, outputLength: OutputLength): Promise<string>
