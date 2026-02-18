@@ -1,0 +1,15 @@
+release/
+dist/
+dist-electron/
+node_modules/
+video/
+specs/
+scripts/
+resources/
+electron/
+src/
+*.exe
+*.blockmap
+*.png
+*.ico
+*.wasm
