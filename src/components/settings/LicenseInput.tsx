@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
 import type { LicenseStatus } from '@/types/settings'
 
 interface LicenseInfo {
@@ -76,8 +75,6 @@ export function LicenseInput() {
 
   return (
     <div className="space-y-3">
-      <Label className="text-base">License</Label>
-
       {/* Trial info (when no active license) */}
       {!isActive && (
         <div className={`rounded-lg border p-3 ${

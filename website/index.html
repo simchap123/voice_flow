@@ -889,10 +889,10 @@
   <div class="container">
     <div class="get-started-box reveal">
       <h2>Get VoxGen</h2>
-      <p>Enter your email to download. You'll use this email to activate your license in the app.</p>
+      <p>Download for free. You'll activate your trial inside the app.</p>
 
       <div class="get-started-email-wrap">
-        <input type="email" id="gs-email" placeholder="your@email.com" />
+        <input type="email" id="gs-email" placeholder="your@email.com (optional)" />
         <div class="get-started-error" id="gs-error"></div>
       </div>
 
@@ -1022,14 +1022,18 @@
 
   // --- Get Started: "Download Free" ---
   gsFreeBtn.addEventListener('click', async function() {
-    var email = getEmail();
-    if (!email) return;
+    var email = gsEmail.value.trim();
+    gsError.style.display = 'none';
     gsFreeBtn.disabled = true;
     gsFreeBtn.textContent = 'Starting download...';
-    await captureLead(email, 'free');
+    if (email && email.includes('@')) {
+      await captureLead(email, 'free');
+    }
     triggerDownload();
     setTimeout(function() {
-      window.location.href = 'download.html?email=' + encodeURIComponent(email);
+      var url = 'download.html';
+      if (email && email.includes('@')) url += '?email=' + encodeURIComponent(email);
+      window.location.href = url;
     }, 500);
   });
 
