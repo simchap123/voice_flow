@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.9.0',
+    date: '2026-02-18',
+    highlights: [
+      'Power Modes — auto-detect the active app and apply a custom prompt, STT provider, and cleanup per context (Settings → Power Modes)',
+      'Overlay prompt picker — click the emoji icon in the overlay to switch prompts without opening the main window',
+      'Overlay moved to the top of the screen, out of the way',
+      'Processing indicator simplified to a single spinner — no more three-step labels',
+      'Smarter Default Cleanup — when you deliberate and reach a final answer, only the decision is kept',
+    ],
+  },
+  {
     version: '2.1.5',
     date: '2026-02-18',
     highlights: [
