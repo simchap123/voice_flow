@@ -154,15 +154,17 @@ export function LicenseInput() {
               )}
             </div>
             <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleManageSubscription}
-                disabled={portalLoading}
-                className="text-xs"
-              >
-                {portalLoading ? 'Opening...' : 'Manage Subscription'}
-              </Button>
+              {licenseInfo?.licenseExpiresAt && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleManageSubscription}
+                  disabled={portalLoading}
+                  className="text-xs"
+                >
+                  {portalLoading ? 'Opening...' : 'Manage Subscription'}
+                </Button>
+              )}
               <Button variant="ghost" size="sm" onClick={handleRemove} className="text-xs text-muted-foreground">
                 Remove
               </Button>

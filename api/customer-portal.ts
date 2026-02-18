@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 import { supabase } from './lib/supabase'
 import { isValidEmail } from './lib/validate-email'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!.trim())
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -43,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(404).json({ error: 'No billing account found. Lifetime licenses do not have recurring billing.' })
     }
 
-    const appUrl = (process.env.APP_URL || 'https://voxgenflow.vercel.app').replace(/\/+$/, '')
+    const appUrl = (process.env.APP_URL || 'https://voxgenflow.vercel.app').trim().replace(/\/+$/, '')
 
     const session = await stripe.billingPortal.sessions.create({
       customer: license.stripe_customer_id,

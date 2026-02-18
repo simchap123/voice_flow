@@ -2,8 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Stripe from 'stripe'
 import { supabase } from '../lib/supabase'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!.trim())
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!.trim()
 
 // Plan slug → license_type slug mapping
 const PLAN_TO_LICENSE_TYPE: Record<string, string> = {

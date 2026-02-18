@@ -2,12 +2,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Stripe from 'stripe'
 import { isValidEmail } from './lib/validate-email'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!.trim())
 
 const PRICE_MAP: Record<string, { priceId: string; mode: 'subscription' | 'payment' }> = {
-  monthly: { priceId: process.env.STRIPE_PRICE_MONTHLY!, mode: 'subscription' },
-  yearly: { priceId: process.env.STRIPE_PRICE_YEARLY!, mode: 'subscription' },
-  lifetime: { priceId: process.env.STRIPE_PRICE_LIFETIME!, mode: 'payment' },
+  monthly: { priceId: (process.env.STRIPE_PRICE_MONTHLY || '').trim(), mode: 'subscription' },
+  yearly: { priceId: (process.env.STRIPE_PRICE_YEARLY || '').trim(), mode: 'subscription' },
+  lifetime: { priceId: (process.env.STRIPE_PRICE_LIFETIME || '').trim(), mode: 'payment' },
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: `Invalid plan: ${plan}` })
   }
 
-  const appUrl = (process.env.APP_URL || 'https://voxgenflow.vercel.app').replace(/\/+$/, '')
+  const appUrl = (process.env.APP_URL || 'https://voxgenflow.vercel.app').trim().replace(/\/+$/, '')
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -43,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ url: session.url })
   } catch (err: any) {
-    console.error('[checkout] Stripe error:', err.message)
+    console.error('[checkout] Stripe error:', err.message, 'priceId:', priceConfig.priceId, 'mode:', priceConfig.mode)
     return res.status(500).json({ error: 'Failed to create checkout session' })
   }
 }
