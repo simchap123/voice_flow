@@ -17,7 +17,7 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 const DIST = process.env.DIST ?? path.join(__dirname, '../../dist')
 const preloadPath = path.join(__dirname, '../preload/index.cjs')
 
-// Overlay constants — VoiceInk-inspired compact floating pill
+// Overlay constants — compact floating pill
 const OVERLAY_WIDTH = 320
 const OVERLAY_HEIGHT = 56
 

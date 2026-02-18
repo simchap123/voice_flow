@@ -2,17 +2,17 @@
 
 ## Introduction
 
-VoxGen v3.0 is a major upgrade that transforms VoxGen from a simple voice-to-text app into an intelligent, context-aware dictation engine. Inspired by competitive analysis of VoiceInk (macOS native, Swift), v3.0 brings six high-impact features to VoxGen's Electron + React stack: a multi-stage cleanup pipeline, context-aware AI enhancement, user-created custom prompts, robust "don't answer" system prompts, Power Modes (per-app settings), and a non-focus-stealing overlay.
+VoxGen v3.0 is a major upgrade that transforms VoxGen from a simple voice-to-text app into an intelligent, context-aware dictation engine. Inspired by competitive analysis of Competitor (macOS native, Swift), v3.0 brings six high-impact features to VoxGen's Electron + React stack: a multi-stage cleanup pipeline, context-aware AI enhancement, user-created custom prompts, robust "don't answer" system prompts, Power Modes (per-app settings), and a non-focus-stealing overlay.
 
 This is a marketing milestone release — a "v3.0 moment" with a new landing page, feature bullet points, and potential Product Hunt launch.
 
 ### Problem
 
-VoxGen v2.x does a single AI call for text cleanup with no pre/post processing. It has no awareness of what app the user is in, no custom vocabulary, no clipboard context, and hardcoded generation templates. Competitors like VoiceInk and Wispr Flow offer significantly smarter cleanup with context injection and per-app customization.
+VoxGen v2.x does a single AI call for text cleanup with no pre/post processing. It has no awareness of what app the user is in, no custom vocabulary, no clipboard context, and hardcoded generation templates. Competitors like Competitor and Wispr Flow offer significantly smarter cleanup with context injection and per-app customization.
 
-### Competitive Gap (v2.x vs VoiceInk)
+### Competitive Gap (v2.x vs Competitor)
 
-| Capability | VoxGen v2.x | VoiceInk | v3.0 Target |
+| Capability | VoxGen v2.x | Competitor | v3.0 Target |
 |------------|-------------|----------|-------------|
 | Pre-AI hallucination filter | No | Yes (regex) | Yes |
 | Post-AI output filter | No | Yes (thinking tags) | Yes |
@@ -29,7 +29,7 @@ VoxGen v2.x does a single AI call for text cleanup with no pre/post processing. 
 
 ## Goals
 
-- Close the feature gap with VoiceInk on cleanup quality and context awareness
+- Close the feature gap with Competitor on cleanup quality and context awareness
 - Ship Power Modes as a marquee differentiator for marketing
 - Make the cleanup pipeline dramatically smarter without requiring user configuration
 - Give power users full control over AI prompts and per-app behavior
@@ -403,7 +403,7 @@ VoxGen v2.x does a single AI call for text cleanup with no pre/post processing. 
 - [ ] Recording state shows: pulsing waveform + duration timer + stop/cancel buttons
 - [ ] Processing state shows: spinner + "Transcribing..." / "Enhancing..." status text
 - [ ] Smooth transitions between states (fade/slide, not instant swap)
-- [ ] Rounded pill shape (similar to VoiceInk's 184x60 design)
+- [ ] Rounded pill shape (similar to Competitor's 184x60 design)
 - [ ] Typecheck passes
 
 ### US-503: Update landing page for v3.0
@@ -411,7 +411,7 @@ VoxGen v2.x does a single AI call for text cleanup with no pre/post processing. 
 
 **Acceptance Criteria:**
 - [ ] Feature section highlighting: Smart Cleanup Pipeline, Context-Aware AI, Custom Prompts, Power Modes
-- [ ] Comparison table vs Wispr Flow and VoiceInk
+- [ ] Comparison table vs Wispr Flow and Competitor
 - [ ] Updated download link to v3.0 installer
 - [ ] "What's New in v3.0" section
 - [ ] Updated pricing (if changed)
@@ -457,12 +457,12 @@ VoxGen v2.x does a single AI call for text cleanup with no pre/post processing. 
 
 - **No screen OCR / window content extraction** — Clipboard + window title is sufficient. Full OCR requires native modules (Tesseract, Windows OCR API) and is disproportionate effort for marginal gain.
 - **No streaming transcription** — Batch transcription is fine for dictation use cases. Streaming adds complexity (WebSocket state, partial results UI) without clear user demand.
-- **No per-mode hotkeys** — VoiceInk supports different hotkeys per Power Mode. Skip for v3.0; the global hotkey system works.
+- **No per-mode hotkeys** — Competitor supports different hotkeys per Power Mode. Skip for v3.0; the global hotkey system works.
 - **No local LLM for cleanup** — node-llama-cpp is still experimental. Stick with cloud providers for AI enhancement.
 - **No macOS/Linux support** — Windows-first for v3.0. Cross-platform later.
 - **No prompt sharing/marketplace** — Users can't share prompts with others yet.
 - **No AI model selection per prompt** — All prompts use the same cleanup provider. Per-prompt model selection is future scope.
-- **No selected text context** — VoiceInk reads selected text via accessibility APIs. This requires platform-specific native modules and is out of scope.
+- **No selected text context** — Competitor reads selected text via accessibility APIs. This requires platform-specific native modules and is out of scope.
 
 ## Technical Considerations
 

@@ -241,7 +241,7 @@ export function OverlayShell() {
     )
   }
 
-  // --- IDLE STATE: minimal floating pill (VoiceInk-inspired) ---
+  // --- IDLE STATE: minimal floating pill ---
   return (
     <div className="group flex h-full w-full items-center justify-center">
       {/* Minimized dot — visible when NOT hovering */}

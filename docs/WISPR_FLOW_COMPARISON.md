@@ -138,7 +138,7 @@
 | Wispr Flow | Cloud-only | Mac/Win/iOS | $15/mo | Best accuracy, widest support |
 | Aqua Voice | Cloud | Mac/Win | $8/mo | 50ms launch, real-time overlay |
 | Superwhisper | Local | Mac/iOS | $250 lifetime | Apple Silicon optimized, offline |
-| VoiceInk | Local | Mac | Free/$39 | Open-source (GPL) |
+| Competitor | Local | Mac | Free/$39 | Open-source (GPL) |
 | Voibe | Local | Mac | $99 lifetime | 100% offline, 150MB RAM |
 | BetterDictation | Both | Mac | $39 lifetime | Dual-tier privacy |
 

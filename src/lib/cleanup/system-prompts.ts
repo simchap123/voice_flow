@@ -1,7 +1,7 @@
 /**
  * Centralized system prompts for VoxGen's AI cleanup and generation.
  *
- * The key insight from VoiceInk: explicitly tell the AI it's a transcription
+ * Key principle: explicitly tell the AI it's a transcription
  * enhancer, NOT a chatbot, with concrete examples of correct behavior.
  */
 
