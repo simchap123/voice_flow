@@ -8,6 +8,7 @@ import { useSnippets } from '@/hooks/useSnippets'
 export function OverlayShell() {
   const [trialExpired, setTrialExpired] = useState(false)
   const [holdHotkeyLabel, setHoldHotkeyLabel] = useState('Alt')
+  const [overlayError, setOverlayError] = useState<string | null>(null)
   const { settings, hasApiKey, isManagedMode, isLoaded } = useSettings()
   const { snippets } = useSnippets()
 
@@ -42,17 +43,32 @@ export function OverlayShell() {
     keywordTriggersEnabled: settings.keywordTriggersEnabled,
     outputLength: settings.outputLength,
     promptRefinementEnabled: settings.promptRefinementEnabled,
+    fillerWordRemoval: settings.fillerWordRemoval,
+    useClipboardContext: settings.useClipboardContext,
+    useWindowContext: settings.useWindowContext,
+    customVocabulary: settings.customVocabulary,
+    wordReplacements: settings.wordReplacements,
     snippets,
     onComplete: (result) => {
       window.electronAPI?.notifyTranscriptionComplete(result)
     },
   })
 
+  // Auto-clear overlay errors
+  useEffect(() => {
+    if (overlayError) {
+      const t = setTimeout(() => setOverlayError(null), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [overlayError])
+
   // Listen for hotkey commands from main process
   useElectronBridge({
     onStart: (data) => {
       if (!hasApiKey) {
-        recording.cancelRecording()
+        const provider = settings.sttProvider || 'OpenAI'
+        const providerLabel = provider === 'openai' ? 'OpenAI' : provider === 'groq' ? 'Groq' : provider
+        setOverlayError(`No ${providerLabel} key — add one in Settings`)
         return
       }
       recording.startRecording(settings.audioInputDeviceId, data?.mode)
@@ -70,14 +86,15 @@ export function OverlayShell() {
     if (recording.error) {
       const timer = setTimeout(() => {
         recording.clearError()
-      }, 3000)
+      }, 4000)
       return () => clearTimeout(timer)
     }
   }, [recording.error])
 
   const isRecording = recording.state === 'RECORDING'
   const isProcessing = recording.state === 'PROCESSING_STT' || recording.state === 'PROCESSING_CLEANUP' || recording.state === 'INJECTING'
-  const hasError = !!recording.error
+  const activeError = recording.error || overlayError
+  const hasError = !!activeError
   const isIdle = !isRecording && !isProcessing && !hasError && !trialExpired
 
   // Format duration as m:ss
@@ -197,13 +214,24 @@ export function OverlayShell() {
     )
   }
 
-  // --- ERROR: auto-hides after 3 seconds ---
+  // --- ERROR: auto-hides after 4 seconds, shows the actual error ---
   if (hasError) {
+    // Friendly short messages for common errors
+    let displayError = activeError || 'Something went wrong'
+    if (displayError.toLowerCase().includes('not configured') || displayError.toLowerCase().includes('api key')) {
+      displayError = 'No API key — open Settings'
+    } else if (displayError.toLowerCase().includes('network') || displayError.toLowerCase().includes('fetch')) {
+      displayError = 'Network error — check connection'
+    } else if (displayError.toLowerCase().includes('microphone') || displayError.toLowerCase().includes('permission')) {
+      displayError = 'Mic permission denied'
+    } else if (displayError.length > 40) {
+      displayError = displayError.slice(0, 37) + '…'
+    }
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <div className="flex h-11 items-center gap-2 rounded-full bg-black/95 border border-red-500/20 shadow-2xl shadow-black/50 px-4 backdrop-blur-xl">
-          <div className="h-2 w-2 rounded-full bg-red-400" />
-          <span className="text-[11px] font-medium text-red-400/80">Error</span>
+        <div className="flex h-11 items-center gap-2 rounded-full bg-black/95 border border-red-500/30 shadow-2xl shadow-black/50 px-4 backdrop-blur-xl max-w-[300px]">
+          <div className="h-2 w-2 shrink-0 rounded-full bg-red-400" />
+          <span className="text-[11px] font-medium text-red-300 truncate">{displayError}</span>
         </div>
       </div>
     )

@@ -76,6 +76,10 @@ const api: ElectronAPI = {
 
   // Clipboard
   copyToClipboard: (text: string) => ipcRenderer.invoke('clipboard:write', text),
+  readClipboard: () => ipcRenderer.invoke('clipboard:read'),
+
+  // Active window info (Phase 2 context injection)
+  getActiveWindowInfo: () => ipcRenderer.invoke('window:get-active-info'),
 
   // Overlay resize
   expandOverlay: () => ipcRenderer.send('overlay:expand'),

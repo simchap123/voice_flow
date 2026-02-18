@@ -36,6 +36,11 @@ export function useRecordingState(options: {
   keywordTriggersEnabled?: boolean
   outputLength?: OutputLength
   promptRefinementEnabled?: boolean
+  fillerWordRemoval?: boolean
+  useClipboardContext?: boolean
+  useWindowContext?: boolean
+  customVocabulary?: string[]
+  wordReplacements?: Array<{ original: string; replacement: string; enabled: boolean }>
   onComplete?: (result: TranscriptionResult) => void
 }): UseRecordingStateReturn {
   const {
@@ -49,6 +54,11 @@ export function useRecordingState(options: {
     keywordTriggersEnabled = true,
     outputLength = 'medium',
     promptRefinementEnabled = false,
+    fillerWordRemoval = false,
+    useClipboardContext = true,
+    useWindowContext = true,
+    customVocabulary = [],
+    wordReplacements = [],
     onComplete,
   } = options
 
@@ -64,6 +74,9 @@ export function useRecordingState(options: {
   const { injectText } = useElectronBridge()
   const recordingStartTime = useRef<number>(0)
   const recordingModeRef = useRef<string | undefined>(undefined)
+  // Phase 2: context captured at recording start
+  const capturedClipboard = useRef<string | undefined>(undefined)
+  const capturedWindowInfo = useRef<{ processName: string; title: string } | null | undefined>(undefined)
 
   const startRecording = useCallback(async (deviceId?: string, mode?: string) => {
     if (state !== 'IDLE' && state !== 'CANCELLED') return
@@ -72,6 +85,31 @@ export function useRecordingState(options: {
     setCleanedText('')
     setDetectedMode(null)
     recordingModeRef.current = mode
+    capturedClipboard.current = undefined
+    capturedWindowInfo.current = undefined
+
+    // Phase 2: capture context in parallel before recording starts
+    const contextCaptures: Promise<void>[] = []
+
+    if (useClipboardContext && window.electronAPI?.readClipboard) {
+      contextCaptures.push(
+        window.electronAPI.readClipboard()
+          .then(text => { capturedClipboard.current = text || undefined })
+          .catch(() => {})
+      )
+    }
+
+    if (useWindowContext && window.electronAPI?.getActiveWindowInfo) {
+      contextCaptures.push(
+        window.electronAPI.getActiveWindowInfo()
+          .then(info => { capturedWindowInfo.current = info })
+          .catch(() => {})
+      )
+    }
+
+    // Fire context captures in parallel — don't block recording start
+    Promise.all(contextCaptures).catch(() => {})
+
     try {
       await recorder.startRecording(deviceId)
       recordingStartTime.current = Date.now()
@@ -80,7 +118,7 @@ export function useRecordingState(options: {
       setError(err.message ?? 'Failed to start recording')
       setState('IDLE')
     }
-  }, [state, recorder])
+  }, [state, recorder, useClipboardContext, useWindowContext])
 
   const stopRecording = useCallback(async () => {
     if (state !== 'RECORDING') return
@@ -111,18 +149,31 @@ export function useRecordingState(options: {
       // Cleanup phase — now runs through the multi-stage pipeline
       setState('PROCESSING_CLEANUP')
 
+      // Build Phase 2 context from captures at recording start
+      const context: PipelineOptions['context'] = {}
+      if (capturedClipboard.current?.trim()) {
+        context.clipboard = capturedClipboard.current
+      }
+      if (capturedWindowInfo.current) {
+        context.windowTitle = capturedWindowInfo.current.title
+        context.windowProcess = capturedWindowInfo.current.processName
+      }
+      if (customVocabulary.length > 0) {
+        context.customVocabulary = customVocabulary
+      }
+
       const pipelineOptions: PipelineOptions = {
         cleanupProvider,
         cleanupEnabled,
-        fillerWordRemoval: false,     // TODO: wire to settings when UI is added
+        fillerWordRemoval,
         autoFormatParagraphs: true,
         keywordTriggersEnabled,
         promptRefinementEnabled,
         codeMode,
         outputLength,
         mode,
-        wordReplacements: [],         // TODO: wire to settings when UI is added
-        // context: { clipboard, windowTitle, etc. }  // TODO: Phase 2
+        wordReplacements,
+        context: Object.keys(context).length > 0 ? context : undefined,
       }
 
       const result = await runCleanupPipeline(raw, pipelineOptions)
@@ -160,7 +211,7 @@ export function useRecordingState(options: {
       setError(err.message ?? 'Processing failed')
       setState('IDLE')
     }
-  }, [state, recorder, whisper, language, cleanupEnabled, cleanupProvider, codeMode, keywordTriggersEnabled, outputLength, promptRefinementEnabled, autoCopy, snippets, injectText, onComplete])
+  }, [state, recorder, whisper, language, cleanupEnabled, cleanupProvider, codeMode, keywordTriggersEnabled, outputLength, promptRefinementEnabled, fillerWordRemoval, wordReplacements, customVocabulary, autoCopy, snippets, injectText, onComplete])
 
   const cancelRecording = useCallback(() => {
     recorder.cancelRecording()

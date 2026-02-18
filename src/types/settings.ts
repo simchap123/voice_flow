@@ -26,6 +26,13 @@ export interface AppSettings {
   keywordTriggersEnabled: boolean
   promptRefinementEnabled: boolean
 
+  // Phase 2: Context-Aware AI Enhancement
+  fillerWordRemoval: boolean
+  useClipboardContext: boolean
+  useWindowContext: boolean
+  customVocabulary: string[]
+  wordReplacements: Array<{ original: string; replacement: string; enabled: boolean }>
+
   // UI
   theme: 'dark' | 'light'
   autoCopy: boolean
@@ -60,6 +67,12 @@ export const defaultSettings: AppSettings = {
   outputLength: 'medium',
   keywordTriggersEnabled: true,
   promptRefinementEnabled: false,
+
+  fillerWordRemoval: false,
+  useClipboardContext: true,
+  useWindowContext: true,
+  customVocabulary: [],
+  wordReplacements: [],
 
   theme: 'dark',
   autoCopy: true,

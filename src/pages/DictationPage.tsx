@@ -34,6 +34,11 @@ export function DictationPage() {
     keywordTriggersEnabled: settings.keywordTriggersEnabled,
     outputLength: settings.outputLength,
     promptRefinementEnabled: settings.promptRefinementEnabled,
+    fillerWordRemoval: settings.fillerWordRemoval,
+    useClipboardContext: settings.useClipboardContext,
+    useWindowContext: settings.useWindowContext,
+    customVocabulary: settings.customVocabulary,
+    wordReplacements: settings.wordReplacements,
     onComplete: (result) => {
       addEntry({
         rawText: result.rawText,

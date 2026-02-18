@@ -218,6 +218,42 @@ export function registerIpcHandlers() {
     clipboard.writeText(text)
   })
 
+  // Read clipboard text (for context injection at recording start)
+  ipcMain.handle('clipboard:read', () => {
+    return clipboard.readText()
+  })
+
+  // Get active window info (Windows only — for context injection)
+  ipcMain.handle('window:get-active-info', async () => {
+    if (process.platform !== 'win32') return null
+    try {
+      const { execFile } = await import('node:child_process')
+      const { promisify } = await import('node:util')
+      const execFileAsync = promisify(execFile)
+      const script = `
+        Add-Type -Name User32 -Namespace Win32Api -MemberDefinition @'
+        [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")] public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int lpid);
+'@
+        $hwnd = [Win32Api.User32]::GetForegroundWindow()
+        $pid = 0
+        [Win32Api.User32]::GetWindowThreadProcessId($hwnd, [ref]$pid) | Out-Null
+        $p = Get-Process -Id $pid -ErrorAction SilentlyContinue
+        if ($p) { Write-Output "$($p.ProcessName)|$($p.MainWindowTitle)" } else { Write-Output "|" }
+      `
+      const { stdout } = await execFileAsync('powershell', [
+        '-NoProfile', '-NonInteractive', '-Command', script,
+      ], { timeout: 3000 })
+      const [processName, ...titleParts] = stdout.trim().split('|')
+      const title = titleParts.join('|')
+      console.log('[VoxGen] Active window:', processName, '|', title)
+      return { processName: processName?.trim() || '', title: title?.trim() || '' }
+    } catch (err: any) {
+      console.warn('[VoxGen] Could not get active window:', err.message)
+      return null
+    }
+  })
+
   // Overlay resize
   ipcMain.on('overlay:expand', () => {
     expandOverlay()

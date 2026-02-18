@@ -46,6 +46,10 @@ export interface ElectronAPI {
 
   // Clipboard
   copyToClipboard: (text: string) => Promise<void>
+  readClipboard: () => Promise<string>
+
+  // Active window info (Phase 2 context injection)
+  getActiveWindowInfo: () => Promise<{ processName: string; title: string } | null>
 
   // Overlay resize
   expandOverlay: () => void

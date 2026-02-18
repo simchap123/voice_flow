@@ -35,6 +35,12 @@ export interface AppSettings {
   deviceId: string
   onboardingComplete: boolean
   sessionCount: number
+  // Phase 2: Context-Aware AI Enhancement
+  fillerWordRemoval: boolean
+  useClipboardContext: boolean
+  useWindowContext: boolean
+  customVocabulary: string[]
+  wordReplacements: Array<{ original: string; replacement: string; enabled: boolean }>
 }
 
 const defaults: AppSettings = {
@@ -64,6 +70,12 @@ const defaults: AppSettings = {
   deviceId: '',
   onboardingComplete: false,
   sessionCount: 0,
+  // Phase 2: Context-Aware AI Enhancement
+  fillerWordRemoval: false,
+  useClipboardContext: true,
+  useWindowContext: true,
+  customVocabulary: [],
+  wordReplacements: [],
 }
 
 export function initStore() {
@@ -259,6 +271,11 @@ export function getAllSettings(): AppSettings {
     deviceId: store.get('deviceId', defaults.deviceId) as string,
     onboardingComplete: store.get('onboardingComplete', defaults.onboardingComplete) as boolean,
     sessionCount: store.get('sessionCount', defaults.sessionCount) as number,
+    fillerWordRemoval: store.get('fillerWordRemoval', defaults.fillerWordRemoval) as boolean,
+    useClipboardContext: store.get('useClipboardContext', defaults.useClipboardContext) as boolean,
+    useWindowContext: store.get('useWindowContext', defaults.useWindowContext) as boolean,
+    customVocabulary: store.get('customVocabulary', defaults.customVocabulary) as string[],
+    wordReplacements: store.get('wordReplacements', defaults.wordReplacements) as AppSettings['wordReplacements'],
   }
 }
 
