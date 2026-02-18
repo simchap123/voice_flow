@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import OpenAI from 'openai'
 import { validateUser } from './lib/validate-user'
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY
+const GROQ_API_KEY = process.env.GROQ_API_KEY?.trim()
 
 // Max audio size: 10MB base64 (~7.5MB decoded)
 const MAX_AUDIO_SIZE = 10 * 1024 * 1024

@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import OpenAI from 'openai'
 import { validateUser } from './lib/validate-user'
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY
+const GROQ_API_KEY = process.env.GROQ_API_KEY?.trim()
 const MODEL = 'llama-3.3-70b-versatile'
 
 // Max text input: 50KB
