@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mic, History, Settings, Zap, User, Sparkles } from 'lucide-react'
+import { History, Settings, Zap, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Separator } from '@/components/ui/separator'
 import { useSettings } from '@/hooks/useSettings'
@@ -10,10 +10,8 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: 'dictation', icon: Mic, label: 'Dictation' },
   { id: 'history', icon: History, label: 'History' },
   { id: 'snippets', icon: Zap, label: 'Snippets' },
-  { id: 'whats-new', icon: Sparkles, label: "What's New" },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -32,7 +30,11 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
       {/* Logo */}
       <div className="mb-6 flex items-center gap-2.5 px-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-blue-500">
-          <Mic className="h-4 w-4 text-white" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
         </div>
         <span className="text-base font-bold tracking-tight">VoxGen</span>
       </div>

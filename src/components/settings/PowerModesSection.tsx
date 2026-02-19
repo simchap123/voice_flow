@@ -9,20 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from '@/hooks/useToast'
 import { Plus, Pencil, Trash2, X, Check, Zap } from 'lucide-react'
 
-const STT_OPTIONS = [
-  { value: '', label: 'Use default' },
-  { value: 'openai', label: 'OpenAI Whisper' },
-  { value: 'groq', label: 'Groq Whisper' },
-  { value: 'deepgram', label: 'Deepgram' },
-] as const
-
-const CLEANUP_OPTIONS = [
-  { value: '', label: 'Use default' },
-  { value: 'openai', label: 'OpenAI GPT-4o-mini' },
-  { value: 'groq', label: 'Groq Llama' },
-  { value: 'none', label: 'None (disabled)' },
-] as const
-
 function newBlankMode(): Omit<PowerMode, 'id'> {
   return {
     name: '',
@@ -30,8 +16,6 @@ function newBlankMode(): Omit<PowerMode, 'id'> {
     appMatchers: [],
     urlMatchers: [],
     selectedPromptId: 'default',
-    sttProvider: undefined,
-    cleanupProvider: undefined,
     isEnabled: true,
   }
 }
@@ -118,33 +102,6 @@ function ModeForm({ draft, onChange, allPrompts }: ModeFormProps) {
           ))}
         </select>
       </div>
-
-      <div className="flex gap-3">
-        <div className="flex-1 space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">STT Provider override</label>
-          <select
-            value={draft.sttProvider ?? ''}
-            onChange={e => onChange({ ...draft, sttProvider: (e.target.value as PowerMode['sttProvider']) || undefined })}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-          >
-            {STT_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex-1 space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Cleanup override</label>
-          <select
-            value={draft.cleanupProvider ?? ''}
-            onChange={e => onChange({ ...draft, cleanupProvider: (e.target.value as PowerMode['cleanupProvider']) || undefined })}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-          >
-            {CLEANUP_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </div>
-      </div>
     </div>
   )
 }
@@ -184,8 +141,6 @@ export function PowerModesSection() {
       appMatchers: mode.appMatchers,
       urlMatchers: mode.urlMatchers,
       selectedPromptId: mode.selectedPromptId,
-      sttProvider: mode.sttProvider,
-      cleanupProvider: mode.cleanupProvider,
       isEnabled: mode.isEnabled,
     })
   }

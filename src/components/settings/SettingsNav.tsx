@@ -1,16 +1,14 @@
-import { Settings2, Key, User, Info, Sparkles, MessageSquare, Zap } from 'lucide-react'
+import { Mic, Cpu, MessageSquare, Zap, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
-export type SettingsSection = 'general' | 'providers' | 'enhancement' | 'prompts' | 'power-modes' | 'account' | 'about'
+export type SettingsSection = 'recording' | 'ai-processing' | 'prompts' | 'power-modes' | 'account'
 
-const sections: { id: SettingsSection; icon: typeof Settings2; label: string }[] = [
-  { id: 'general', icon: Settings2, label: 'General' },
-  { id: 'providers', icon: Key, label: 'Providers' },
-  { id: 'enhancement', icon: Sparkles, label: 'Enhancement' },
+const sections: { id: SettingsSection; icon: typeof Mic; label: string }[] = [
+  { id: 'recording', icon: Mic, label: 'Recording' },
+  { id: 'ai-processing', icon: Cpu, label: 'AI Processing' },
   { id: 'prompts', icon: MessageSquare, label: 'Prompts' },
   { id: 'power-modes', icon: Zap, label: 'Power Modes' },
   { id: 'account', icon: User, label: 'Account' },
-  { id: 'about', icon: Info, label: 'About' },
 ]
 
 interface SettingsNavProps {

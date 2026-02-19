@@ -7,12 +7,12 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
-    version: '2.9.1',
-    date: '2026-02-18',
+    version: '2.10.0',
+    date: '2026-02-19',
     highlights: [
-      'New color theme — softer indigo-blue replacing the vibrant purple for a more professional look',
-      'What\'s New page added to website at voxgenflow.vercel.app/whats-new.html',
-      'Visual polish across app and website',
+      'Streamlined navigation — sidebar now shows only History, Snippets, and Settings for faster access',
+      'Simplified Settings — reorganized from 7 tabs to 5 focused sections (Recording, AI Processing, Prompts, Power Modes, Account)',
+      'Power Modes simplified — now focused on prompt switching per app/context (removed provider overrides for easier setup)',
     ],
   },
   {

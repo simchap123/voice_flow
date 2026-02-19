@@ -1,26 +1,22 @@
 import { useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { SettingsNav, type SettingsSection } from '@/components/settings/SettingsNav'
-import { GeneralSection } from '@/components/settings/GeneralSection'
-import { ProvidersSection } from '@/components/settings/ProvidersSection'
-import { EnhancementSection } from '@/components/settings/EnhancementSection'
+import { RecordingSection } from '@/components/settings/RecordingSection'
+import { AIProcessingSection } from '@/components/settings/AIProcessingSection'
 import { PromptsSection } from '@/components/settings/PromptsSection'
 import { PowerModesSection } from '@/components/settings/PowerModesSection'
 import { AccountSection } from '@/components/settings/AccountSection'
-import { AboutSection } from '@/components/settings/AboutSection'
 
 export function SettingsPage() {
-  const [activeSection, setActiveSection] = useState<SettingsSection>('general')
+  const [activeSection, setActiveSection] = useState<SettingsSection>('recording')
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'general': return <GeneralSection />
-      case 'providers': return <ProvidersSection />
-      case 'enhancement': return <EnhancementSection />
+      case 'recording': return <RecordingSection />
+      case 'ai-processing': return <AIProcessingSection />
       case 'prompts': return <PromptsSection />
       case 'power-modes': return <PowerModesSection />
       case 'account': return <AccountSection />
-      case 'about': return <AboutSection />
     }
   }
 
