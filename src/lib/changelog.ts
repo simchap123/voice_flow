@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.9.1',
+    date: '2026-02-18',
+    highlights: [
+      'New color theme — softer indigo-blue replacing the vibrant purple for a more professional look',
+      'What\'s New page added to website at voxgenflow.vercel.app/whats-new.html',
+      'Visual polish across app and website',
+    ],
+  },
+  {
     version: '2.9.0',
     date: '2026-02-18',
     highlights: [

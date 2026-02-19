@@ -20,16 +20,14 @@ export const CLEANUP_SYSTEM_TEMPLATE = `You are a transcription cleaner. Your ou
  * Default cleanup instructions — inserted into %CUSTOM_INSTRUCTIONS% when
  * the user hasn't selected a custom prompt.
  */
-export const DEFAULT_CLEANUP_INSTRUCTIONS = `- Clean up the transcript for clarity and natural flow while preserving meaning and original tone.
-- Use informal, plain language unless the transcript clearly uses a professional tone — match it.
-- Fix grammar, remove filler words and stutters, collapse repetitions, keep names and numbers.
-- Handle self-corrections: When the speaker corrects themselves ("scratch that", "actually", "I mean", "wait no"), remove the incorrect part and keep only the correction.
-- Extract final decisions: When the speaker deliberates aloud and reaches a conclusion, output ONLY the final decision — strip the thinking/deliberation entirely. Example: "Maybe 3pm... actually no, let's do 4pm" → "Let's do 4pm."
-- Respect formatting commands: "new line" → line break, "new paragraph" → paragraph break.
-- Smart formatting: numbers as numerals ("five" → "5", "twenty dollars" → "$20"), common abbreviations ("vs" → "vs.", "etc" → "etc.").
-- Organize into short paragraphs of 2-4 sentences for readability.
-- Do not add information not present in the transcript.
-- Output ONLY the cleaned text.`
+export const DEFAULT_CLEANUP_INSTRUCTIONS = `- Remove filler words.
+- Fix grammar and punctuation.
+- Preserve the speaker's original meaning exactly.
+- Do not add, change, or rephrase content.
+- Do not add formatting, headings, or bullet points unless the speaker clearly intended them.
+- Keep the same tone and register.
+- If the text is already clean, return it unchanged.
+- Return only the cleaned text.`
 
 /**
  * Chat-style cleanup — casual, concise.

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What's New - VoxGen</title>
+  <meta name="description" content="VoxGen release notes and recent updates. See what's new in the latest version." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #06080f;
+      --bg-card: #0c1020;
+      --bg-card-hover: #111630;
+      --text: #e8eaf0;
+      --text-muted: #7a7f96;
+      --primary: #7c8ef7;
+      --primary-light: #9fabfa;
+      --primary-glow: rgba(124, 142, 247, 0.3);
+      --accent: #3b82f6;
+      --border: rgba(255,255,255,0.06);
+      --radius: 16px;
+      --green: #22c55e;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-glow::before {
+      content: '';
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(30px); }
+    }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 100px 0; }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(6, 8, 15, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-links { display: flex; align-items: center; gap: 32px; flex-shrink: 0; }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Header */
+    .header {
+      padding-top: 140px;
+      padding-bottom: 60px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .header p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Changelog */
+    .changelog {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      padding-bottom: 80px;
+    }
+    .changelog-entry {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.3s ease;
+    }
+    .changelog-entry:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(124, 142, 247, 0.15);
+    }
+    .changelog-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .changelog-version {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .changelog-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      background: rgba(124, 142, 247, 0.12);
+      border: 1px solid rgba(124, 142, 247, 0.2);
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary-light);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .changelog-date {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+    .changelog-highlights {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .changelog-highlights li {
+      font-size: 15px;
+      color: var(--text-muted);
+      padding-left: 24px;
+      position: relative;
+      line-height: 1.6;
+    }
+    .changelog-highlights li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    /* Footer */
+    footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .header { padding-top: 120px; }
+      .changelog-entry { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+      </div>
+      VoxGen
+    </a>
+    <div class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="walkthrough.html">How It Works</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="whats-new.html">What's New</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Header -->
+<section class="header">
+  <div class="container">
+    <h1>What's New</h1>
+    <p>Release notes and recent updates to VoxGen</p>
+  </div>
+</section>
+
+<!-- Changelog -->
+<section class="changelog-section">
+  <div class="container">
+    <div class="changelog">
+
+      <!-- v2.9.1 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.9.1</span>
+          <span class="changelog-badge">Latest</span>
+          <span class="changelog-date">Feb 18, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>New color theme — softer indigo-blue replacing the vibrant purple for a more professional look</li>
+          <li>What's New page added to website at voxgenflow.vercel.app/whats-new.html</li>
+          <li>Visual polish across app and website</li>
+        </ul>
+      </div>
+
+      <!-- v2.9.0 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.9.0</span>
+          <span class="changelog-date">Feb 18, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Power Modes — auto-detect the active app and apply a custom prompt, STT provider, and cleanup per context (Settings → Power Modes)</li>
+          <li>Overlay prompt picker — click the emoji icon in the overlay to switch prompts without opening the main window</li>
+          <li>Overlay moved to the top of the screen, out of the way</li>
+          <li>Processing indicator simplified to a single spinner — no more three-step labels</li>
+          <li>Smarter Default Cleanup — when you deliberate and reach a final answer, only the decision is kept</li>
+        </ul>
+      </div>
+
+      <!-- v2.1.5 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.1.5</span>
+          <span class="changelog-date">Feb 18, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Fixed checkout — purchases now work correctly on the website</li>
+          <li>"Manage Subscription" button only shows for paid subscription plans (not Trial or Lifetime)</li>
+          <li>Fixed Stripe Customer Portal for subscription management and cancellation</li>
+        </ul>
+      </div>
+
+      <!-- v2.1.4 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.1.4</span>
+          <span class="changelog-date">Feb 18, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Trial urgency warnings — toast notifications at 7, 3, and 1 days left</li>
+          <li>"Manage Subscription" button for paid users — opens Stripe Customer Portal to cancel or update billing</li>
+          <li>Better trial-expired overlay — actionable buttons to add your own API key or upgrade</li>
+          <li>Email reminder banner for users who haven't entered their email yet</li>
+          <li>Fixed auto-update (was pointing to wrong GitHub repo)</li>
+        </ul>
+      </div>
+
+      <!-- v2.1.3 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.1.3</span>
+          <span class="changelog-date">Feb 17, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Rebranded VoiceFlow → VoxGen across the entire app</li>
+          <li>Fixed license flow — download no longer requires email gate</li>
+          <li>Updated all URLs, titles, and references to VoxGen</li>
+        </ul>
+      </div>
+
+      <!-- v2.1.2 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.1.2</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Reverted to the original v1.0 cleanup prompt — simple, proven, and effective</li>
+          <li>Temperature back to 0.3 (was over-tuned at 0.1)</li>
+          <li>Usage stats banner in Account tab (words dictated, minutes recorded)</li>
+        </ul>
+      </div>
+
+      <!-- v2.1.1 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.1.1</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Cleanup no longer removes "OK", "okay", "like", "you know" — only true filler sounds (um, uh, er, ah, hmm)</li>
+          <li>Incomplete thoughts and trail-offs are preserved as spoken</li>
+          <li>Self-corrections only resolved when you explicitly correct yourself ("no", "wait", "never mind")</li>
+        </ul>
+      </div>
+
+      <!-- v2.1.0 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.1.0</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Keyword triggers now work — say "write me an email about..." during dictation to generate content</li>
+          <li>Output length (Concise/Medium/Detailed) now controls generated content length</li>
+          <li>Prompt refinement cleans up spoken instructions before generation</li>
+          <li>Smart preamble handling — "OK perfect write me an email about..." is detected correctly</li>
+          <li>Updates auto-install silently when you're not recording</li>
+        </ul>
+      </div>
+
+      <!-- v2.0.9 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.0.9</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Balanced cleanup prompt: keeps your exact words while resolving self-corrections ("meet at 9, no 4" → "meet at 4")</li>
+          <li>Words like "please", "just", "really" are no longer stripped</li>
+          <li>Added What's New page</li>
+        </ul>
+      </div>
+
+      <!-- v2.0.8 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.0.8</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Stricter verbatim dictation — cleanup no longer rephrases your words</li>
+          <li>Temperature lowered to 0.1 for more literal transcription</li>
+        </ul>
+      </div>
+
+      <!-- v2.0.7 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.0.7</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Silent one-click updates — no more installer wizard</li>
+          <li>Signed-in email shown in sidebar</li>
+          <li>Auto-detect updates in About section</li>
+        </ul>
+      </div>
+
+      <!-- v2.0.6 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.0.6</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Fixed snippets not syncing to overlay window</li>
+          <li>Removed overly broad keyword trigger that intercepted normal dictation</li>
+        </ul>
+      </div>
+
+      <!-- v2.0.5 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.0.5</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Added microphone selector in Settings</li>
+        </ul>
+      </div>
+
+      <!-- v2.0.4 -->
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.0.4</span>
+          <span class="changelog-date">Feb 12, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Fixed free trial managed mode (stale closure bug)</li>
+          <li>Added first-run onboarding experience</li>
+          <li>Overlay follows mouse across monitors</li>
+          <li>Overlay stays on top of all windows</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>&copy; 2026 VoxGen. Built with Electron, React, and Whisper AI.</p>
+  </div>
+</footer>
+
+</body>
+</html>
