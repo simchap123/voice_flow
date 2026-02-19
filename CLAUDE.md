@@ -87,13 +87,41 @@ APP_URL
 - File naming: kebab-case for files, PascalCase for components
 - Provider pattern: Interface → Implementation → Factory (for STT and Cleanup)
 
+### Release Process (CRITICAL)
+**ALWAYS update BOTH when releasing a new version:**
+1. **package.json** — Bump version number
+2. **src/lib/changelog.ts** — Add new entry at the top with version, date, and highlights
+3. **website/whats-new.html** — Add new changelog entry, move "Latest" badge to new version
+
+**NEVER commit a version bump without updating the changelog!** These files must stay in sync.
+
+**Full release workflow:**
+```bash
+# 1. Update version in package.json (e.g., 2.9.0 → 2.9.1)
+# 2. Add changelog entry to src/lib/changelog.ts
+# 3. Add changelog entry to website/whats-new.html
+# 4. Build and package
+npm run build
+npx electron-builder --win --config.win.signAndEditExecutable=false
+# 5. Commit, tag, and push
+git add -A
+git commit -m "v2.9.1: [summary]"
+git tag v2.9.1
+git push origin master --tags
+# 6. Create GitHub release with installer
+gh release create v2.9.1 --title "v2.9.1 - [Title]" --notes "[Release notes]" \
+  release/VoxGen-Setup-2.9.1.exe \
+  release/VoxGen-Setup-2.9.1.exe.blockmap \
+  release/latest.yml
+```
+
 ### Dependencies (important)
 - `@nut-tree-fork/nut-js` (NOT the original nut-tree/nut-js — removed from npm)
 - `electron-store` v8 (ESM-only)
 - `openai` v4 (used for both OpenAI and Groq — Groq is OpenAI-compatible)
 - `uiohook-napi` for global keyboard hooks
 
-## Current Version: v2.1.2
+## Current Version: v2.9.1
 
 ### Recent Session (Feb 2026) — What Was Done
 
