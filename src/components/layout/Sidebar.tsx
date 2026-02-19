@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { History, Settings, Zap, User } from 'lucide-react'
+import { History, Settings, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Separator } from '@/components/ui/separator'
 import { useSettings } from '@/hooks/useSettings'
@@ -11,7 +11,6 @@ interface SidebarProps {
 
 const navItems = [
   { id: 'history', icon: History, label: 'History' },
-  { id: 'snippets', icon: Zap, label: 'Snippets' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ]
 

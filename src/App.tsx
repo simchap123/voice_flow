@@ -4,7 +4,6 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { OverlayShell } from '@/components/layout/OverlayShell'
 import { HistoryPage } from '@/pages/HistoryPage'
 import { SettingsPage } from '@/pages/SettingsPage'
-import { SnippetsPage } from '@/pages/SnippetsPage'
 import { SettingsContext, useSettingsProvider, useSettings } from '@/hooks/useSettings'
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from '@/components/ui/toast'
 import { useToastProvider, toast } from '@/hooks/useToast'
@@ -49,7 +48,6 @@ function MainApp() {
     switch (currentPage) {
       case 'history': return <HistoryPage />
       case 'settings': return <SettingsPage />
-      case 'snippets': return <SnippetsPage />
       default: return <HistoryPage />
     }
   }
