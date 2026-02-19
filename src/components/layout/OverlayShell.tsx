@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Mic, Loader2, X, Lock, Square, Settings } from 'lucide-react'
+import { Mic, Loader2, X, Lock, Square } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
@@ -291,12 +291,12 @@ export function OverlayShell() {
     )
   }
 
-  // --- IDLE STATE: minimal pill at bottom + prompt picker expands upward ---
+  // --- IDLE STATE: tiny waveform bars — no hover expansion ---
   return (
-    <div ref={promptPickerRef} className="group flex h-full w-full items-end justify-center">
-      {/* Prompt picker — expands upward above the toolbar */}
+    <div ref={promptPickerRef} className="flex h-full w-full items-end justify-center pb-2">
+      {/* Prompt picker — expands upward, only on explicit click */}
       {showPromptPicker && (
-        <div className="absolute bottom-14 left-0 right-0 flex flex-col gap-1 px-2 pb-1">
+        <div className="absolute bottom-9 left-0 right-0 flex flex-col gap-1 px-2 pb-1">
           {allPrompts.map(prompt => {
             const isActive = prompt.id === settings.activePromptId
             return (
@@ -318,54 +318,21 @@ export function OverlayShell() {
         </div>
       )}
 
-      {/* Idle toolbar pill — always at the bottom */}
-      <div className="w-full flex items-center justify-center" style={{ height: 56 }}>
-        {/* Minimized dot — visible when NOT hovering and picker closed */}
-        {!showPromptPicker && (
-          <div className="flex items-center justify-center transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-90 absolute inset-x-0 bottom-0 h-14">
-            <div className="h-1.5 w-10 rounded-full bg-white/15" />
-          </div>
-        )}
-
-        {/* Expanded pill — visible on hover or when picker is open */}
-        <div className={`flex h-10 items-center gap-2 rounded-full bg-black/95 border border-white/[0.08] shadow-2xl shadow-black/50 px-3.5 backdrop-blur-xl transition-all duration-300 ease-out ${
-          showPromptPicker ? 'opacity-100 scale-100' : 'opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100'
-        }`}>
-          {/* Prompt selector button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              showPromptPicker ? closePicker() : openPicker()
-            }}
-            className={`flex items-center gap-1.5 rounded-full px-2 py-1 transition-colors ${
-              showPromptPicker ? 'bg-purple-600/20 text-purple-300' : 'hover:bg-white/[0.08] text-white/50'
-            }`}
-            title={`Active prompt: ${activePrompt?.title ?? 'Default'}`}
-          >
-            <span className="text-sm leading-none">{activePrompt?.icon ?? '✨'}</span>
-          </button>
-
-          <Mic className="h-3.5 w-3.5 text-white/50 shrink-0" />
-          <span className="text-[11px] text-white/40 whitespace-nowrap">
-            Hold <kbd className="mx-0.5 rounded bg-white/[0.08] px-1 py-px text-[9px] font-medium text-white/60">{holdHotkeyLabel}</kbd>
-          </span>
-          <div className="w-px h-3.5 bg-white/[0.06]" />
-          <button
-            onClick={() => window.electronAPI?.showMainWindow()}
-            className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/[0.08] transition-colors"
-            title="Open VoxGen"
-          >
-            <Settings className="h-3 w-3 text-white/30" />
-          </button>
-          <button
-            onClick={() => window.electronAPI?.hideOverlay()}
-            className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/[0.08] transition-colors"
-            title="Hide overlay"
-          >
-            <X className="h-3 w-3 text-white/30" />
-          </button>
-        </div>
-      </div>
+      {/* Waveform indicator — tiny, static, click to open prompt picker */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          showPromptPicker ? closePicker() : openPicker()
+        }}
+        className="flex items-end gap-[3px] h-7 px-3 opacity-20 hover:opacity-50 transition-opacity"
+        title={`VoxGen — ${activePrompt?.title ?? 'Default'} (click to switch prompt)`}
+      >
+        <div className="w-[3px] rounded-full bg-white" style={{ height: '8px' }} />
+        <div className="w-[3px] rounded-full bg-white" style={{ height: '13px' }} />
+        <div className="w-[3px] rounded-full bg-white" style={{ height: '5px' }} />
+        <div className="w-[3px] rounded-full bg-white" style={{ height: '10px' }} />
+        <div className="w-[3px] rounded-full bg-white" style={{ height: '7px' }} />
+      </button>
     </div>
   )
 }
