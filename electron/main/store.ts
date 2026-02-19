@@ -11,8 +11,9 @@ export type LicenseStatus = 'none' | 'active' | 'expired' | 'invalid'
 export interface AppSettings {
   holdHotkey: string
   toggleHotkey: string
+  toggleTriggerMethod: 'single' | 'double-tap'
   promptHotkey: string
-  doubleTapHotkey: string
+  promptTriggerMethod: 'single' | 'double-tap'
   language: string
   theme: 'dark' | 'light'
   autoCopy: boolean
@@ -50,8 +51,9 @@ export interface AppSettings {
 const defaults: AppSettings = {
   holdHotkey: 'Alt',
   toggleHotkey: '',
+  toggleTriggerMethod: 'single',
   promptHotkey: '',
-  doubleTapHotkey: '',
+  promptTriggerMethod: 'single',
   language: 'en',
   theme: 'dark',
   autoCopy: true,
@@ -255,8 +257,9 @@ export function getAllSettings(): AppSettings {
   return {
     holdHotkey: store.get('holdHotkey', defaults.holdHotkey) as string,
     toggleHotkey: store.get('toggleHotkey', defaults.toggleHotkey) as string,
+    toggleTriggerMethod: store.get('toggleTriggerMethod', defaults.toggleTriggerMethod) as AppSettings['toggleTriggerMethod'],
     promptHotkey: store.get('promptHotkey', defaults.promptHotkey) as string,
-    doubleTapHotkey: store.get('doubleTapHotkey', defaults.doubleTapHotkey) as string,
+    promptTriggerMethod: store.get('promptTriggerMethod', defaults.promptTriggerMethod) as AppSettings['promptTriggerMethod'],
     language: store.get('language', defaults.language) as string,
     theme: store.get('theme', defaults.theme) as 'dark' | 'light',
     autoCopy: store.get('autoCopy', defaults.autoCopy) as boolean,

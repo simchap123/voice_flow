@@ -7,8 +7,9 @@ export interface AppSettings {
   // Recording
   holdHotkey: string
   toggleHotkey: string
+  toggleTriggerMethod: 'single' | 'double-tap'
   promptHotkey: string
-  doubleTapHotkey: string
+  promptTriggerMethod: 'single' | 'double-tap'
   language: string
   audioInputDeviceId: string
 
@@ -56,9 +57,10 @@ export interface AppSettings {
 
 export const defaultSettings: AppSettings = {
   holdHotkey: 'Alt',
-  toggleHotkey: '',
-  promptHotkey: '',
-  doubleTapHotkey: '',
+  toggleHotkey: 'Alt+Left',
+  toggleTriggerMethod: 'single',
+  promptHotkey: 'Control+Shift+Tab',
+  promptTriggerMethod: 'single',
   language: 'en',
   audioInputDeviceId: 'default',
 

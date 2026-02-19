@@ -131,7 +131,7 @@ export function registerIpcHandlers() {
     setSetting(key as any, value)
     // Always broadcast so overlay/main stay in sync
     broadcastSettingChanged(key, value)
-    if (key === 'holdHotkey' || key === 'toggleHotkey' || key === 'promptHotkey' || key === 'doubleTapHotkey') {
+    if (key === 'holdHotkey' || key === 'toggleHotkey' || key === 'promptHotkey' || key === 'toggleTriggerMethod' || key === 'promptTriggerMethod') {
       return reregisterHotkeys()
     }
     return { success: true }

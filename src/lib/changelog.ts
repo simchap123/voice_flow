@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.11.0',
+    date: '2026-02-19',
+    highlights: [
+      'Recording modes redesigned — Hold, Toggle, and AI Prompt each in their own visual card with dedicated settings',
+      'Double-tap trigger — Toggle and AI Prompt modes can now be set to single-press or double-tap activation',
+      'Color refresh — new steel-blue accent throughout the app',
+      'Text Snippets moved into AI Processing settings for better discoverability',
+    ],
+  },
+  {
     version: '2.10.0',
     date: '2026-02-19',
     highlights: [

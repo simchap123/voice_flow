@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useSettings } from '@/hooks/useSettings'
+import { useSnippets } from '@/hooks/useSnippets'
 import { ProviderApiKeyInput } from '@/components/settings/ProviderApiKeyInput'
 import { LocalModelManager } from '@/components/settings/LocalModelManager'
+import { SnippetEditor } from '@/components/snippets/SnippetEditor'
+import { SnippetsList } from '@/components/snippets/SnippetsList'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
@@ -31,6 +34,7 @@ const CLEANUP_PROVIDERS: { value: CleanupProviderType; label: string; descriptio
 
 export function AIProcessingSection() {
   const { settings, updateSetting, saveApiKey, isManagedMode } = useSettings()
+  const { snippets, addSnippet, deleteSnippet } = useSnippets()
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false)
   const [hasGroqKey, setHasGroqKey] = useState(false)
 
@@ -503,6 +507,22 @@ export function AIProcessingSection() {
           ) : (
             <p className="text-xs text-muted-foreground/60 italic">No replacements added yet</p>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Card 6: Text Snippets */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base">Text Snippets</CardTitle>
+          <CardDescription>
+            Create trigger words that expand to full text during dictation ({snippets.length} snippets)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <SnippetEditor onAdd={addSnippet} />
+          <div className="max-h-[400px]">
+            <SnippetsList snippets={snippets} onDelete={deleteSnippet} />
+          </div>
         </CardContent>
       </Card>
     </div>

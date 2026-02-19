@@ -228,7 +228,8 @@ function registerToggleModifier(hotkey: string): { success: boolean; error?: str
 }
 
 // Register double-tap modifier key (double-press to toggle recording on/off)
-function registerDoubleTapModifier(hotkey: string): { success: boolean; error?: string } {
+// `mode` controls which recording mode is triggered on double-tap
+function registerDoubleTapModifier(hotkey: string, mode: 'toggle' | 'prompt' = 'toggle'): { success: boolean; error?: string } {
   const keycodes = MODIFIER_KEYCODES[hotkey]
   if (!keycodes) {
     return { success: false, error: `Unknown modifier: "${hotkey}"` }
@@ -258,10 +259,10 @@ function registerDoubleTapModifier(hotkey: string): { success: boolean; error?: 
         // Double-tap detected — toggle recording
         doubleTapLastKeyupTime = 0 // Reset to avoid triple-tap re-trigger
         if (!isRecording && !isProcessing) {
-          handleHotkeyAction('toggle', 'start')
+          handleHotkeyAction(mode, 'start')
           if (hotkey === 'Alt') suppressAltMenu()
         } else if (isRecording) {
-          handleHotkeyAction('toggle', 'stop')
+          handleHotkeyAction(mode, 'stop')
         }
       } else {
         doubleTapLastKeyupTime = now
@@ -299,10 +300,11 @@ export function registerHotkeys(): { success: boolean; error?: string } {
   const store = getStore()
   const holdHotkey = store?.get('holdHotkey', 'Alt') as string ?? 'Alt'
   const toggleHotkey = store?.get('toggleHotkey', '') as string ?? ''
+  const toggleTriggerMethod = store?.get('toggleTriggerMethod', 'single') as string ?? 'single'
   const promptHotkey = store?.get('promptHotkey', '') as string ?? ''
-  const doubleTapHotkey = store?.get('doubleTapHotkey', '') as string ?? ''
+  const promptTriggerMethod = store?.get('promptTriggerMethod', 'single') as string ?? 'single'
 
-  if (!holdHotkey && !toggleHotkey && !doubleTapHotkey) {
+  if (!holdHotkey && !toggleHotkey && !promptHotkey) {
     return { success: false, error: 'No hotkeys configured.' }
   }
 
@@ -340,9 +342,16 @@ export function registerHotkeys(): { success: boolean; error?: string } {
     }
   }
 
-  // Register toggle hotkey
+  // Register toggle hotkey (supports single-press or double-tap trigger)
   if (toggleHotkey) {
-    if (isStandaloneModifier(toggleHotkey)) {
+    if (toggleTriggerMethod === 'double-tap' && isStandaloneModifier(toggleHotkey)) {
+      // Double-tap mode: register as double-tap modifier
+      const result = registerDoubleTapModifier(toggleHotkey, 'toggle') as any
+      if (!result.success) return result
+      keydownHandlers.push(result.keydownHandler)
+      keyupHandlers.push(result.keyupHandler)
+    } else if (isStandaloneModifier(toggleHotkey)) {
+      // Single-press modifier
       const result = registerToggleModifier(toggleHotkey) as any
       if (!result.success) return result
       keydownHandlers.push(result.keydownHandler)
@@ -367,34 +376,31 @@ export function registerHotkeys(): { success: boolean; error?: string } {
     }
   }
 
-  // Register prompt hotkey (toggle behavior: press to start, press to stop — uses 'prompt' mode)
+  // Register prompt hotkey (supports single-press or double-tap trigger)
   if (promptHotkey) {
-    try {
-      const registered = globalShortcut.register(promptHotkey, () => {
-        console.log(`[VoxGen] Prompt hotkey pressed: isRecording=${isRecording}, isProcessing=${isProcessing}, recordingMode=${recordingMode}`)
-        if (!isRecording && !isProcessing) {
-          handleHotkeyAction('prompt', 'start')
-        } else if (isRecording && recordingMode === 'prompt') {
-          handleHotkeyAction('prompt', 'stop')
-        }
-      })
-      if (!registered) {
-        console.warn(`[VoxGen] Prompt hotkey "${promptHotkey}" already in use`)
-      }
-    } catch (err: any) {
-      console.warn(`[VoxGen] Failed to register prompt hotkey "${promptHotkey}": ${err.message}`)
-    }
-  }
-
-  // Register double-tap hotkey (modifier-only: double-press to toggle recording)
-  if (doubleTapHotkey) {
-    if (isStandaloneModifier(doubleTapHotkey)) {
-      const result = registerDoubleTapModifier(doubleTapHotkey) as any
+    if (promptTriggerMethod === 'double-tap' && isStandaloneModifier(promptHotkey)) {
+      // Double-tap mode: register as double-tap modifier for prompt mode
+      const result = registerDoubleTapModifier(promptHotkey, 'prompt') as any
       if (!result.success) return result
       keydownHandlers.push(result.keydownHandler)
       keyupHandlers.push(result.keyupHandler)
     } else {
-      console.warn(`[VoxGen] Double-tap hotkey "${doubleTapHotkey}" is not a modifier key, ignoring`)
+      // Single-press: use globalShortcut (works for both modifiers and combos)
+      try {
+        const registered = globalShortcut.register(promptHotkey, () => {
+          console.log(`[VoxGen] Prompt hotkey pressed: isRecording=${isRecording}, isProcessing=${isProcessing}, recordingMode=${recordingMode}`)
+          if (!isRecording && !isProcessing) {
+            handleHotkeyAction('prompt', 'start')
+          } else if (isRecording && recordingMode === 'prompt') {
+            handleHotkeyAction('prompt', 'stop')
+          }
+        })
+        if (!registered) {
+          console.warn(`[VoxGen] Prompt hotkey "${promptHotkey}" already in use`)
+        }
+      } catch (err: any) {
+        console.warn(`[VoxGen] Failed to register prompt hotkey "${promptHotkey}": ${err.message}`)
+      }
     }
   }
 
@@ -437,9 +443,8 @@ export function registerHotkeys(): { success: boolean; error?: string } {
 
   const parts: string[] = []
   if (holdHotkey) parts.push(`hold: ${holdHotkey}`)
-  if (toggleHotkey) parts.push(`toggle: ${toggleHotkey}`)
-  if (promptHotkey) parts.push(`prompt: ${promptHotkey}`)
-  if (doubleTapHotkey) parts.push(`double-tap: ${doubleTapHotkey}`)
+  if (toggleHotkey) parts.push(`toggle: ${toggleHotkey} (${toggleTriggerMethod})`)
+  if (promptHotkey) parts.push(`prompt: ${promptHotkey} (${promptTriggerMethod})`)
   console.log(`[VoxGen] Hotkeys registered: ${parts.join(', ')}`)
   return { success: true }
 }
