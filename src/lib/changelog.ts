@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.12.1',
+    date: '2026-02-19',
+    highlights: [
+      'Faster dictation cleanup — regular dictation uses the simple v1 prompt with no context overhead',
+      'AI Prompt mode keeps full features — clipboard context, window detection, custom vocabulary',
+    ],
+  },
+  {
     version: '2.12.0',
     date: '2026-02-19',
     highlights: [

@@ -133,19 +133,32 @@ export async function runCleanupPipeline(
   const provider = getCleanupProvider(cleanupProvider)
 
   if (mode === 'prompt' && text.trim()) {
-    // AI Prompt hotkey mode — always generate content
+    // AI Prompt hotkey mode — always generate content, with full context
     stages.push('ai-generate')
 
+    // Build context prefix for AI generation (clipboard, window, vocabulary)
+    let contextPrefix = ''
+    if (context?.clipboard?.trim()) {
+      contextPrefix += `[Clipboard context: ${context.clipboard.trim().slice(0, 300)}]\n`
+    }
+    if (context?.windowProcess || context?.windowTitle) {
+      const app = [context.windowProcess, context.windowTitle].filter(Boolean).join(' — ')
+      contextPrefix += `[Active app: ${app}]\n`
+    }
+    if (context?.customVocabulary && context.customVocabulary.length > 0) {
+      contextPrefix += `[Known terms: ${context.customVocabulary.join(', ')}]\n`
+    }
+
     if (codeMode) {
-      let instructions = text
+      let instructions = contextPrefix ? contextPrefix + '\n' + text : text
       if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
       text = await provider.generateWithTemplate('code', instructions, outputLength)
     } else if (trigger.detected && trigger.triggerType) {
-      let instructions = trigger.contentAfterTrigger
+      let instructions = contextPrefix ? contextPrefix + '\n' + trigger.contentAfterTrigger : trigger.contentAfterTrigger
       if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
       text = await provider.generateWithTemplate(trigger.triggerType, instructions, outputLength)
     } else {
-      let instructions = text
+      let instructions = contextPrefix ? contextPrefix + '\n' + text : text
       if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
       text = await provider.generateWithTemplate('general', instructions, outputLength)
     }
@@ -156,21 +169,9 @@ export async function runCleanupPipeline(
     if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
     text = await provider.generateWithTemplate(trigger.triggerType, instructions, outputLength)
   } else if (cleanupEnabled && cleanupProvider !== 'none' && text.trim()) {
-    // Normal dictation cleanup with enhanced system prompt
+    // Normal dictation cleanup — simple v1 prompt, no context injection, fast
     stages.push('ai-cleanup')
-
-    const instructions = customPromptInstructions || DEFAULT_CLEANUP_INSTRUCTIONS
-
-    if (useSystemInstructions && provider.cleanupWithPrompt) {
-      // Use enhanced "don't answer, just clean" system prompt with context
-      const systemPrompt = buildCleanupPrompt(instructions)
-      const userMessage = buildUserMessage(text, context)
-      text = await provider.cleanupWithPrompt(systemPrompt, userMessage)
-      stages.push('enhanced-prompt')
-    } else {
-      // Fallback for providers without custom prompt support (e.g. managed)
-      text = await provider.cleanup(text)
-    }
+    text = await provider.cleanup(text)
   }
 
   // ── Stage 7: Output filter (always on) ──
