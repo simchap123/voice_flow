@@ -291,14 +291,38 @@ export function OverlayShell() {
     )
   }
 
-  // --- IDLE STATE: minimal pill at top + prompt picker expands downward ---
+  // --- IDLE STATE: minimal pill at bottom + prompt picker expands upward ---
   return (
-    <div ref={promptPickerRef} className="group flex h-full w-full flex-col items-center justify-start">
-      {/* Idle toolbar pill — always at the top */}
+    <div ref={promptPickerRef} className="group flex h-full w-full items-end justify-center">
+      {/* Prompt picker — expands upward above the toolbar */}
+      {showPromptPicker && (
+        <div className="absolute bottom-14 left-0 right-0 flex flex-col gap-1 px-2 pb-1">
+          {allPrompts.map(prompt => {
+            const isActive = prompt.id === settings.activePromptId
+            return (
+              <button
+                key={prompt.id}
+                onClick={() => selectPrompt(prompt.id)}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors ${
+                  isActive
+                    ? 'bg-purple-600/30 border border-purple-500/40 text-white'
+                    : 'bg-black/80 border border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white'
+                }`}
+              >
+                <span className="text-sm">{prompt.icon}</span>
+                <span className="text-[11px] font-medium truncate">{prompt.title}</span>
+                {isActive && <span className="ml-auto text-[9px] text-purple-400 shrink-0">active</span>}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Idle toolbar pill — always at the bottom */}
       <div className="w-full flex items-center justify-center" style={{ height: 56 }}>
         {/* Minimized dot — visible when NOT hovering and picker closed */}
         {!showPromptPicker && (
-          <div className="flex items-center justify-center transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-90 absolute inset-x-0 top-0 h-14">
+          <div className="flex items-center justify-center transition-all duration-300 ease-out group-hover:opacity-0 group-hover:scale-90 absolute inset-x-0 bottom-0 h-14">
             <div className="h-1.5 w-10 rounded-full bg-white/15" />
           </div>
         )}
@@ -342,30 +366,6 @@ export function OverlayShell() {
           </button>
         </div>
       </div>
-
-      {/* Prompt picker — expands downward below the toolbar */}
-      {showPromptPicker && (
-        <div className="w-full flex flex-col gap-1 px-2 pb-2">
-          {allPrompts.map(prompt => {
-            const isActive = prompt.id === settings.activePromptId
-            return (
-              <button
-                key={prompt.id}
-                onClick={() => selectPrompt(prompt.id)}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors ${
-                  isActive
-                    ? 'bg-purple-600/30 border border-purple-500/40 text-white'
-                    : 'bg-black/80 border border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white'
-                }`}
-              >
-                <span className="text-sm">{prompt.icon}</span>
-                <span className="text-[11px] font-medium truncate">{prompt.title}</span>
-                {isActive && <span className="ml-auto text-[9px] text-purple-400 shrink-0">active</span>}
-              </button>
-            )
-          })}
-        </div>
-      )}
     </div>
   )
 }
