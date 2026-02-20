@@ -18,10 +18,12 @@
       --fg-muted: hsl(220, 10%, 46%);
       --primary: hsl(152, 32%, 42%);
       --primary-fg: hsl(40, 33%, 96%);
+      --primary-dark: hsl(152, 32%, 28%);
       --accent: hsl(152, 25%, 85%);
       --accent-fg: hsl(152, 32%, 28%);
       --border: hsl(40, 18%, 88%);
       --muted: hsl(40, 15%, 92%);
+      --charcoal: hsl(220, 20%, 16%);
       --radius: 16px;
     }
 
@@ -37,8 +39,7 @@
 
     h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
 
-    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
-    section { padding: 100px 0; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
     .glass {
       background: hsla(40, 30%, 98%, 0.7);
@@ -58,39 +59,61 @@
     .bg-blob-2 { width: 300px; height: 300px; bottom: 20%; right: 10%; background: hsla(152, 25%, 85%, 0.2); animation: float 6s ease-in-out infinite reverse; }
     @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
 
-    /* Nav */
+    /* Buttons — match index.html exactly */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .btn-sm { padding: 8px 18px; font-size: 13px; }
+    .btn-primary {
+      background: var(--charcoal);
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 20px hsla(152, 32%, 42%, 0.35); }
+
+    /* Nav — match index.html exactly */
     nav {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       z-index: 100;
-      padding: 16px 0;
+      padding: 12px 0;
       background: hsla(40, 30%, 98%, 0.7);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border-bottom: 1px solid hsla(40, 18%, 88%, 0.5);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.04);
     }
     nav .container { display: flex; align-items: center; justify-content: space-between; }
-    .logo {
+    .nav-logo {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-weight: 700;
-      font-size: 20px;
       text-decoration: none;
       color: var(--fg);
-      font-family: 'Playfair Display', serif;
     }
-    .logo-icon {
+    .nav-logo-icon {
       width: 32px;
       height: 32px;
-      background: var(--primary);
       border-radius: 8px;
+      background: var(--primary);
       display: flex;
       align-items: center;
       justify-content: center;
     }
+    .nav-logo span { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
     .nav-links { display: flex; align-items: center; gap: 32px; }
     .nav-links a {
       color: var(--fg-muted);
@@ -102,7 +125,7 @@
     .nav-links a:hover { color: var(--fg); }
 
     /* Header */
-    .header { padding-top: 140px; padding-bottom: 60px; text-align: center; }
+    .header { padding-top: 120px; padding-bottom: 48px; text-align: center; }
     .header h1 {
       font-size: clamp(36px, 5vw, 56px);
       font-weight: 700;
@@ -113,6 +136,7 @@
     .header p { font-size: 16px; color: var(--fg-muted); max-width: 500px; margin: 0 auto; }
 
     /* Changelog */
+    .changelog-inner { max-width: 800px; margin: 0 auto; }
     .changelog { display: flex; flex-direction: column; gap: 24px; padding-bottom: 80px; }
     .changelog-entry {
       border-radius: var(--radius);
@@ -166,19 +190,37 @@
       border-radius: 50%;
     }
 
-    /* Footer */
+    /* Footer — match index.html */
     footer {
-      padding: 32px 0;
+      padding: 40px 0;
       border-top: 1px solid hsla(40, 18%, 88%, 0.4);
-      text-align: center;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .footer-copy { font-size: 13px; color: var(--fg-muted); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a {
       font-size: 13px;
       color: var(--fg-muted);
+      text-decoration: none;
+      transition: color 0.2s;
     }
+    .footer-links a:hover { color: var(--fg); }
 
     @media (max-width: 768px) {
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: 13px; }
+    }
+    @media (max-width: 640px) {
       .nav-links { display: none; }
-      .header { padding-top: 120px; }
+      .header { padding-top: 100px; }
       .changelog-entry { padding: 20px; }
+      .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
     }
   </style>
 </head>
@@ -189,14 +231,14 @@
   <div class="bg-blob bg-blob-2"></div>
 </div>
 
-<!-- Nav -->
+<!-- Nav — identical to index.html -->
 <nav>
   <div class="container">
-    <a href="index.html" class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
       </div>
-      VoxGen
+      <span>VoxGen</span>
     </a>
     <div class="nav-links">
       <a href="index.html#features">Features</a>
@@ -204,6 +246,7 @@
       <a href="whats-new.html">What's New</a>
       <a href="index.html#get-started">Download</a>
     </div>
+    <a href="index.html#get-started" class="btn btn-primary btn-sm">Get Started</a>
   </div>
 </nav>
 
@@ -218,259 +261,261 @@
 <!-- Changelog -->
 <section class="changelog-section">
   <div class="container">
-    <div class="changelog">
+    <div class="changelog-inner">
+      <div class="changelog">
 
-      <!-- v2.13.1 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.13.1</span>
-          <span class="changelog-badge">Latest</span>
-          <span class="changelog-date">Feb 19, 2026</span>
+        <!-- v2.13.1 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.13.1</span>
+            <span class="changelog-badge">Latest</span>
+            <span class="changelog-date">Feb 19, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Settings accessed via avatar — click username to reveal Settings button</li>
+            <li>Added Notifications tab with sound effects and error alert toggles</li>
+            <li>Staggered section animations in Settings for smoother feel</li>
+            <li>Redesigned download page, fixed pricing key icon</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Settings accessed via avatar — click username to reveal Settings button</li>
-          <li>Added Notifications tab with sound effects and error alert toggles</li>
-          <li>Staggered section animations in Settings for smoother feel</li>
-          <li>Redesigned download page, fixed pricing key icon</li>
-        </ul>
-      </div>
 
-      <!-- v2.13.0 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.13.0</span>
-          <span class="changelog-date">Feb 19, 2026</span>
+        <!-- v2.13.0 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.13.0</span>
+            <span class="changelog-date">Feb 19, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Complete UI redesign — new sage green theme with DM Sans typography and glassmorphism cards</li>
+            <li>Redesigned sidebar with filled pill navigation and user avatar</li>
+            <li>Website fully rebuilt with new landing page, animations, and simplified 2-card pricing</li>
+            <li>New tagline: "Your voice, perfected."</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Complete UI redesign — new sage green theme with DM Sans typography and glassmorphism cards</li>
-          <li>Redesigned sidebar with filled pill navigation and user avatar</li>
-          <li>Website fully rebuilt with new landing page, animations, and simplified 2-card pricing</li>
-          <li>New tagline: "Your voice, perfected."</li>
-        </ul>
-      </div>
 
-      <!-- v2.12.1 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.12.1</span>
-          <span class="changelog-date">Feb 19, 2026</span>
+        <!-- v2.12.1 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.12.1</span>
+            <span class="changelog-date">Feb 19, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Faster dictation cleanup — regular dictation uses the simple v1 prompt, no context overhead</li>
+            <li>AI Prompt mode keeps full features — clipboard context, window detection, vocabulary</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Faster dictation cleanup — regular dictation uses the simple v1 prompt, no context overhead</li>
-          <li>AI Prompt mode keeps full features — clipboard context, window detection, vocabulary</li>
-        </ul>
-      </div>
 
-      <!-- v2.12.0 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.12.0</span>
-          <span class="changelog-date">Feb 19, 2026</span>
+        <!-- v2.12.0 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.12.0</span>
+            <span class="changelog-date">Feb 19, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Lighter dark mode — background and cards brightened for better readability</li>
+            <li>Removed Snippets page — cleaner sidebar with just History and Settings</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Lighter dark mode — background and cards brightened for better readability</li>
-          <li>Removed Snippets page — cleaner sidebar with just History and Settings</li>
-        </ul>
-      </div>
 
-      <!-- v2.11.0 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.11.0</span>
-          <span class="changelog-date">Feb 19, 2026</span>
+        <!-- v2.11.0 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.11.0</span>
+            <span class="changelog-date">Feb 19, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Recording modes redesigned — Hold, Toggle, and AI Prompt each in their own visual card with dedicated settings</li>
+            <li>Double-tap trigger — Toggle and AI Prompt modes can now be set to single-press or double-tap activation</li>
+            <li>Color refresh — new steel-blue accent throughout the app</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Recording modes redesigned — Hold, Toggle, and AI Prompt each in their own visual card with dedicated settings</li>
-          <li>Double-tap trigger — Toggle and AI Prompt modes can now be set to single-press or double-tap activation</li>
-          <li>Color refresh — new steel-blue accent throughout the app</li>
-        </ul>
-      </div>
 
-      <!-- v2.10.0 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.10.0</span>
-          <span class="changelog-date">Feb 19, 2026</span>
+        <!-- v2.10.0 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.10.0</span>
+            <span class="changelog-date">Feb 19, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Streamlined navigation — sidebar now shows only History, Snippets, and Settings for faster access</li>
+            <li>Simplified Settings — reorganized from 7 tabs to 5 focused sections (Recording, AI Processing, Prompts, Power Modes, Account)</li>
+            <li>Power Modes simplified — now focused on prompt switching per app/context (removed provider overrides for easier setup)</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Streamlined navigation — sidebar now shows only History, Snippets, and Settings for faster access</li>
-          <li>Simplified Settings — reorganized from 7 tabs to 5 focused sections (Recording, AI Processing, Prompts, Power Modes, Account)</li>
-          <li>Power Modes simplified — now focused on prompt switching per app/context (removed provider overrides for easier setup)</li>
-        </ul>
-      </div>
 
-      <!-- v2.9.0 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.9.0</span>
-          <span class="changelog-date">Feb 18, 2026</span>
+        <!-- v2.9.0 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.9.0</span>
+            <span class="changelog-date">Feb 18, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Power Modes — auto-detect the active app and apply a custom prompt, STT provider, and cleanup per context (Settings &rarr; Power Modes)</li>
+            <li>Overlay prompt picker — click the emoji icon in the overlay to switch prompts without opening the main window</li>
+            <li>Overlay moved to the top of the screen, out of the way</li>
+            <li>Processing indicator simplified to a single spinner — no more three-step labels</li>
+            <li>Smarter Default Cleanup — when you deliberate and reach a final answer, only the decision is kept</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Power Modes — auto-detect the active app and apply a custom prompt, STT provider, and cleanup per context (Settings → Power Modes)</li>
-          <li>Overlay prompt picker — click the emoji icon in the overlay to switch prompts without opening the main window</li>
-          <li>Overlay moved to the top of the screen, out of the way</li>
-          <li>Processing indicator simplified to a single spinner — no more three-step labels</li>
-          <li>Smarter Default Cleanup — when you deliberate and reach a final answer, only the decision is kept</li>
-        </ul>
-      </div>
 
-      <!-- v2.1.5 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.1.5</span>
-          <span class="changelog-date">Feb 18, 2026</span>
+        <!-- v2.1.5 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.1.5</span>
+            <span class="changelog-date">Feb 18, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Fixed checkout — purchases now work correctly on the website</li>
+            <li>"Manage Subscription" button only shows for paid subscription plans (not Trial or Lifetime)</li>
+            <li>Fixed Stripe Customer Portal for subscription management and cancellation</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Fixed checkout — purchases now work correctly on the website</li>
-          <li>"Manage Subscription" button only shows for paid subscription plans (not Trial or Lifetime)</li>
-          <li>Fixed Stripe Customer Portal for subscription management and cancellation</li>
-        </ul>
-      </div>
 
-      <!-- v2.1.4 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.1.4</span>
-          <span class="changelog-date">Feb 18, 2026</span>
+        <!-- v2.1.4 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.1.4</span>
+            <span class="changelog-date">Feb 18, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Trial urgency warnings — toast notifications at 7, 3, and 1 days left</li>
+            <li>"Manage Subscription" button for paid users — opens Stripe Customer Portal to cancel or update billing</li>
+            <li>Better trial-expired overlay — actionable buttons to add your own API key or upgrade</li>
+            <li>Email reminder banner for users who haven't entered their email yet</li>
+            <li>Fixed auto-update (was pointing to wrong GitHub repo)</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Trial urgency warnings — toast notifications at 7, 3, and 1 days left</li>
-          <li>"Manage Subscription" button for paid users — opens Stripe Customer Portal to cancel or update billing</li>
-          <li>Better trial-expired overlay — actionable buttons to add your own API key or upgrade</li>
-          <li>Email reminder banner for users who haven't entered their email yet</li>
-          <li>Fixed auto-update (was pointing to wrong GitHub repo)</li>
-        </ul>
-      </div>
 
-      <!-- v2.1.3 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.1.3</span>
-          <span class="changelog-date">Feb 17, 2026</span>
+        <!-- v2.1.3 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.1.3</span>
+            <span class="changelog-date">Feb 17, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Rebranded VoiceFlow &rarr; VoxGen across the entire app</li>
+            <li>Fixed license flow — download no longer requires email gate</li>
+            <li>Updated all URLs, titles, and references to VoxGen</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Rebranded VoiceFlow → VoxGen across the entire app</li>
-          <li>Fixed license flow — download no longer requires email gate</li>
-          <li>Updated all URLs, titles, and references to VoxGen</li>
-        </ul>
-      </div>
 
-      <!-- v2.1.2 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.1.2</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.1.2 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.1.2</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Reverted to the original v1.0 cleanup prompt — simple, proven, and effective</li>
+            <li>Temperature back to 0.3 (was over-tuned at 0.1)</li>
+            <li>Usage stats banner in Account tab (words dictated, minutes recorded)</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Reverted to the original v1.0 cleanup prompt — simple, proven, and effective</li>
-          <li>Temperature back to 0.3 (was over-tuned at 0.1)</li>
-          <li>Usage stats banner in Account tab (words dictated, minutes recorded)</li>
-        </ul>
-      </div>
 
-      <!-- v2.1.1 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.1.1</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.1.1 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.1.1</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Cleanup no longer removes "OK", "okay", "like", "you know" — only true filler sounds (um, uh, er, ah, hmm)</li>
+            <li>Incomplete thoughts and trail-offs are preserved as spoken</li>
+            <li>Self-corrections only resolved when you explicitly correct yourself ("no", "wait", "never mind")</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Cleanup no longer removes "OK", "okay", "like", "you know" — only true filler sounds (um, uh, er, ah, hmm)</li>
-          <li>Incomplete thoughts and trail-offs are preserved as spoken</li>
-          <li>Self-corrections only resolved when you explicitly correct yourself ("no", "wait", "never mind")</li>
-        </ul>
-      </div>
 
-      <!-- v2.1.0 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.1.0</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.1.0 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.1.0</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Keyword triggers now work — say "write me an email about..." during dictation to generate content</li>
+            <li>Output length (Concise/Medium/Detailed) now controls generated content length</li>
+            <li>Prompt refinement cleans up spoken instructions before generation</li>
+            <li>Smart preamble handling — "OK perfect write me an email about..." is detected correctly</li>
+            <li>Updates auto-install silently when you're not recording</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Keyword triggers now work — say "write me an email about..." during dictation to generate content</li>
-          <li>Output length (Concise/Medium/Detailed) now controls generated content length</li>
-          <li>Prompt refinement cleans up spoken instructions before generation</li>
-          <li>Smart preamble handling — "OK perfect write me an email about..." is detected correctly</li>
-          <li>Updates auto-install silently when you're not recording</li>
-        </ul>
-      </div>
 
-      <!-- v2.0.9 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.0.9</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.0.9 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.0.9</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Balanced cleanup prompt: keeps your exact words while resolving self-corrections</li>
+            <li>Words like "please", "just", "really" are no longer stripped</li>
+            <li>Added What's New page</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Balanced cleanup prompt: keeps your exact words while resolving self-corrections</li>
-          <li>Words like "please", "just", "really" are no longer stripped</li>
-          <li>Added What's New page</li>
-        </ul>
-      </div>
 
-      <!-- v2.0.8 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.0.8</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.0.8 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.0.8</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Stricter verbatim dictation — cleanup no longer rephrases your words</li>
+            <li>Temperature lowered to 0.1 for more literal transcription</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Stricter verbatim dictation — cleanup no longer rephrases your words</li>
-          <li>Temperature lowered to 0.1 for more literal transcription</li>
-        </ul>
-      </div>
 
-      <!-- v2.0.7 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.0.7</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.0.7 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.0.7</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Silent one-click updates — no more installer wizard</li>
+            <li>Signed-in email shown in sidebar</li>
+            <li>Auto-detect updates in About section</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Silent one-click updates — no more installer wizard</li>
-          <li>Signed-in email shown in sidebar</li>
-          <li>Auto-detect updates in About section</li>
-        </ul>
-      </div>
 
-      <!-- v2.0.6 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.0.6</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.0.6 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.0.6</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Fixed snippets not syncing to overlay window</li>
+            <li>Removed overly broad keyword trigger that intercepted normal dictation</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Fixed snippets not syncing to overlay window</li>
-          <li>Removed overly broad keyword trigger that intercepted normal dictation</li>
-        </ul>
-      </div>
 
-      <!-- v2.0.5 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.0.5</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.0.5 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.0.5</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Added microphone selector in Settings</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Added microphone selector in Settings</li>
-        </ul>
-      </div>
 
-      <!-- v2.0.4 -->
-      <div class="changelog-entry glass">
-        <div class="changelog-header">
-          <span class="changelog-version">v2.0.4</span>
-          <span class="changelog-date">Feb 12, 2026</span>
+        <!-- v2.0.4 -->
+        <div class="changelog-entry glass">
+          <div class="changelog-header">
+            <span class="changelog-version">v2.0.4</span>
+            <span class="changelog-date">Feb 12, 2026</span>
+          </div>
+          <ul class="changelog-highlights">
+            <li>Fixed free trial managed mode (stale closure bug)</li>
+            <li>Added first-run onboarding experience</li>
+            <li>Overlay follows mouse across monitors</li>
+            <li>Overlay stays on top of all windows</li>
+          </ul>
         </div>
-        <ul class="changelog-highlights">
-          <li>Fixed free trial managed mode (stale closure bug)</li>
-          <li>Added first-run onboarding experience</li>
-          <li>Overlay follows mouse across monitors</li>
-          <li>Overlay stays on top of all windows</li>
-        </ul>
-      </div>
 
+      </div>
     </div>
   </div>
 </section>
@@ -478,7 +523,14 @@
 <!-- Footer -->
 <footer>
   <div class="container">
-    <p>&copy; 2026 VoxGen. Built with Electron, React, and Whisper AI.</p>
+    <div class="footer-inner">
+      <span class="footer-copy">&copy; 2026 VoxGen. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#features">Features</a>
+        <a href="https://github.com/simchap123/VoxGen/releases">Releases</a>
+      </div>
+    </div>
   </div>
 </footer>
 
