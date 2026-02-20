@@ -481,7 +481,7 @@
       justify-content: center;
     }
     .app-sidebar-logo span { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; }
-    .app-sidebar-nav { flex: 1; }
+    .app-sidebar-nav { flex: 1 0 auto; }
     .app-nav-item {
       display: flex;
       align-items: center;
@@ -1187,13 +1187,12 @@ stuff like that</div>
                 <span>VoxGen</span>
               </div>
               <nav class="app-sidebar-nav">
-                <button class="app-nav-item" onclick="switchAppTab('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
-                <button class="app-nav-item active" id="nav-transcribe" onclick="switchAppTab('transcribe')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg> Transcribe</button>
-                <button class="app-nav-item" id="nav-commands" onclick="switchAppTab('commands')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg> Commands</button>
-                <button class="app-nav-item" onclick="switchAppTab('history')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> History</button>
-                <button class="app-nav-item" onclick="switchAppTab('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings</button>
+                <button class="app-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> History</button>
+                <div style="padding:0 12px;margin:12px 0 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);opacity:0.5">Modes</div>
+                <button class="app-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Dictation</button>
+                <button class="app-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 14v-3"/><circle cx="12" cy="14" r="8"/></svg> AI Prompt</button>
               </nav>
-              <div class="app-sidebar-user">
+              <div class="app-sidebar-user" style="margin-top:auto">
                 <div class="app-avatar">A</div>
                 <div>
                   <div class="app-user-name">Alex Chen</div>
@@ -1204,10 +1203,6 @@ stuff like that</div>
 
             <!-- Main content area -->
             <div class="app-main" id="app-content">
-              <div class="app-tabs">
-                <button class="app-tab active" id="tab-transcribe" onclick="switchAppTab('transcribe')">Transcribe</button>
-                <button class="app-tab" id="tab-commands" onclick="switchAppTab('commands')">Commands</button>
-              </div>
               <div id="app-view-transcribe">
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
                   <div style="width:40px;height:40px;border-radius:12px;background:hsla(152,32%,42%,0.1);display:flex;align-items:center;justify-content:center">
@@ -1228,47 +1223,26 @@ stuff like that</div>
                 </div>
                 <div id="app-demo-text" style="background:hsla(40,15%,92%,0.2);border-radius:12px;padding:16px;font-size:14px;line-height:1.7;color:hsla(220,20%,16%,0.8)">um so basically I was thinking we should probably like schedule a meeting with the design team uh maybe next tuesday or wednesday to go over the new mockups and stuff like that and also talk about the timeline for the Q1 launch</div>
               </div>
-              <div id="app-view-commands" style="display:none">
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-                  <div style="width:40px;height:40px;border-radius:12px;background:hsla(152,32%,42%,0.1);display:flex;align-items:center;justify-content:center">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
-                  </div>
-                  <div>
-                    <div style="font-size:14px;font-weight:600">Voice Commands</div>
-                    <div style="font-size:12px;color:var(--fg-muted)">Ready &mdash; say a command</div>
-                  </div>
-                </div>
-                <div style="background:hsla(40,15%,92%,0.2);border-radius:12px;padding:12px;display:flex;align-items:center;gap:8px;border:1px solid hsla(40,18%,88%,0.3);margin-bottom:16px">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                  <span style="font-size:14px;color:var(--fg-muted);font-style:italic">"Open the budget spreadsheet and highlight Q4 expenses"</span>
-                </div>
-                <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--fg-muted);margin-bottom:8px">Recent Commands</div>
-                <div style="display:flex;flex-direction:column;gap:8px">
-                  <div style="display:flex;align-items:center;gap:8px;font-size:14px;padding:12px;border-radius:8px;background:hsla(40,15%,92%,0.1);border:1px solid hsla(40,18%,88%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg><span style="flex:1;color:hsla(220,20%,16%,0.7)">Send email to Sarah about project update</span><span style="font-size:10px;background:var(--accent);color:var(--accent-fg);padding:2px 8px;border-radius:100px;font-weight:500">done</span></div>
-                  <div style="display:flex;align-items:center;gap:8px;font-size:14px;padding:12px;border-radius:8px;background:hsla(40,15%,92%,0.1);border:1px solid hsla(40,18%,88%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg><span style="flex:1;color:hsla(220,20%,16%,0.7)">Create task: Review mockups by Friday</span><span style="font-size:10px;background:var(--accent);color:var(--accent-fg);padding:2px 8px;border-radius:100px;font-weight:500">done</span></div>
-                  <div style="display:flex;align-items:center;gap:8px;font-size:14px;padding:12px;border-radius:8px;background:hsla(40,15%,92%,0.1);border:1px solid hsla(40,18%,88%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg><span style="flex:1;color:hsla(220,20%,16%,0.7)">Search files: Q4 budget report</span><span style="font-size:10px;background:var(--accent);color:var(--accent-fg);padding:2px 8px;border-radius:100px;font-weight:500">done</span></div>
-                </div>
-              </div>
             </div>
 
-            <!-- Activity feed -->
+            <!-- History panel -->
             <div class="app-activity">
-              <div class="app-activity-title">Recent Activity</div>
+              <div class="app-activity-title">History</div>
               <div class="app-activity-item">
-                <div class="app-activity-icon" style="background:hsla(152,32%,42%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="14" height="14"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div>
-                <div><div class="app-activity-text">Meeting Notes &mdash; Q4 Planning</div><div class="app-activity-time">2 min ago</div></div>
+                <div class="app-activity-icon" style="background:hsla(152,32%,42%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="14" height="14"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+                <div><div class="app-activity-text">Meeting notes for Q4 planning session</div><div class="app-activity-time">2 min ago</div></div>
               </div>
               <div class="app-activity-item">
-                <div class="app-activity-icon" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" stroke-width="2" width="14" height="14"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></div>
-                <div><div class="app-activity-text">Email sent to Sarah</div><div class="app-activity-time">5 min ago</div></div>
+                <div class="app-activity-icon" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" stroke-width="2" width="14" height="14"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.288L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.288Z"/></svg></div>
+                <div><div class="app-activity-text">Email to Sarah re: project update</div><div class="app-activity-time">5 min ago</div></div>
               </div>
               <div class="app-activity-item">
                 <div class="app-activity-icon" style="background:hsla(152,32%,42%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="14" height="14"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
-                <div><div class="app-activity-text">Voice memo &mdash; Product ideas</div><div class="app-activity-time">12 min ago</div></div>
+                <div><div class="app-activity-text">Quick note about product ideas</div><div class="app-activity-time">12 min ago</div></div>
               </div>
               <div class="app-activity-item">
-                <div class="app-activity-icon" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
-                <div><div class="app-activity-text">File search: budget.xlsx</div><div class="app-activity-time">18 min ago</div></div>
+                <div class="app-activity-icon" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" stroke-width="2" width="14" height="14"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.288L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.288Z"/></svg></div>
+                <div><div class="app-activity-text">Slack reply drafted for team</div><div class="app-activity-time">18 min ago</div></div>
               </div>
             </div>
           </div>
@@ -1329,7 +1303,7 @@ stuff like that</div>
     </div>
     <p class="pricing-byok reveal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:inline;vertical-align:-2px;margin-right:4px"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-      Bring your own <a href="https://console.groq.com/keys">Groq</a> or <a href="https://platform.openai.com/api-keys">OpenAI</a> API key &mdash; use VoxGen <strong>free forever</strong> after your trial.
+      Bring your own <a href="https://console.groq.com/keys">Groq</a> or <a href="https://platform.openai.com/api-keys">OpenAI</a> API key &mdash; pay once with Lifetime, then use VoxGen <strong>free forever</strong>.
     </p>
   </div>
 </section>
@@ -1497,17 +1471,7 @@ stuff like that</div>
     document.getElementById('app-clean-btn').classList.toggle('active', mode === 'clean');
   }
 
-  // --- App tab switching ---
-  function switchAppTab(tab) {
-    document.getElementById('app-view-transcribe').style.display = tab === 'transcribe' ? '' : 'none';
-    document.getElementById('app-view-commands').style.display = tab === 'commands' ? '' : 'none';
-    document.getElementById('tab-transcribe').classList.toggle('active', tab === 'transcribe');
-    document.getElementById('tab-commands').classList.toggle('active', tab === 'commands');
-    // Sidebar active state
-    document.querySelectorAll('.app-nav-item').forEach(function(el) { el.classList.remove('active'); });
-    var navId = tab === 'transcribe' ? 'nav-transcribe' : (tab === 'commands' ? 'nav-commands' : null);
-    if (navId) document.getElementById(navId).classList.add('active');
-  }
+  // --- App tab switching (removed — single view now) ---
 
   // --- Recording pill timer ---
   (function() {

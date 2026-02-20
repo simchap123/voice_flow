@@ -23,6 +23,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   return res.status(400).json({ error: 'Missing email or licenseKey' })
 }
 
+/** Check if email is verified in Supabase Auth */
+async function checkEmailVerified(email: string): Promise<boolean> {
+  try {
+    const { data } = await supabase.rpc('is_email_verified', { user_email: email })
+    return data === true
+  } catch (err: any) {
+    console.error('[validate-license] is_email_verified RPC error:', err.message)
+    return false
+  }
+}
+
+/** Send verification email via Supabase Auth invite */
+async function sendVerificationEmail(email: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.auth.admin.inviteUserByEmail(email, {
+      redirectTo: 'https://voxgenflow.vercel.app/verified.html',
+    })
+    if (error) {
+      // User may already exist in auth — that's OK, they just need to verify
+      if (error.message?.includes('already been registered')) {
+        // Resend: generate a new magic link
+        const { error: linkErr } = await supabase.auth.admin.generateLink({
+          type: 'magiclink',
+          email,
+          options: { redirectTo: 'https://voxgenflow.vercel.app/verified.html' },
+        })
+        if (linkErr) {
+          console.error('[validate-license] generateLink error:', linkErr.message)
+        }
+        return !linkErr
+      }
+      console.error('[validate-license] inviteUserByEmail error:', error.message)
+      return false
+    }
+    return true
+  } catch (err: any) {
+    console.error('[validate-license] sendVerificationEmail error:', err.message)
+    return false
+  }
+}
+
 async function validateByEmail(email: string, res: VercelResponse) {
   try {
     // Find user by email
@@ -33,31 +74,43 @@ async function validateByEmail(email: string, res: VercelResponse) {
       .single()
 
     if (!user) {
-      // New user — upsert to handle race condition if two requests arrive simultaneously
-      const { data: newUser, error: createErr } = await supabase
+      // New user — create row WITHOUT trial_started_at (trial starts after verification)
+      const { error: createErr } = await supabase
         .from('users')
         .upsert(
-          { email, trial_started_at: new Date().toISOString() },
+          { email, trial_started_at: null },
           { onConflict: 'email', ignoreDuplicates: false }
         )
-        .select('id, trial_started_at')
-        .single()
 
-      if (createErr || !newUser) {
-        console.error('[validate-license] Failed to upsert user:', createErr?.message)
+      if (createErr) {
+        console.error('[validate-license] Failed to upsert user:', createErr.message)
         return res.status(500).json({ error: 'Failed to create user' })
       }
 
+      // Send verification email
+      await sendVerificationEmail(email)
+
       return res.status(200).json({
-        valid: true,
-        plan: 'Trial',
-        planSlug: 'trial',
-        trialDaysLeft: TRIAL_DAYS,
-        expiresAt: null,
+        valid: false,
+        needsVerification: true,
+        message: 'Check your email to verify your address',
       })
     }
 
-    // Check if user has an active license
+    // Existing user — check if email is verified
+    const isVerified = await checkEmailVerified(email)
+
+    if (!isVerified) {
+      // Not yet verified — resend invite
+      await sendVerificationEmail(email)
+      return res.status(200).json({
+        valid: false,
+        needsVerification: true,
+        message: 'Check your email to verify your address',
+      })
+    }
+
+    // Email is verified — check for active license first
     const { data: license } = await supabase
       .from('user_licenses')
       .select(`
@@ -98,13 +151,13 @@ async function validateByEmail(email: string, res: VercelResponse) {
       })
     }
 
-    // No active license — check trial
+    // No active license — handle trial
     const trialStartedAt = user.trial_started_at
       ? new Date(user.trial_started_at)
       : null
 
     if (!trialStartedAt) {
-      // Set trial start (shouldn't normally happen, but safety net)
+      // Start trial now (first check after verification)
       await supabase
         .from('users')
         .update({ trial_started_at: new Date().toISOString() })

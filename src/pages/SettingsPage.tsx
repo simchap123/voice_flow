@@ -330,22 +330,31 @@ export function SettingsPage() {
                 </div>
               </div>
               <div className="space-y-3">
-                <ProviderApiKeyInput
-                  provider="openai"
-                  label="OpenAI"
-                  placeholder="sk-..."
-                  hasKey={hasOpenAIKey}
-                  onSave={handleSaveKey}
-                  onDelete={handleDeleteKey}
-                />
-                <ProviderApiKeyInput
-                  provider="groq"
-                  label="Groq"
-                  placeholder="gsk_..."
-                  hasKey={hasGroqKey}
-                  onSave={handleSaveKey}
-                  onDelete={handleDeleteKey}
-                />
+                {currentSTT === 'openai' && (
+                  <ProviderApiKeyInput
+                    provider="openai"
+                    label="OpenAI"
+                    placeholder="sk-..."
+                    hasKey={hasOpenAIKey}
+                    onSave={handleSaveKey}
+                    onDelete={handleDeleteKey}
+                  />
+                )}
+                {currentSTT === 'groq' && (
+                  <ProviderApiKeyInput
+                    provider="groq"
+                    label="Groq"
+                    placeholder="gsk_..."
+                    hasKey={hasGroqKey}
+                    onSave={handleSaveKey}
+                    onDelete={handleDeleteKey}
+                  />
+                )}
+                {currentSTT === 'local' && (
+                  <p className="text-[12px] text-muted-foreground/50">
+                    No API key needed — local model runs on-device for free.
+                  </p>
+                )}
               </div>
             </div>
 

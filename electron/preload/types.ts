@@ -37,7 +37,7 @@ export interface ElectronAPI {
 
   // License
   validateLicense: (key: string) => Promise<{ valid: boolean; plan?: string; expiresAt?: string | null; error?: string }>
-  validateByEmail: (email: string) => Promise<{ valid: boolean; plan?: string; expiresAt?: string | null; error?: string; trialDaysLeft?: number }>
+  validateByEmail: (email: string) => Promise<{ valid: boolean; plan?: string; expiresAt?: string | null; error?: string; trialDaysLeft?: number; needsVerification?: boolean; message?: string }>
   getLicenseInfo: () => Promise<{ licenseKey: string; licenseStatus: string; licensePlan: string; licenseExpiresAt: string; trialStartedAt: number; lastLicenseCheck: number }>
   clearLicense: () => Promise<void>
   openCustomerPortal: (email: string) => Promise<{ success: boolean; error?: string }>
@@ -63,6 +63,9 @@ export interface ElectronAPI {
   // Overlay prompt picker (US-305)
   expandForPrompts: (count: number) => void
   shrinkToIdle: () => void
+
+  // Overlay click-through
+  setOverlayClickThrough: (ignore: boolean) => void
 
   // Power modes (Phase 4)
   getPowerModes: () => Promise<any[]>

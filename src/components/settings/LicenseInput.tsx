@@ -20,6 +20,8 @@ export function LicenseInput() {
   const [portalLoading, setPortalLoading] = useState(false)
   const [error, setError] = useState('')
   const [trialDaysLeft, setTrialDaysLeft] = useState(30)
+  const [pendingVerification, setPendingVerification] = useState(false)
+  const [verificationEmail, setVerificationEmail] = useState('')
 
   useEffect(() => {
     loadLicenseInfo()
@@ -47,7 +49,15 @@ export function LicenseInput() {
 
     try {
       const result = await window.electronAPI.validateByEmail(email)
+      if (result.needsVerification) {
+        setPendingVerification(true)
+        setVerificationEmail(email)
+        setInputEmail('')
+        return
+      }
       if (result.valid) {
+        setPendingVerification(false)
+        setVerificationEmail('')
         setInputEmail('')
         await loadLicenseInfo()
       } else {
@@ -55,6 +65,30 @@ export function LicenseInput() {
       }
     } catch {
       setError('Failed to validate. Check your internet connection.')
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  async function handleCheckVerification() {
+    if (!verificationEmail || !window.electronAPI) return
+    setChecking(true)
+    setError('')
+    try {
+      const result = await window.electronAPI.validateByEmail(verificationEmail)
+      if (result.needsVerification) {
+        setError('Email not verified yet — check your inbox')
+        return
+      }
+      if (result.valid) {
+        setPendingVerification(false)
+        setVerificationEmail('')
+        await loadLicenseInfo()
+      } else {
+        setError(result.error || 'Validation failed')
+      }
+    } catch {
+      setError('Failed to check. Try again.')
     } finally {
       setChecking(false)
     }
@@ -219,8 +253,41 @@ export function LicenseInput() {
         </div>
       )}
 
-      {/* Email input (when no active license) */}
-      {!isActive && (
+      {/* Email verification pending */}
+      {pendingVerification && (
+        <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-3">
+          <div className="text-sm">
+            <span className="text-blue-400 font-medium">Verify your email</span>
+            <p className="text-xs text-muted-foreground mt-1">
+              We sent a verification link to <strong>{verificationEmail}</strong>. Click the link in your email, then come back here.
+            </p>
+          </div>
+          <div className="flex gap-2 mt-2">
+            <Button
+              onClick={handleCheckVerification}
+              disabled={checking}
+              size="sm"
+              className="shrink-0"
+            >
+              {checking ? 'Checking...' : "I've verified"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setPendingVerification(false)
+                setVerificationEmail('')
+              }}
+              className="text-xs text-muted-foreground"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Email input (when no active license and not pending verification) */}
+      {!isActive && !pendingVerification && (
         <div className="flex gap-2">
           <Input
             type="email"

@@ -125,6 +125,11 @@ export function OverlayShell() {
   const hasError = !!activeError
   const isIdle = !isRecording && !isProcessing && !hasError && !trialExpired
 
+  // Toggle click-through: idle = clicks pass through, active = interactive
+  useEffect(() => {
+    window.electronAPI?.setOverlayClickThrough?.(isIdle)
+  }, [isIdle])
+
   // Merge predefined + user prompts (same logic as PromptsSection)
   const allPrompts = [
     ...PREDEFINED_PROMPTS.map(p => {
@@ -291,48 +296,20 @@ export function OverlayShell() {
     )
   }
 
-  // --- IDLE STATE: tiny waveform bars — no hover expansion ---
+  // --- IDLE STATE: tiny waveform bars — click-through, hover wave animation ---
   return (
-    <div ref={promptPickerRef} className="flex h-full w-full items-end justify-center pb-2">
-      {/* Prompt picker — expands upward, only on explicit click */}
-      {showPromptPicker && (
-        <div className="absolute bottom-9 left-0 right-0 flex flex-col gap-1 px-2 pb-1">
-          {allPrompts.map(prompt => {
-            const isActive = prompt.id === settings.activePromptId
-            return (
-              <button
-                key={prompt.id}
-                onClick={() => selectPrompt(prompt.id)}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors ${
-                  isActive
-                    ? 'bg-purple-600/30 border border-purple-500/40 text-white'
-                    : 'bg-black/80 border border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white'
-                }`}
-              >
-                <span className="text-sm">{prompt.icon}</span>
-                <span className="text-[11px] font-medium truncate">{prompt.title}</span>
-                {isActive && <span className="ml-auto text-[9px] text-purple-400 shrink-0">active</span>}
-              </button>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Waveform indicator — tiny, static, click to open prompt picker */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          showPromptPicker ? closePicker() : openPicker()
-        }}
-        className="flex items-end gap-[3px] h-7 px-3 opacity-20 hover:opacity-50 transition-opacity"
-        title={`VoxGen — ${activePrompt?.title ?? 'Default'} (click to switch prompt)`}
+    <div className="flex h-full w-full items-end justify-center pb-2">
+      {/* Waveform indicator — click-through, subtle wave on hover */}
+      <div
+        className="group flex items-end gap-[3px] h-7 px-3 opacity-20 hover:opacity-50 transition-opacity"
+        title="VoxGen"
       >
-        <div className="w-[3px] rounded-full bg-white" style={{ height: '8px' }} />
-        <div className="w-[3px] rounded-full bg-white" style={{ height: '13px' }} />
-        <div className="w-[3px] rounded-full bg-white" style={{ height: '5px' }} />
-        <div className="w-[3px] rounded-full bg-white" style={{ height: '10px' }} />
-        <div className="w-[3px] rounded-full bg-white" style={{ height: '7px' }} />
-      </button>
+        <div className="overlay-bar w-[3px] rounded-full bg-white" style={{ height: '8px', animationDelay: '0s' }} />
+        <div className="overlay-bar w-[3px] rounded-full bg-white" style={{ height: '13px', animationDelay: '0.15s' }} />
+        <div className="overlay-bar w-[3px] rounded-full bg-white" style={{ height: '5px', animationDelay: '0.3s' }} />
+        <div className="overlay-bar w-[3px] rounded-full bg-white" style={{ height: '10px', animationDelay: '0.45s' }} />
+        <div className="overlay-bar w-[3px] rounded-full bg-white" style={{ height: '7px', animationDelay: '0.6s' }} />
+      </div>
     </div>
   )
 }

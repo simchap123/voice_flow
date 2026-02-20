@@ -260,3 +260,9 @@ export function hideOverlay(instant = false) {
 export function isOverlayDismissed(): boolean {
   return overlayDismissed
 }
+
+/** Toggle click-through on the overlay window */
+export function setOverlayClickThrough(ignore: boolean) {
+  if (!overlayWindow || overlayWindow.isDestroyed()) return
+  overlayWindow.setIgnoreMouseEvents(ignore, { forward: true })
+}

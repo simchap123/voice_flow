@@ -2,7 +2,7 @@ import { ipcMain, BrowserWindow, clipboard, app, shell, dialog } from 'electron'
 import { copyFile } from 'node:fs/promises'
 import { writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
-import { hideOverlay, getMainWindow, getOverlayWindow, expandOverlay, expandOverlayIdle, shrinkOverlay, expandOverlayForPrompts, shrinkOverlayToIdle } from './windows'
+import { hideOverlay, getMainWindow, getOverlayWindow, expandOverlay, expandOverlayIdle, shrinkOverlay, expandOverlayForPrompts, shrinkOverlayToIdle, setOverlayClickThrough } from './windows'
 import { injectText } from './text-injection'
 import { setIsRecording, setIsProcessing } from './hotkeys'
 import { reregisterHotkeys } from './hotkeys'
@@ -287,6 +287,11 @@ export function registerIpcHandlers() {
 
   ipcMain.on('overlay:shrink-to-idle', () => {
     shrinkOverlayToIdle()
+  })
+
+  // Overlay click-through toggle
+  ipcMain.on('overlay:set-click-through', (_e, ignore: boolean) => {
+    setOverlayClickThrough(ignore)
   })
 
   // Power modes (Phase 4)

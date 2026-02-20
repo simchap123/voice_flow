@@ -94,6 +94,9 @@ const api: ElectronAPI = {
   expandForPrompts: (count: number) => ipcRenderer.send('overlay:expand-for-prompts', count),
   shrinkToIdle: () => ipcRenderer.send('overlay:shrink-to-idle'),
 
+  // Overlay click-through
+  setOverlayClickThrough: (ignore: boolean) => ipcRenderer.send('overlay:set-click-through', ignore),
+
   // Power modes (Phase 4)
   getPowerModes: () => ipcRenderer.invoke('power-modes:get'),
   setPowerModes: (modes: any[]) => ipcRenderer.invoke('power-modes:set', modes),
