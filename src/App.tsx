@@ -13,7 +13,7 @@ import { useToastProvider, toast } from '@/hooks/useToast'
 import { WelcomeModal } from '@/components/onboarding/WelcomeModal'
 
 function MainApp() {
-  const [currentPage, setCurrentPage] = useState('record')
+  const [currentPage, setCurrentPage] = useState('history')
   const { settings, updateSetting, hasApiKey, isLoaded } = useSettings()
 
   const showOnboarding = isLoaded && !settings.onboardingComplete
@@ -49,12 +49,11 @@ function MainApp() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'record': return <DictationPage />
       case 'history': return <HistoryPage />
       case 'settings': return <SettingsPage />
       case 'dictation': return <DictationModePage />
       case 'ai-prompt': return <AIPromptModePage />
-      default: return <DictationPage />
+      default: return <HistoryPage />
     }
   }
 

@@ -31,16 +31,17 @@ export function AIPromptModePage() {
             <div className="text-[13px] font-semibold">Hotkey</div>
             <div className="text-[10px] text-muted-foreground/50">Press to start, speak, press again — AI generates content</div>
           </div>
-          <HotkeyRecorder
-            value={settings.promptHotkey}
-            onChange={(v) => {
-              updateSetting('promptHotkey', v)
-              toast({ title: 'AI Prompt hotkey updated', variant: 'success' })
-            }}
-            label="Hotkey"
-            description="Shortcut to activate AI prompt mode"
-            allowClear
-          />
+          <div className="flex items-center gap-2">
+            <HotkeyRecorder
+              value={settings.promptHotkey}
+              onChange={(v) => {
+                updateSetting('promptHotkey', v)
+                toast({ title: 'AI Prompt hotkey updated', variant: 'success' })
+              }}
+              placeholder="Click to set"
+              allowClear
+            />
+          </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-medium">Trigger Method</Label>
             <RadioGroup

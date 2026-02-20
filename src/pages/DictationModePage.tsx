@@ -25,16 +25,17 @@ export function DictationModePage() {
             <div className="text-[13px] font-semibold">Hold-to-Record</div>
             <div className="text-[10px] text-muted-foreground/50">Hold key to speak, release to stop</div>
           </div>
-          <HotkeyRecorder
-            value={settings.holdHotkey}
-            onChange={(v) => {
-              updateSetting('holdHotkey', v)
-              toast({ title: 'Hold hotkey updated', variant: 'success' })
-            }}
-            label="Hotkey"
-            description="Try Alt, Ctrl+Space, or Alt+J"
-            allowClear
-          />
+          <div className="flex items-center gap-2">
+            <HotkeyRecorder
+              value={settings.holdHotkey}
+              onChange={(v) => {
+                updateSetting('holdHotkey', v)
+                toast({ title: 'Hold hotkey updated', variant: 'success' })
+              }}
+              placeholder="Click to set"
+              allowClear
+            />
+          </div>
         </div>
 
         {/* Toggle Recording */}
@@ -43,16 +44,17 @@ export function DictationModePage() {
             <div className="text-[13px] font-semibold">Toggle Recording</div>
             <div className="text-[10px] text-muted-foreground/50">Press once to start, again to stop and paste</div>
           </div>
-          <HotkeyRecorder
-            value={settings.toggleHotkey}
-            onChange={(v) => {
-              updateSetting('toggleHotkey', v)
-              toast({ title: 'Toggle hotkey updated', variant: 'success' })
-            }}
-            label="Hotkey"
-            description="Press to toggle recording on/off"
-            allowClear
-          />
+          <div className="flex items-center gap-2">
+            <HotkeyRecorder
+              value={settings.toggleHotkey}
+              onChange={(v) => {
+                updateSetting('toggleHotkey', v)
+                toast({ title: 'Toggle hotkey updated', variant: 'success' })
+              }}
+              placeholder="Click to set"
+              allowClear
+            />
+          </div>
           <div className="space-y-2">
             <Label className="text-[11px] font-medium">Trigger Method</Label>
             <RadioGroup

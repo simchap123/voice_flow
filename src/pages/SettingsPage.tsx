@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useSettings } from '@/hooks/useSettings'
+import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { Switch } from '@/components/ui/switch'
 import { Mic, Zap, Settings as SettingsIcon } from 'lucide-react'
 import { toast } from '@/hooks/useToast'
@@ -14,11 +14,6 @@ const STT_OPTIONS: { value: STTProviderType; label: string }[] = [
 
 export function SettingsPage() {
   const { settings, updateSetting, isManagedMode } = useSettings()
-
-  // Build hotkey summary pills
-  const holdKey = settings.holdHotkey || 'Alt'
-  const promptKey = settings.promptHotkey || ''
-  const promptTrigger = settings.promptTriggerMethod || 'single'
 
   return (
     <ScrollArea className="h-full">
@@ -39,28 +34,33 @@ export function SettingsPage() {
               <div className="text-[10px] text-muted-foreground/50">Hotkeys and trigger methods</div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {holdKey && (
-              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/40 bg-muted/30 px-3 py-1.5 text-[11px]">
-                <kbd className="rounded-sm border border-border/50 bg-card px-1.5 py-0.5 text-[10px] font-bold">{holdKey}</kbd>
-                <span className="text-muted-foreground/70">Hold to record</span>
-              </div>
-            )}
-            {promptKey && (
-              <div className="inline-flex items-center gap-1.5 rounded-md border border-border/40 bg-muted/30 px-3 py-1.5 text-[11px]">
-                {promptTrigger === 'double-tap' ? (
-                  <>
-                    <kbd className="rounded-sm border border-border/50 bg-card px-1.5 py-0.5 text-[10px] font-bold">{promptKey}</kbd>
-                    <kbd className="rounded-sm border border-border/50 bg-card px-1.5 py-0.5 text-[10px] font-bold">{promptKey}</kbd>
-                  </>
-                ) : (
-                  <kbd className="rounded-sm border border-border/50 bg-card px-1.5 py-0.5 text-[10px] font-bold">{promptKey}</kbd>
-                )}
-                <span className="text-muted-foreground/70">
-                  {promptTrigger === 'double-tap' ? 'Double-tap for AI Prompt' : 'AI Prompt'}
-                </span>
-              </div>
-            )}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <HotkeyRecorder
+                value={settings.holdHotkey}
+                onChange={(v) => {
+                  updateSetting('holdHotkey', v)
+                  toast({ title: 'Hold hotkey updated', variant: 'success' })
+                }}
+                placeholder="Set hotkey"
+                allowClear
+              />
+              <span className="text-[10px] text-muted-foreground/50">Hold to record</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <HotkeyRecorder
+                value={settings.promptHotkey}
+                onChange={(v) => {
+                  updateSetting('promptHotkey', v)
+                  toast({ title: 'AI Prompt hotkey updated', variant: 'success' })
+                }}
+                placeholder="Set hotkey"
+                allowClear
+              />
+              <span className="text-[10px] text-muted-foreground/50">
+                {settings.promptTriggerMethod === 'double-tap' ? 'Double-tap for AI Prompt' : 'AI Prompt'}
+              </span>
+            </div>
           </div>
         </div>
 

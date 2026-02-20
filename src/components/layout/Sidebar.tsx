@@ -9,7 +9,6 @@ interface SidebarProps {
 }
 
 const mainNav = [
-  { id: 'record', icon: Mic, label: 'Record' },
   { id: 'history', icon: History, label: 'History' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ]
