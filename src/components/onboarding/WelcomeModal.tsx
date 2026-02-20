@@ -24,7 +24,6 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
       const result = await window.electronAPI.validateByEmail(trimmed)
       if (result.valid) {
         setActivated(true)
-        // Brief pause to show success before advancing
         setTimeout(() => setStep(2), 800)
       } else {
         setError(result.error || 'No active license or trial found for this email.')
@@ -37,27 +36,33 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md mx-4 rounded-2xl border border-border/50 bg-background shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md">
+      <div className="w-full max-w-md mx-4 rounded-2xl border border-border/30 bg-background/95 shadow-2xl overflow-hidden backdrop-blur-xl">
         {/* Step indicators */}
         <div className="flex items-center gap-2 px-6 pt-5 pb-2">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className={`h-1 flex-1 rounded-full transition-colors ${
-                i <= step ? 'bg-primary' : 'bg-muted'
+              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                i <= step ? 'bg-primary' : 'bg-muted/50'
               }`}
             />
           ))}
         </div>
 
-        <div className="px-6 pb-6 pt-2">
+        <div className="px-6 pb-6 pt-3">
           {/* Step 0: Welcome */}
           {step === 0 && (
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div className="space-y-2">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                    <MicIcon className="text-primary" />
+                  </div>
+                  <span className="text-lg font-semibold tracking-tight">VoxGen</span>
+                </div>
                 <h2 className="text-xl font-semibold tracking-tight">Welcome to VoxGen</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[13px] text-muted-foreground/70">
                   AI dictation that works everywhere. Press a hotkey, speak, and polished text appears.
                 </p>
               </div>
@@ -80,7 +85,7 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
                 />
               </div>
 
-              <Button onClick={() => setStep(1)} className="w-full">
+              <Button onClick={() => setStep(1)} className="w-full rounded-xl h-10">
                 Get Started
               </Button>
             </div>
@@ -88,20 +93,20 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
 
           {/* Step 1: Activate Trial */}
           {step === 1 && (
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold tracking-tight">Activate your free trial</h2>
-                <p className="text-sm text-muted-foreground">
-                  Enter your email to start a 30-day free trial. No credit card required — just start dictating.
+                <p className="text-[13px] text-muted-foreground/70">
+                  Enter your email to start a 30-day free trial. No credit card required.
                 </p>
               </div>
 
               {activated ? (
-                <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4 text-center">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-green-500/15">
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 text-center">
+                  <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary/10">
                     <CheckIcon />
                   </div>
-                  <p className="text-sm font-medium text-green-400">Trial activated!</p>
+                  <p className="text-[13px] font-medium text-primary">Trial activated!</p>
                 </div>
               ) : (
                 <>
@@ -113,21 +118,21 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
                         value={email}
                         onChange={(e) => { setEmail(e.target.value); setError('') }}
                         onKeyDown={(e) => { if (e.key === 'Enter') handleActivate() }}
-                        className="text-sm"
+                        className="text-[13px] rounded-xl"
                         autoFocus
                       />
                       <Button
                         onClick={handleActivate}
                         disabled={!email.trim() || !email.includes('@') || checking}
-                        className="shrink-0"
+                        className="shrink-0 rounded-xl"
                       >
                         {checking ? 'Checking...' : 'Activate'}
                       </Button>
                     </div>
-                    {error && <p className="text-xs text-red-400">{error}</p>}
+                    {error && <p className="text-[11px] text-red-400">{error}</p>}
                   </div>
 
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground/50">
                     Already have a license? Enter the email you used to purchase.
                   </p>
                 </>
@@ -137,11 +142,11 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
                 <div className="flex items-center justify-between pt-1">
                   <button
                     onClick={() => setStep(2)}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-[11px] text-muted-foreground/50 hover:text-foreground transition-colors"
                   >
                     Skip for now
                   </button>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground/50">
                     or use your own API key in Settings
                   </p>
                 </div>
@@ -151,10 +156,10 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
 
           {/* Step 2: How to Use */}
           {step === 2 && (
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold tracking-tight">How to use VoxGen</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[13px] text-muted-foreground/70">
                   Three simple steps to start dictating.
                 </p>
               </div>
@@ -163,7 +168,7 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
                 <HowToStep
                   num={1}
                   title="Press your hotkey"
-                  desc={<>Hold <kbd className="bg-primary/15 px-1.5 py-0.5 rounded text-[11px] font-semibold text-primary">Alt</kbd> from any app</>}
+                  desc={<>Hold <kbd className="bg-primary/10 text-primary px-1.5 py-0.5 rounded-md text-[11px] font-semibold">Alt</kbd> from any app</>}
                 />
                 <HowToStep
                   num={2}
@@ -177,7 +182,7 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
                 />
               </div>
 
-              <Button onClick={onComplete} className="w-full">
+              <Button onClick={onComplete} className="w-full rounded-xl h-10">
                 Start Dictating
               </Button>
             </div>
@@ -191,12 +196,12 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
 function Feature({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="flex-shrink-0 mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <div className="flex-shrink-0 mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-primary/8 text-primary">
         {icon}
       </div>
       <div>
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground">{desc}</p>
+        <p className="text-[13px] font-medium">{title}</p>
+        <p className="text-[11px] text-muted-foreground/60">{desc}</p>
       </div>
     </div>
   )
@@ -205,21 +210,20 @@ function Feature({ icon, title, desc }: { icon: React.ReactNode; title: string; 
 function HowToStep({ num, title, desc }: { num: number; title: string; desc: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary to-blue-500 text-white text-xs font-bold">
+      <div className="flex-shrink-0 flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-white text-[12px] font-bold">
         {num}
       </div>
       <div>
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground">{desc}</p>
+        <p className="text-[13px] font-medium">{title}</p>
+        <p className="text-[11px] text-muted-foreground/60">{desc}</p>
       </div>
     </div>
   )
 }
 
-// Inline SVG icons to avoid extra imports
-function MicIcon() {
+function MicIcon({ className = '' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-4.5 w-4.5 ${className}`}>
       <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
       <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
       <line x1="12" x2="12" y1="19" y2="22" />
@@ -229,7 +233,7 @@ function MicIcon() {
 
 function SparklesIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5">
       <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
     </svg>
   )
@@ -237,7 +241,7 @@ function SparklesIcon() {
 
 function ZapIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5">
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
   )
@@ -245,7 +249,7 @@ function ZapIcon() {
 
 function CheckIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-green-500">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-primary">
       <polyline points="20 6 9 17 4 12" />
     </svg>
   )

@@ -16,23 +16,31 @@ export function HistoryPage() {
   } = useTranscriptionHistory()
 
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
+    <div className="page-enter flex h-full flex-col gap-5 p-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">History</h1>
-        <div className="flex gap-2">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">History</h1>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">
+            {allHistory.length > 0
+              ? `${allHistory.length} transcription${allHistory.length !== 1 ? 's' : ''}`
+              : 'Your transcriptions will appear here'}
+          </p>
+        </div>
+        <div className="flex gap-1.5">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="gap-1.5"
+            className="gap-1.5 text-[12px] text-muted-foreground hover:text-foreground"
             onClick={() => window.electronAPI?.openRecordingsFolder()}
           >
             <FolderOpen className="h-3.5 w-3.5" />
             Recordings
           </Button>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="gap-1.5"
+            className="gap-1.5 text-[12px] text-muted-foreground hover:text-foreground"
             onClick={exportHistory}
             disabled={allHistory.length === 0}
           >
@@ -40,9 +48,9 @@ export function HistoryPage() {
             Export
           </Button>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="gap-1.5 text-destructive"
+            className="gap-1.5 text-[12px] text-destructive/70 hover:text-destructive"
             onClick={clearHistory}
             disabled={allHistory.length === 0}
           >

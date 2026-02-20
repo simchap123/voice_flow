@@ -2,10 +2,8 @@ import { useSettings } from '@/hooks/useSettings'
 import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { LanguageSelect } from '@/components/settings/LanguageSelect'
 import { MicrophoneSelect } from '@/components/settings/MicrophoneSelect'
-import { ThemeToggle } from '@/components/settings/ThemeToggle'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { toast } from '@/hooks/useToast'
 
@@ -14,13 +12,11 @@ type TriggerMethod = 'hold' | 'single' | 'double-tap'
 export function RecordingSection() {
   const { settings, updateSetting } = useSettings()
 
-  // Mode 1: Hold-to-Record (always hold, not configurable)
   const handleHoldModeKeyChange = (hotkey: string) => {
     updateSetting('holdHotkey', hotkey)
     toast({ title: 'Hold-to-Record updated', description: hotkey ? `Hold ${hotkey} to record` : 'Disabled', variant: 'success' })
   }
 
-  // Mode 2: Toggle Recording
   const handleToggleModeKeyChange = (hotkey: string) => {
     updateSetting('toggleHotkey', hotkey)
     toast({ title: 'Toggle mode updated', variant: 'success' })
@@ -31,7 +27,6 @@ export function RecordingSection() {
     toast({ title: 'Toggle trigger updated', description: trigger === 'single' ? 'Single press' : 'Double-tap', variant: 'success' })
   }
 
-  // Mode 3: AI Prompt
   const handlePromptModeKeyChange = (hotkey: string) => {
     updateSetting('promptHotkey', hotkey)
     toast({ title: 'AI Prompt mode updated', variant: 'success' })
@@ -46,28 +41,28 @@ export function RecordingSection() {
   const promptTrigger = (settings.promptTriggerMethod || 'single') as TriggerMethod
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold">Recording</h2>
-        <p className="text-sm text-muted-foreground">Recording modes, hotkeys, and preferences</p>
+        <h2 className="text-lg font-semibold tracking-tight">Recording</h2>
+        <p className="text-[12px] text-muted-foreground/60">Recording modes, hotkeys, and preferences</p>
       </div>
 
       {/* Recording Modes */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base">Recording Modes</CardTitle>
-          <CardDescription>Configure keyboard shortcuts and trigger methods for each mode</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <div className="glass-card overflow-hidden">
+        <div className="border-b border-border/30 px-5 py-4">
+          <h3 className="text-[13px] font-semibold">Recording Modes</h3>
+          <p className="mt-0.5 text-[11px] text-muted-foreground/60">Configure keyboard shortcuts and trigger methods</p>
+        </div>
+        <div className="space-y-4 p-5">
           {/* Mode 1: Hold-to-Record */}
-          <div className="space-y-3 rounded-lg border border-border/50 bg-muted/30 p-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
-                <span className="text-lg">⏸</span>
+          <div className="space-y-3 rounded-xl border border-border/30 bg-muted/20 p-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <span className="text-base">⏸</span>
               </div>
               <div>
-                <h3 className="text-sm font-semibold">Hold-to-Record</h3>
-                <p className="text-xs text-muted-foreground">Hold key to speak, release to stop</p>
+                <h4 className="text-[13px] font-medium">Hold-to-Record</h4>
+                <p className="text-[11px] text-muted-foreground/60">Hold key to speak, release to stop</p>
               </div>
             </div>
             <HotkeyRecorder
@@ -77,20 +72,20 @@ export function RecordingSection() {
               description="Try Alt, Ctrl+Space, or Alt+J to avoid conflicts"
               allowClear
             />
-            <div className="text-xs text-muted-foreground">
+            <div className="text-[11px] text-muted-foreground/50">
               <span className="font-medium">Trigger:</span> Hold (always)
             </div>
           </div>
 
           {/* Mode 2: Toggle Recording */}
-          <div className="space-y-3 rounded-lg border border-border/50 bg-muted/30 p-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
-                <span className="text-lg">🔄</span>
+          <div className="space-y-3 rounded-xl border border-border/30 bg-muted/20 p-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <span className="text-base">🔄</span>
               </div>
               <div>
-                <h3 className="text-sm font-semibold">Toggle Recording</h3>
-                <p className="text-xs text-muted-foreground">Press once to start, again to stop and paste</p>
+                <h4 className="text-[13px] font-medium">Toggle Recording</h4>
+                <p className="text-[11px] text-muted-foreground/60">Press once to start, again to stop and paste</p>
               </div>
             </div>
             <HotkeyRecorder
@@ -101,29 +96,29 @@ export function RecordingSection() {
               allowClear
             />
             <div className="space-y-2">
-              <Label className="text-xs font-medium">Trigger Method</Label>
+              <Label className="text-[11px] font-medium">Trigger Method</Label>
               <RadioGroup value={toggleTrigger} onValueChange={(v) => handleToggleTriggerChange(v as TriggerMethod)}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="single" id="toggle-single" />
-                  <Label htmlFor="toggle-single" className="text-xs font-normal cursor-pointer">Single press</Label>
+                  <Label htmlFor="toggle-single" className="text-[12px] font-normal cursor-pointer">Single press</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="double-tap" id="toggle-double" />
-                  <Label htmlFor="toggle-double" className="text-xs font-normal cursor-pointer">Double-tap</Label>
+                  <Label htmlFor="toggle-double" className="text-[12px] font-normal cursor-pointer">Double-tap</Label>
                 </div>
               </RadioGroup>
             </div>
           </div>
 
           {/* Mode 3: AI Prompt */}
-          <div className="space-y-3 rounded-lg border border-border/50 bg-muted/30 p-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
-                <span className="text-lg">✨</span>
+          <div className="space-y-3 rounded-xl border border-border/30 bg-muted/20 p-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <span className="text-base">✨</span>
               </div>
               <div>
-                <h3 className="text-sm font-semibold">AI Prompt</h3>
-                <p className="text-xs text-muted-foreground">Speak instructions, AI generates full content</p>
+                <h4 className="text-[13px] font-medium">AI Prompt</h4>
+                <p className="text-[11px] text-muted-foreground/60">Speak instructions, AI generates full content</p>
               </div>
             </div>
             <HotkeyRecorder
@@ -134,29 +129,29 @@ export function RecordingSection() {
               allowClear
             />
             <div className="space-y-2">
-              <Label className="text-xs font-medium">Trigger Method</Label>
+              <Label className="text-[11px] font-medium">Trigger Method</Label>
               <RadioGroup value={promptTrigger} onValueChange={(v) => handlePromptTriggerChange(v as TriggerMethod)}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="single" id="prompt-single" />
-                  <Label htmlFor="prompt-single" className="text-xs font-normal cursor-pointer">Single press</Label>
+                  <Label htmlFor="prompt-single" className="text-[12px] font-normal cursor-pointer">Single press</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="double-tap" id="prompt-double" />
-                  <Label htmlFor="prompt-double" className="text-xs font-normal cursor-pointer">Double-tap</Label>
+                  <Label htmlFor="prompt-double" className="text-[12px] font-normal cursor-pointer">Double-tap</Label>
                 </div>
               </RadioGroup>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Language & Microphone */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base">Recording</CardTitle>
-          <CardDescription>Language and audio input settings</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <div className="glass-card overflow-hidden">
+        <div className="border-b border-border/30 px-5 py-4">
+          <h3 className="text-[13px] font-semibold">Audio Input</h3>
+          <p className="mt-0.5 text-[11px] text-muted-foreground/60">Language and microphone settings</p>
+        </div>
+        <div className="space-y-4 p-5">
           <MicrophoneSelect
             value={settings.audioInputDeviceId}
             onChange={(v) => updateSetting('audioInputDeviceId', v)}
@@ -165,32 +160,28 @@ export function RecordingSection() {
             value={settings.language}
             onChange={(v) => updateSetting('language', v)}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Preferences */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base">Preferences</CardTitle>
-          <CardDescription>Display and behavior settings</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <div className="glass-card overflow-hidden">
+        <div className="border-b border-border/30 px-5 py-4">
+          <h3 className="text-[13px] font-semibold">Preferences</h3>
+          <p className="mt-0.5 text-[11px] text-muted-foreground/60">Display and behavior settings</p>
+        </div>
+        <div className="space-y-4 p-5">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Auto-paste after transcription</Label>
-              <p className="text-xs text-muted-foreground">Automatically paste transcribed text</p>
+              <Label className="text-[13px] font-medium">Auto-paste after transcription</Label>
+              <p className="text-[11px] text-muted-foreground/60">Automatically paste transcribed text</p>
             </div>
             <Switch
               checked={settings.autoCopy ?? true}
               onCheckedChange={(checked) => updateSetting('autoCopy', checked)}
             />
           </div>
-          <ThemeToggle
-            theme={settings.theme}
-            onChange={(v) => updateSetting('theme', v)}
-          />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

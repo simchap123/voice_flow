@@ -103,10 +103,16 @@ export function useRecordingState(options: {
     capturedClipboard.current = undefined
     capturedWindowInfo.current = undefined
 
-    // Phase 2: capture context in parallel before recording starts
+    // Phase 2: capture context ONLY when needed — skip entirely for regular dictation
+    // Clipboard: only useful in prompt mode (pipeline ignores it for regular cleanup)
+    // Window info: needed in prompt mode OR when power modes are enabled (for app matching)
+    const isPromptMode = mode === 'prompt'
+    const needsClipboard = isPromptMode && useClipboardContext
+    const needsWindowInfo = (isPromptMode && useWindowContext) || powerModesEnabled
+
     const contextCaptures: Promise<void>[] = []
 
-    if (useClipboardContext && window.electronAPI?.readClipboard) {
+    if (needsClipboard && window.electronAPI?.readClipboard) {
       contextCaptures.push(
         window.electronAPI.readClipboard()
           .then(text => { capturedClipboard.current = text || undefined })
@@ -114,7 +120,7 @@ export function useRecordingState(options: {
       )
     }
 
-    if (useWindowContext && window.electronAPI?.getActiveWindowInfo) {
+    if (needsWindowInfo && window.electronAPI?.getActiveWindowInfo) {
       contextCaptures.push(
         window.electronAPI.getActiveWindowInfo()
           .then(info => { capturedWindowInfo.current = info })
@@ -122,8 +128,7 @@ export function useRecordingState(options: {
       )
     }
 
-    // Await context with a short timeout — captures must complete before recording starts
-    // 500ms is plenty for local IPC calls; if they fail/timeout, we proceed without context
+    // Only await if there are captures — regular dictation starts instantly
     if (contextCaptures.length > 0) {
       await Promise.race([
         Promise.all(contextCaptures),
@@ -139,7 +144,7 @@ export function useRecordingState(options: {
       setError(err.message ?? 'Failed to start recording')
       setState('IDLE')
     }
-  }, [state, recorder, useClipboardContext, useWindowContext])
+  }, [state, recorder, useClipboardContext, useWindowContext, powerModesEnabled])
 
   const stopRecording = useCallback(async () => {
     if (state !== 'RECORDING') return

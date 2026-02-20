@@ -7,60 +7,56 @@
   <meta name="description" content="VoxGen release notes and recent updates. See what's new in the latest version." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #06080f;
-      --bg-card: #0c1020;
-      --bg-card-hover: #111630;
-      --text: #e8eaf0;
-      --text-muted: #7a7f96;
-      --primary: #7c8ef7;
-      --primary-light: #9fabfa;
-      --primary-glow: rgba(124, 142, 247, 0.3);
-      --accent: #3b82f6;
-      --border: rgba(255,255,255,0.06);
+      --bg: hsl(40, 33%, 96%);
+      --bg-card: hsl(40, 30%, 98%);
+      --fg: hsl(220, 20%, 16%);
+      --fg-muted: hsl(220, 10%, 46%);
+      --primary: hsl(152, 32%, 42%);
+      --primary-fg: hsl(40, 33%, 96%);
+      --accent: hsl(152, 25%, 85%);
+      --accent-fg: hsl(152, 32%, 28%);
+      --border: hsl(40, 18%, 88%);
+      --muted: hsl(40, 15%, 92%);
       --radius: 16px;
-      --green: #22c55e;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
-      color: var(--text);
+      color: var(--fg);
       line-height: 1.6;
       overflow-x: hidden;
     }
 
-    .bg-glow {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    .bg-glow::before {
-      content: '';
-      position: absolute;
-      width: 800px;
-      height: 800px;
-      top: -200px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-      animation: float 8s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(30px); }
-    }
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
 
     .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
     section { padding: 100px 0; }
+
+    .glass {
+      background: hsla(40, 30%, 98%, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid hsla(40, 18%, 88%, 0.5);
+    }
+
+    /* Blobs */
+    .bg-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .bg-blob {
+      position: absolute;
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      filter: blur(48px);
+    }
+    .bg-blob-1 { width: 400px; height: 400px; top: -100px; left: 30%; background: hsla(152, 25%, 85%, 0.3); animation: float 8s ease-in-out infinite; }
+    .bg-blob-2 { width: 300px; height: 300px; bottom: 20%; right: 10%; background: hsla(152, 25%, 85%, 0.2); animation: float 6s ease-in-out infinite reverse; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
 
     /* Nav */
     nav {
@@ -70,81 +66,62 @@
       right: 0;
       z-index: 100;
       padding: 16px 0;
-      background: rgba(6, 8, 15, 0.8);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
+      background: hsla(40, 30%, 98%, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid hsla(40, 18%, 88%, 0.5);
     }
-    nav .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; }
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-weight: 700;
-      font-size: 18px;
+      font-size: 20px;
       text-decoration: none;
-      color: var(--text);
+      color: var(--fg);
+      font-family: 'Playfair Display', serif;
     }
     .logo-icon {
       width: 32px;
       height: 32px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 10px;
+      background: var(--primary);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .nav-links { display: flex; align-items: center; gap: 32px; flex-shrink: 0; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
     .nav-links a {
-      color: var(--text-muted);
+      color: var(--fg-muted);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
-      white-space: nowrap;
     }
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover { color: var(--fg); }
 
     /* Header */
-    .header {
-      padding-top: 140px;
-      padding-bottom: 60px;
-      text-align: center;
-    }
+    .header { padding-top: 140px; padding-bottom: 60px; text-align: center; }
     .header h1 {
       font-size: clamp(36px, 5vw, 56px);
-      font-weight: 800;
+      font-weight: 700;
       line-height: 1.1;
       letter-spacing: -0.02em;
       margin-bottom: 16px;
     }
-    .header p {
-      font-size: 16px;
-      color: var(--text-muted);
-      max-width: 500px;
-      margin: 0 auto;
-    }
+    .header p { font-size: 16px; color: var(--fg-muted); max-width: 500px; margin: 0 auto; }
 
     /* Changelog */
-    .changelog {
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-      padding-bottom: 80px;
-    }
+    .changelog { display: flex; flex-direction: column; gap: 24px; padding-bottom: 80px; }
     .changelog-entry {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 28px;
       transition: all 0.3s ease;
     }
     .changelog-entry:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(124, 142, 247, 0.15);
+      border-color: hsla(152, 32%, 42%, 0.15);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.04);
     }
     .changelog-header {
       display: flex;
@@ -152,40 +129,28 @@
       gap: 12px;
       margin-bottom: 20px;
       padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid hsla(40, 18%, 88%, 0.5);
     }
-    .changelog-version {
-      font-size: 20px;
-      font-weight: 700;
-    }
+    .changelog-version { font-size: 20px; font-weight: 700; }
     .changelog-badge {
       display: inline-flex;
       align-items: center;
       padding: 3px 10px;
-      background: rgba(124, 142, 247, 0.12);
-      border: 1px solid rgba(124, 142, 247, 0.2);
+      background: hsla(152, 25%, 85%, 0.6);
+      border: 1px solid hsla(152, 32%, 42%, 0.2);
       border-radius: 100px;
       font-size: 11px;
       font-weight: 600;
-      color: var(--primary-light);
+      color: var(--accent-fg);
       text-transform: uppercase;
       letter-spacing: 0.03em;
+      font-family: 'DM Sans', sans-serif;
     }
-    .changelog-date {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-left: auto;
-    }
-    .changelog-highlights {
-      list-style: none;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .changelog-date { font-size: 14px; color: var(--fg-muted); margin-left: auto; }
+    .changelog-highlights { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
     .changelog-highlights li {
       font-size: 15px;
-      color: var(--text-muted);
+      color: var(--fg-muted);
       padding-left: 24px;
       position: relative;
       line-height: 1.6;
@@ -204,10 +169,10 @@
     /* Footer */
     footer {
       padding: 32px 0;
-      border-top: 1px solid var(--border);
+      border-top: 1px solid hsla(40, 18%, 88%, 0.4);
       text-align: center;
       font-size: 13px;
-      color: var(--text-muted);
+      color: var(--fg-muted);
     }
 
     @media (max-width: 768px) {
@@ -219,7 +184,10 @@
 </head>
 <body>
 
-<div class="bg-glow"></div>
+<div class="bg-blobs">
+  <div class="bg-blob bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2"></div>
+</div>
 
 <!-- Nav -->
 <nav>
@@ -232,9 +200,9 @@
     </a>
     <div class="nav-links">
       <a href="index.html#features">Features</a>
-      <a href="walkthrough.html">How It Works</a>
       <a href="index.html#pricing">Pricing</a>
       <a href="whats-new.html">What's New</a>
+      <a href="index.html#get-started">Download</a>
     </div>
   </div>
 </nav>
@@ -252,11 +220,25 @@
   <div class="container">
     <div class="changelog">
 
+      <!-- v2.13.0 -->
+      <div class="changelog-entry glass">
+        <div class="changelog-header">
+          <span class="changelog-version">v2.13.0</span>
+          <span class="changelog-badge">Latest</span>
+          <span class="changelog-date">Feb 19, 2026</span>
+        </div>
+        <ul class="changelog-highlights">
+          <li>Complete UI redesign — new sage green theme with DM Sans typography and glassmorphism cards</li>
+          <li>Redesigned sidebar with filled pill navigation and user avatar</li>
+          <li>Website fully rebuilt with new landing page, animations, and simplified 2-card pricing</li>
+          <li>New tagline: "Your voice, perfected."</li>
+        </ul>
+      </div>
+
       <!-- v2.12.1 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.12.1</span>
-          <span class="changelog-badge">Latest</span>
           <span class="changelog-date">Feb 19, 2026</span>
         </div>
         <ul class="changelog-highlights">
@@ -266,7 +248,7 @@
       </div>
 
       <!-- v2.12.0 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.12.0</span>
           <span class="changelog-date">Feb 19, 2026</span>
@@ -278,7 +260,7 @@
       </div>
 
       <!-- v2.11.0 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.11.0</span>
           <span class="changelog-date">Feb 19, 2026</span>
@@ -291,7 +273,7 @@
       </div>
 
       <!-- v2.10.0 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.10.0</span>
           <span class="changelog-date">Feb 19, 2026</span>
@@ -304,7 +286,7 @@
       </div>
 
       <!-- v2.9.0 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.9.0</span>
           <span class="changelog-date">Feb 18, 2026</span>
@@ -319,7 +301,7 @@
       </div>
 
       <!-- v2.1.5 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.1.5</span>
           <span class="changelog-date">Feb 18, 2026</span>
@@ -332,7 +314,7 @@
       </div>
 
       <!-- v2.1.4 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.1.4</span>
           <span class="changelog-date">Feb 18, 2026</span>
@@ -347,7 +329,7 @@
       </div>
 
       <!-- v2.1.3 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.1.3</span>
           <span class="changelog-date">Feb 17, 2026</span>
@@ -360,7 +342,7 @@
       </div>
 
       <!-- v2.1.2 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.1.2</span>
           <span class="changelog-date">Feb 12, 2026</span>
@@ -373,7 +355,7 @@
       </div>
 
       <!-- v2.1.1 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.1.1</span>
           <span class="changelog-date">Feb 12, 2026</span>
@@ -386,7 +368,7 @@
       </div>
 
       <!-- v2.1.0 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.1.0</span>
           <span class="changelog-date">Feb 12, 2026</span>
@@ -401,20 +383,20 @@
       </div>
 
       <!-- v2.0.9 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.0.9</span>
           <span class="changelog-date">Feb 12, 2026</span>
         </div>
         <ul class="changelog-highlights">
-          <li>Balanced cleanup prompt: keeps your exact words while resolving self-corrections ("meet at 9, no 4" → "meet at 4")</li>
+          <li>Balanced cleanup prompt: keeps your exact words while resolving self-corrections</li>
           <li>Words like "please", "just", "really" are no longer stripped</li>
           <li>Added What's New page</li>
         </ul>
       </div>
 
       <!-- v2.0.8 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.0.8</span>
           <span class="changelog-date">Feb 12, 2026</span>
@@ -426,7 +408,7 @@
       </div>
 
       <!-- v2.0.7 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.0.7</span>
           <span class="changelog-date">Feb 12, 2026</span>
@@ -439,7 +421,7 @@
       </div>
 
       <!-- v2.0.6 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.0.6</span>
           <span class="changelog-date">Feb 12, 2026</span>
@@ -451,7 +433,7 @@
       </div>
 
       <!-- v2.0.5 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.0.5</span>
           <span class="changelog-date">Feb 12, 2026</span>
@@ -462,7 +444,7 @@
       </div>
 
       <!-- v2.0.4 -->
-      <div class="changelog-entry">
+      <div class="changelog-entry glass">
         <div class="changelog-header">
           <span class="changelog-version">v2.0.4</span>
           <span class="changelog-date">Feb 12, 2026</span>

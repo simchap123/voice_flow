@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.13.0',
+    date: '2026-02-19',
+    highlights: [
+      'Complete UI redesign — sage green theme, DM Sans typography, clean card-based layout',
+      'New sidebar with Record, History, Settings + Modes section (Dictation, AI Prompt)',
+      'Simplified Settings page — 3 clean cards for Recording, STT Provider, and Preferences',
+      'Removed dark mode — light-only theme matching the new brand',
+      'Website rebuilt with new landing page, animations, and 2-card pricing',
+    ],
+  },
+  {
     version: '2.12.1',
     date: '2026-02-19',
     highlights: [

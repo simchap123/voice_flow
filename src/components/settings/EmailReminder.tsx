@@ -46,17 +46,17 @@ export function EmailReminder() {
   }
 
   return (
-    <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-3 space-y-2">
+    <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2.5">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
-          <Info className="h-4 w-4 text-blue-400 shrink-0" />
-          <span className="text-sm font-medium text-blue-300">Enter your email to activate your free trial</span>
+          <Info className="h-4 w-4 text-primary shrink-0" />
+          <span className="text-[13px] font-medium">Enter your email to activate your free trial</span>
         </div>
         <button
           onClick={() => setDismissed(true)}
-          className="flex h-5 w-5 items-center justify-center rounded hover:bg-white/10 transition-colors shrink-0"
+          className="flex h-5 w-5 items-center justify-center rounded-md hover:bg-muted/50 transition-colors shrink-0"
         >
-          <X className="h-3.5 w-3.5 text-muted-foreground" />
+          <X className="h-3.5 w-3.5 text-muted-foreground/50" />
         </button>
       </div>
       <div className="flex gap-2">
@@ -66,19 +66,19 @@ export function EmailReminder() {
           value={email}
           onChange={(e) => { setEmail(e.target.value); setError('') }}
           onKeyDown={(e) => { if (e.key === 'Enter') handleActivate() }}
-          className="text-sm"
+          className="text-[13px] rounded-xl"
         />
         <Button
           onClick={handleActivate}
           disabled={!email.trim() || !email.includes('@') || checking}
           size="sm"
-          className="shrink-0"
+          className="shrink-0 rounded-xl"
         >
           {checking ? 'Checking...' : 'Activate'}
         </Button>
       </div>
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      <p className="text-xs text-muted-foreground">
+      {error && <p className="text-[11px] text-red-400">{error}</p>}
+      <p className="text-[11px] text-muted-foreground/50">
         Your email lets us track your 30-day trial. No spam — just trial status.
       </p>
     </div>

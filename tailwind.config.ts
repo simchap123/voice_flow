@@ -2,7 +2,6 @@ import type { Config } from 'tailwindcss'
 import tailwindAnimate from 'tailwindcss-animate'
 
 export default {
-  darkMode: 'class',
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
@@ -38,6 +37,19 @@ export default {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
+        },
+        sage: {
+          DEFAULT: 'hsl(152 32% 42%)',
+          light: 'hsl(152 25% 85%)',
+          dark: 'hsl(152 32% 28%)',
+        },
+        cream: {
+          DEFAULT: 'hsl(40 33% 96%)',
+          dark: 'hsl(40 20% 90%)',
+        },
+        charcoal: {
+          DEFAULT: 'hsl(220 20% 16%)',
+          light: 'hsl(220 10% 46%)',
         },
       },
       borderRadius: {

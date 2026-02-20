@@ -35,7 +35,6 @@ export interface AppSettings {
   wordReplacements: Array<{ original: string; replacement: string; enabled: boolean }>
 
   // UI
-  theme: 'dark' | 'light'
   autoCopy: boolean
 
   // License
@@ -81,7 +80,6 @@ export const defaultSettings: AppSettings = {
   customVocabulary: [],
   wordReplacements: [],
 
-  theme: 'dark',
   autoCopy: true,
 
   licenseKey: '',

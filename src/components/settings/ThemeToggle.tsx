@@ -19,11 +19,11 @@ export function ThemeToggle({ theme, onChange }: ThemeToggleProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="space-y-0.5">
-        <Label className="flex items-center gap-2">
+        <Label className="flex items-center gap-2 text-[13px]">
           {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
           Dark Mode
         </Label>
-        <p className="text-xs text-muted-foreground">Toggle dark/light theme</p>
+        <p className="text-[11px] text-muted-foreground/60">Toggle dark/light theme</p>
       </div>
       <Switch checked={isDark} onCheckedChange={toggle} />
     </div>

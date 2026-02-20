@@ -3,93 +3,126 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VoxGen - Type With Your Voice</title>
-  <meta name="description" content="AI-powered dictation that works everywhere. Hold a hotkey, speak, and your words appear in any app. Powered by Whisper AI." />
+  <title>VoxGen - Your Voice, Perfected</title>
+  <meta name="description" content="AI-powered dictation that works everywhere. Press a hotkey, speak naturally, and polished text appears right where your cursor is. Powered by Whisper AI." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #06080f;
-      --bg-card: #0c1020;
-      --bg-card-hover: #111630;
-      --text: #e8eaf0;
-      --text-muted: #7a7f96;
-      --primary: #7c8ef7;
-      --primary-light: #9fabfa;
-      --primary-glow: rgba(124, 142, 247, 0.3);
-      --accent: #3b82f6;
-      --border: rgba(255,255,255,0.06);
+      --bg: hsl(40, 33%, 96%);
+      --bg-card: hsl(40, 30%, 98%);
+      --fg: hsl(220, 20%, 16%);
+      --fg-muted: hsl(220, 10%, 46%);
+      --primary: hsl(152, 32%, 42%);
+      --primary-fg: hsl(40, 33%, 96%);
+      --primary-dark: hsl(152, 32%, 28%);
+      --accent: hsl(152, 25%, 85%);
+      --accent-fg: hsl(152, 32%, 28%);
+      --border: hsl(40, 18%, 88%);
+      --muted: hsl(40, 15%, 92%);
+      --charcoal: hsl(220, 20%, 16%);
+      --cream: hsl(40, 33%, 96%);
+      --cream-dark: hsl(40, 20%, 90%);
+      --sage-light: hsl(152, 25%, 85%);
+      --destructive: hsl(0, 72%, 51%);
       --radius: 16px;
-      --green: #22c55e;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
-      color: var(--text);
+      color: var(--fg);
       line-height: 1.6;
       overflow-x: hidden;
     }
 
-    /* ---- Ambient background ---- */
-    .bg-glow {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    .bg-glow::before {
-      content: '';
-      position: absolute;
-      width: 800px;
-      height: 800px;
-      top: -200px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-      animation: float 8s ease-in-out infinite;
-    }
-    .bg-glow::after {
-      content: '';
-      position: absolute;
-      width: 600px;
-      height: 600px;
-      bottom: -100px;
-      right: -100px;
-      background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
-      animation: float 10s ease-in-out infinite reverse;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(30px); }
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 96px 0; }
+
+    /* ---- Glass utility ---- */
+    .glass {
+      background: hsla(40, 30%, 98%, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid hsla(40, 18%, 88%, 0.5);
     }
 
-    /* ---- Layout ---- */
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-    section { padding: 100px 0; }
+    /* ---- Gradient text ---- */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark), hsl(40, 33%, 50%));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ---- Animations ---- */
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    @keyframes float-slow { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-30px) rotate(5deg); } }
+    @keyframes pulse-soft { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+    @keyframes waveform { 0%, 100% { height: 20%; } 50% { height: 80%; } }
+    @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .blob { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
 
     /* ---- Scroll reveal ---- */
-    .reveal {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
     .stagger-1 { transition-delay: 0.1s; }
     .stagger-2 { transition-delay: 0.2s; }
     .stagger-3 { transition-delay: 0.3s; }
     .stagger-4 { transition-delay: 0.4s; }
     .stagger-5 { transition-delay: 0.5s; }
     .stagger-6 { transition-delay: 0.6s; }
+
+    /* ---- Badge ---- */
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: hsla(152, 25%, 85%, 0.6);
+      color: var(--accent-fg);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    /* ---- Buttons ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-fg);
+      box-shadow: 0 4px 14px hsla(152, 32%, 42%, 0.25);
+    }
+    .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 20px hsla(152, 32%, 42%, 0.35); }
+    .btn-outline {
+      background: transparent;
+      color: var(--fg);
+      border: 2px solid hsla(152, 32%, 42%, 0.2);
+    }
+    .btn-outline:hover { border-color: hsla(152, 32%, 42%, 0.4); background: hsla(152, 25%, 85%, 0.4); transform: scale(1.05); }
+    .btn-sm { padding: 8px 20px; font-size: 13px; }
 
     /* ---- Nav ---- */
     nav {
@@ -98,847 +131,1300 @@
       left: 0;
       right: 0;
       z-index: 100;
-      padding: 16px 0;
-      background: rgba(6, 8, 15, 0.8);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      transition: all 0.3s ease;
     }
-    nav .container {
+    nav.scrolled {
+      padding: 12px 0;
+      background: hsla(40, 30%, 98%, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid hsla(40, 18%, 88%, 0.5);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 18px;
+      gap: 8px;
       text-decoration: none;
-      color: var(--text);
+      color: var(--fg);
     }
-    .logo-icon {
+    .nav-logo-icon {
       width: 32px;
       height: 32px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 10px;
+      border-radius: 8px;
+      background: var(--primary);
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .nav-links { display: flex; align-items: center; gap: 32px; flex-shrink: 0; }
+    .nav-logo span { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
     .nav-links a {
-      color: var(--text-muted);
+      color: var(--fg-muted);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
-      white-space: nowrap;
     }
-    .nav-links a:hover { color: var(--text); }
-
-    /* ---- Buttons ---- */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      border: none;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), #6d7ee6);
-      color: white;
-      box-shadow: 0 4px 24px var(--primary-glow), 0 1px 3px rgba(0,0,0,0.3);
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px var(--primary-glow), 0 2px 6px rgba(0,0,0,0.3);
-    }
-    .btn-primary:active { transform: translateY(0); }
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    .btn-outline:hover {
-      background: rgba(255,255,255,0.04);
-      border-color: rgba(255,255,255,0.2);
-    }
-    .btn-sm { padding: 10px 20px; font-size: 14px; border-radius: 10px; }
-    .btn svg { width: 20px; height: 20px; }
+    .nav-links a:hover { color: var(--fg); }
 
     /* ---- Hero ---- */
     .hero {
-      padding-top: 160px;
-      padding-bottom: 80px;
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 96px 24px;
+      overflow: hidden;
+    }
+    .hero-blob-1 {
+      position: absolute;
+      top: 80px;
+      left: 40px;
+      width: 288px;
+      height: 288px;
+      background: hsla(152, 25%, 85%, 0.4);
+      filter: blur(48px);
+      animation: float-slow 8s ease-in-out infinite;
+    }
+    .hero-blob-2 {
+      position: absolute;
+      bottom: 80px;
+      right: 40px;
+      width: 384px;
+      height: 384px;
+      background: hsla(152, 25%, 85%, 0.3);
+      filter: blur(48px);
+      animation: float 6s ease-in-out infinite;
+    }
+    .hero-blob-3 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: hsla(152, 25%, 85%, 0.2);
+      border-radius: 50%;
+      filter: blur(48px);
+      animation: pulse-soft 4s ease-in-out infinite;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 800px;
       text-align: center;
     }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      background: rgba(124, 142, 247, 0.1);
-      border: 1px solid rgba(124, 142, 247, 0.2);
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--primary-light);
-      margin-bottom: 28px;
-    }
-    .hero-badge .dot {
-      width: 6px;
-      height: 6px;
-      background: var(--green);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
     .hero h1 {
-      font-size: clamp(40px, 6vw, 72px);
-      font-weight: 800;
-      line-height: 1.1;
+      font-size: clamp(48px, 7vw, 80px);
+      font-weight: 700;
+      line-height: 1.05;
       letter-spacing: -0.02em;
-      margin-bottom: 20px;
-    }
-    .hero h1 .gradient {
-      background: linear-gradient(135deg, var(--primary-light), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      margin: 24px 0;
     }
     .hero p {
       font-size: 18px;
-      color: var(--text-muted);
+      color: var(--fg-muted);
       max-width: 560px;
       margin: 0 auto 40px;
       line-height: 1.7;
     }
-    .hero-note {
-      margin-top: 16px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .hero-note svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
-    /* ---- Demo visual ---- */
-    .demo-wrapper {
-      margin-top: 70px;
-      position: relative;
+    /* ---- Voice text animation (SVG background) ---- */
+    .voice-text-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, transparent 20%, black 50%, transparent 90%);
+      -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, transparent 20%, black 50%, transparent 90%);
+      opacity: 0;
+      animation: fadeIn 1.5s ease 0.8s forwards;
     }
-    .demo-window {
-      max-width: 700px;
-      margin: 0 auto;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    /* ---- Feature sections ---- */
+    .feature-section { padding: 96px 0; }
+    .feature-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+      margin-bottom: 96px;
     }
-    .demo-titlebar {
+    .feature-grid-2.reverse .feature-demo { order: -1; }
+    .feature-tag { margin-bottom: 16px; }
+    .feature-title {
+      font-size: clamp(28px, 3.5vw, 40px);
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .feature-desc {
+      color: var(--fg-muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .feature-list { list-style: none; padding: 0; }
+    .feature-list li {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 14px 18px;
-      background: rgba(255,255,255,0.02);
-      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      color: hsla(220, 20%, 16%, 0.7);
+      padding: 4px 0;
     }
-    .demo-dot { width: 12px; height: 12px; border-radius: 50%; }
-    .demo-dot-red { background: #ef4444; }
-    .demo-dot-yellow { background: #eab308; }
-    .demo-dot-green { background: var(--green); }
-    .demo-body {
-      padding: 40px;
-      text-align: left;
-      min-height: 200px;
+    .feature-list li svg { color: var(--primary); flex-shrink: 0; }
+
+    /* ---- Transcription demo ---- */
+    .demo-card {
+      border-radius: 16px;
+      padding: 24px 32px;
+    }
+    .demo-tabs {
       display: flex;
-      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .demo-tab {
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .demo-tab.active { background: var(--primary); color: var(--primary-fg); }
+    .demo-tab:not(.active) { background: var(--muted); color: var(--fg-muted); }
+    .demo-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: hsla(220, 20%, 16%, 0.8);
+      white-space: pre-wrap;
+      min-height: 100px;
+      transition: opacity 0.2s;
+    }
+
+    /* ---- Command demo ---- */
+    .cmd-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      padding: 8px 0;
+      opacity: 0.2;
+      transform: translateX(-10px);
+      transition: all 0.4s ease;
+    }
+    .cmd-step.active { opacity: 1; transform: translateX(0); }
+    .cmd-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      flex-shrink: 0;
     }
-    .demo-mic {
-      width: 64px;
-      height: 64px;
-      background: linear-gradient(135deg, var(--primary), #6d7ee6);
+
+    /* ---- Feature grid (6 cards) ---- */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .feature-card {
+      border-radius: 16px;
+      padding: 24px;
+      transition: box-shadow 0.3s ease;
+    }
+    .feature-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.06); }
+    .feature-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: hsla(152, 32%, 42%, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .feature-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .feature-card p { font-size: 14px; color: var(--fg-muted); line-height: 1.6; }
+
+    /* ---- How it works ---- */
+    .hiw { background: hsla(40, 15%, 92%, 0.3); text-align: center; }
+    .hiw-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-top: 64px;
+      position: relative;
+    }
+    .hiw-grid::before {
+      content: '';
+      position: absolute;
+      top: 48px;
+      left: 20%;
+      right: 20%;
+      height: 1px;
+      background: var(--border);
+    }
+    .hiw-step { position: relative; display: flex; flex-direction: column; align-items: center; }
+    .hiw-icon {
+      width: 96px;
+      height: 96px;
+      border-radius: 16px;
+      background: var(--bg-card);
+      border: 1px solid hsla(40, 18%, 88%, 0.6);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .hiw-step .step-num { font-size: 12px; font-weight: 500; color: var(--primary); margin-bottom: 8px; font-family: 'DM Sans', sans-serif; }
+    .hiw-step h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .hiw-step p { font-size: 14px; color: var(--fg-muted); line-height: 1.6; }
+
+    /* ---- Comparison ---- */
+    .comparison-table {
+      border-radius: 16px;
+      overflow: hidden;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 72px 72px;
+      font-size: 14px;
+    }
+    .comparison-grid > div { padding: 10px 16px; border-bottom: 1px solid hsla(40, 18%, 88%, 0.4); }
+    .comparison-header { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fg-muted); }
+    .comparison-header.voxgen { color: var(--primary); font-weight: 700; }
+    .comparison-feature { color: hsla(220, 20%, 16%, 0.8); }
+    .comparison-check { display: flex; justify-content: center; align-items: center; }
+
+    /* ---- App preview ---- */
+    .app-preview-wrap {
+      perspective: 1200px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .app-preview-glow {
+      position: absolute;
+      inset: -1px;
+      border-radius: 16px;
+      background: linear-gradient(to bottom, hsla(152, 32%, 42%, 0.2), transparent, hsla(152, 32%, 42%, 0.1));
+      filter: blur(4px);
+    }
+    .app-preview {
+      border-radius: 16px;
+      padding: 6px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .app-preview-inner {
+      background: var(--bg-card);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid hsla(40, 18%, 88%, 0.3);
+    }
+    .app-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-bottom: 1px solid hsla(40, 18%, 88%, 0.4);
+      background: hsla(40, 15%, 92%, 0.2);
+    }
+    .app-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .app-titlebar-text { font-size: 12px; color: var(--fg-muted); font-weight: 500; margin-left: 8px; }
+    .app-searchbar {
+      width: 144px;
+      height: 24px;
+      border-radius: 6px;
+      background: hsla(40, 15%, 92%, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 8px;
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--fg-muted);
+    }
+    .app-body { display: flex; min-height: 420px; }
+    .app-sidebar {
+      width: 200px;
+      border-right: 1px solid hsla(40, 18%, 88%, 0.3);
+      background: hsla(40, 15%, 92%, 0.1);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .app-sidebar-logo { display: flex; align-items: center; gap: 8px; padding: 8px 12px; margin-bottom: 16px; }
+    .app-sidebar-logo-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .app-sidebar-logo span { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; }
+    .app-sidebar-nav { flex: 1; }
+    .app-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--fg-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .app-nav-item:hover { background: var(--muted); color: var(--fg); }
+    .app-nav-item.active { background: var(--primary); color: var(--primary-fg); font-weight: 500; }
+    .app-sidebar-user {
+      border-top: 1px solid hsla(40, 18%, 88%, 0.3);
+      padding-top: 12px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-left: 12px;
+    }
+    .app-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--sage-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+    .app-user-name { font-size: 12px; font-weight: 500; }
+    .app-user-plan { font-size: 11px; color: var(--fg-muted); }
+    .app-main { flex: 1; padding: 20px 24px; }
+    .app-activity {
+      width: 240px;
+      border-left: 1px solid hsla(40, 18%, 88%, 0.3);
+      background: hsla(40, 15%, 92%, 0.1);
+      padding: 16px;
+    }
+    .app-activity-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+    .app-activity-item { display: flex; align-items: start; gap: 10px; margin-bottom: 12px; }
+    .app-activity-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .app-activity-text { font-size: 12px; font-weight: 500; line-height: 1.3; }
+    .app-activity-time { font-size: 10px; color: var(--fg-muted); }
+
+    /* App preview tabs */
+    .app-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+    .app-tab {
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .app-tab.active { background: var(--primary); color: var(--primary-fg); }
+    .app-tab:not(.active) { background: transparent; color: var(--fg-muted); }
+
+    /* Waveform bars */
+    .waveform-bars { display: flex; align-items: flex-end; gap: 3px; height: 80px; background: hsla(40, 15%, 92%, 0.3); border-radius: 12px; padding: 12px; }
+    .waveform-bar {
+      flex: 1;
+      background: hsla(152, 32%, 42%, 0.3);
+      border-radius: 100px;
+      min-width: 2px;
+      animation: waveform 1.2s ease-in-out infinite;
+    }
+
+    /* Recording pill */
+    .recording-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 36px;
+      border-radius: 100px;
+      background: var(--charcoal);
+      box-shadow: 0 8px 32px hsla(220, 20%, 16%, 0.4);
+      overflow: hidden;
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+    }
+    .pill-mic {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px 0 4px;
+    }
+    .pill-mic-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: hsla(152, 32%, 42%, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .pill-mic-circle::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: hsla(152, 32%, 42%, 0.1);
+      animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); animation: pulse-soft 1s ease-in-out infinite; }
+    .pill-time { font-size: 11px; font-weight: 500; color: hsla(40, 33%, 96%, 0.9); font-family: monospace; letter-spacing: 0.1em; }
+    .pill-sep { width: 1px; height: 16px; background: hsla(40, 33%, 96%, 0.1); }
+    .pill-waves {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 0 10px;
+      height: 100%;
+    }
+    .pill-wave-bar {
+      width: 2px;
+      background: hsla(152, 32%, 42%, 0.5);
+      border-radius: 100px;
+      animation: waveform 1.2s ease-in-out infinite;
+    }
+    .pill-actions { display: flex; align-items: center; gap: 4px; padding: 0 6px; }
+    .pill-stop {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--destructive);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+    }
+    .pill-cancel {
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 0 0 var(--primary-glow);
-      animation: mic-pulse 2s ease-in-out infinite;
+      border: none;
+      background: transparent;
+      cursor: pointer;
     }
-    @keyframes mic-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 var(--primary-glow); }
-      50% { box-shadow: 0 0 0 20px rgba(124, 58, 237, 0); }
-    }
-    .demo-mic svg { width: 28px; height: 28px; color: white; }
-    .demo-waveform {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      height: 40px;
-    }
-    .demo-waveform .bar {
-      width: 4px;
-      background: linear-gradient(to top, var(--primary), var(--primary-light));
-      border-radius: 2px;
-      animation: wave 1.2s ease-in-out infinite;
-    }
-    @keyframes wave {
-      0%, 100% { height: 8px; }
-      50% { height: 36px; }
-    }
-    .demo-text {
-      font-size: 15px;
-      color: var(--text-muted);
-      max-width: 400px;
-      text-align: center;
-      line-height: 1.6;
-    }
-    .demo-text .typed {
-      color: var(--text);
-      border-right: 2px solid var(--primary);
-      animation: blink 1s step-end infinite;
-    }
-    @keyframes blink { 50% { border-color: transparent; } }
-
-    /* ---- How it works — vertical timeline ---- */
-    .timeline {
-      max-width: 600px;
-      margin: 48px auto 0;
-      position: relative;
-      padding-left: 48px;
-    }
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 19px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, var(--primary), var(--accent), transparent);
-    }
-    .timeline-step {
-      position: relative;
-      padding-bottom: 48px;
-    }
-    .timeline-step:last-child { padding-bottom: 0; }
-    .timeline-dot {
-      position: absolute;
-      left: -48px;
-      top: 0;
-      width: 40px;
-      height: 40px;
-      background: rgba(124, 142, 247, 0.12);
-      color: var(--primary-light);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 16px;
-      border: 2px solid var(--bg);
-      z-index: 1;
-    }
-    .timeline-step h3 {
-      font-size: 17px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .timeline-step p {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-    .timeline-step kbd {
-      background: rgba(124, 142, 247, 0.15);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-family: inherit;
-      font-weight: 500;
-      color: var(--primary-light);
-    }
-
-    @media (max-width: 768px) {
-      .timeline { padding-left: 40px; }
-      .timeline::before { left: 15px; }
-      .timeline-dot { left: -40px; width: 32px; height: 32px; font-size: 14px; }
-    }
-
-    /* ---- Section headers ---- */
-    .section-header { text-align: center; margin-bottom: 48px; }
-    .section-header h2 {
-      font-size: clamp(28px, 4vw, 40px);
-      font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: -0.01em;
-    }
-    .section-header p { font-size: 16px; color: var(--text-muted); max-width: 500px; margin: 0 auto; }
-
-    /* ---- Features ---- */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    .feature-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      transition: all 0.3s ease;
-    }
-    .feature-card:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(124, 142, 247, 0.15);
-    }
-    .feature-icon {
-      width: 44px;
-      height: 44px;
-      background: rgba(124, 58, 237, 0.1);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-    .feature-icon svg { width: 22px; height: 22px; color: var(--primary-light); }
-    .feature-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-    .feature-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
     /* ---- Pricing ---- */
+    .pricing { background: hsla(40, 15%, 92%, 0.3); }
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 24px;
-      margin-top: 48px;
+      max-width: 720px;
+      margin: 0 auto;
+      margin-top: 56px;
     }
     .pricing-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px 28px;
-      text-align: center;
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-card-pro {
+      background: var(--primary);
+      color: var(--primary-fg);
       position: relative;
-      transition: all 0.3s ease;
+      box-shadow: 0 12px 40px hsla(152, 32%, 42%, 0.2);
+      border: 2px solid hsla(152, 32%, 42%, 0.2);
     }
-    .pricing-card:hover {
-      background: var(--bg-card-hover);
-      transform: translateY(-4px);
-    }
-    .pricing-card-popular {
-      border-color: var(--primary);
-      box-shadow: 0 0 30px var(--primary-glow);
-    }
+    .pricing-card-lifetime { border: 1px solid var(--border); }
     .pricing-popular-tag {
       position: absolute;
       top: -12px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(135deg, var(--primary), #6d7ee6);
-      color: white;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 16px;
+      padding: 4px 12px;
       border-radius: 100px;
-    }
-    .pricing-badge {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 12px;
-    }
-    .pricing-price {
-      font-size: 48px;
-      font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 8px;
-    }
-    .pricing-price span {
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-    .pricing-savings {
-      font-size: 13px;
-      color: var(--green);
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-    .pricing-note {
+      background: var(--bg-card);
+      color: var(--primary);
       font-size: 12px;
-      color: var(--text-muted);
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      white-space: nowrap;
+    }
+    .pricing-plan-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .pricing-plan-desc { font-size: 14px; opacity: 0.7; margin-bottom: 20px; }
+    .pricing-toggle {
+      display: inline-flex;
+      background: hsla(255, 255, 255, 0.1);
+      border-radius: 100px;
+      padding: 3px;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+    .pricing-card-pro .pricing-toggle { background: hsla(40, 33%, 96%, 0.1); }
+    .pricing-toggle-btn {
+      padding: 6px 20px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      background: transparent;
+    }
+    .pricing-card-pro .pricing-toggle-btn { color: hsla(40, 33%, 96%, 0.7); }
+    .pricing-toggle-btn.active {
+      background: var(--bg-card);
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .pricing-price { font-size: 40px; font-weight: 700; margin-bottom: 4px; }
+    .pricing-price span { font-size: 16px; font-weight: 400; opacity: 0.6; margin-left: 4px; }
+    .pricing-savings {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 100px;
       margin-bottom: 4px;
-      font-style: italic;
     }
-    .pricing-features {
-      list-style: none;
-      padding: 0;
-      margin: 24px 0;
-      text-align: left;
-    }
+    .pricing-card-pro .pricing-savings { background: hsla(40, 33%, 96%, 0.2); color: var(--primary-fg); }
+    .pricing-features { list-style: none; padding: 0; margin: 20px 0; flex: 1; }
     .pricing-features li {
+      display: flex;
+      align-items: start;
+      gap: 8px;
       font-size: 14px;
-      color: var(--text-muted);
-      padding: 6px 0;
-      padding-left: 24px;
-      position: relative;
+      padding: 5px 0;
     }
-    .pricing-features li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 10px;
-      width: 14px;
-      height: 14px;
-      background: rgba(124, 142, 247, 0.15);
-      border-radius: 50%;
-    }
-    .pricing-features li::after {
-      content: '';
-      position: absolute;
-      left: 4px;
-      top: 14px;
-      width: 6px;
-      height: 3px;
-      border-left: 1.5px solid var(--primary-light);
-      border-bottom: 1.5px solid var(--primary-light);
-      transform: rotate(-45deg);
-    }
-    .pricing-btn { width: 100%; justify-content: center; }
-    .pricing-byok-note {
+    .pricing-features li svg { flex-shrink: 0; margin-top: 2px; }
+    .pricing-card-pro .pricing-features li { color: hsla(40, 33%, 96%, 0.9); }
+    .pricing-card-lifetime .pricing-features li { color: hsla(220, 20%, 16%, 0.7); }
+    .pricing-cta {
+      width: 100%;
       text-align: center;
-      margin-top: 32px;
-      font-size: 14px;
-      color: var(--text-muted);
+      justify-content: center;
+      margin-top: auto;
     }
-    .pricing-byok-note strong { color: var(--text); }
+    .pricing-card-pro .pricing-cta { background: var(--bg-card); color: var(--primary); }
+    .pricing-card-pro .pricing-cta:hover { background: var(--bg); }
+    .pricing-byok {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: var(--fg-muted);
+    }
+    .pricing-byok a { color: var(--primary); text-decoration: none; }
+    .pricing-byok a:hover { text-decoration: underline; }
 
-    /* ---- Get Started / CTA ---- */
-    .get-started-section {
+    /* ---- Footer ---- */
+    footer { border-top: 1px solid hsla(40, 18%, 88%, 0.4); padding: 64px 0; }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+    .footer-brand p { font-size: 14px; color: var(--fg-muted); line-height: 1.6; margin-top: 16px; }
+    .footer-col h4 { font-size: 14px; font-weight: 600; margin-bottom: 16px; font-family: 'DM Sans', sans-serif; }
+    .footer-col ul { list-style: none; padding: 0; }
+    .footer-col li { margin-bottom: 8px; }
+    .footer-col a { font-size: 14px; color: var(--fg-muted); text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--fg); }
+    .footer-bottom {
+      border-top: 1px solid hsla(40, 18%, 88%, 0.4);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--fg-muted);
+    }
+    .footer-bottom-links { display: flex; gap: 16px; }
+    .footer-bottom-links a { color: var(--fg-muted); text-decoration: none; }
+    .footer-bottom-links a:hover { color: var(--fg); }
+
+    /* ---- Get Started ---- */
+    .get-started {
       text-align: center;
-      padding: 80px 0 120px;
+      padding: 80px 0;
     }
     .get-started-box {
-      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(59,130,246,0.08));
-      border: 1px solid rgba(124, 58, 237, 0.15);
-      border-radius: 24px;
-      padding: 64px 40px;
+      max-width: 500px;
+      margin: 0 auto;
+      border-radius: 16px;
+      padding: 48px 32px;
     }
-    .get-started-box h2 {
-      font-size: clamp(28px, 4vw, 40px);
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .get-started-box > p {
-      font-size: 16px;
-      color: var(--text-muted);
-      margin-bottom: 28px;
-    }
-    .get-started-email-wrap {
-      max-width: 400px;
-      margin: 0 auto 32px;
-    }
-    .get-started-email-wrap input {
+    .get-started-box h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .get-started-box > p { font-size: 14px; color: var(--fg-muted); margin-bottom: 24px; }
+    .gs-email-wrap { margin-bottom: 16px; }
+    .gs-email-wrap input {
       width: 100%;
-      padding: 14px 18px;
-      border-radius: 12px;
+      padding: 12px 16px;
       border: 1px solid var(--border);
+      border-radius: 12px;
       background: var(--bg);
-      color: var(--text);
-      font-size: 16px;
-      font-family: inherit;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--fg);
       outline: none;
       transition: border-color 0.2s;
     }
-    .get-started-email-wrap input:focus { border-color: var(--primary); }
-    .get-started-error {
-      color: #ef4444;
-      font-size: 13px;
-      margin-top: 8px;
-      display: none;
-    }
-    .get-started-buttons {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-    .platform-note {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
+    .gs-email-wrap input:focus { border-color: var(--primary); }
+    .gs-error { display: none; color: var(--destructive); font-size: 12px; margin-top: 4px; }
+    .gs-buttons { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+    .platform-note { font-size: 12px; color: var(--fg-muted); }
 
-    /* Checkout email modal */
+    /* ---- Checkout modal ---- */
     .checkout-overlay {
-      display: none;
       position: fixed;
       inset: 0;
       z-index: 200;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.4);
       backdrop-filter: blur(8px);
+      display: flex;
       align-items: center;
       justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
     }
-    .checkout-overlay.active { display: flex; }
+    .checkout-overlay.active { opacity: 1; pointer-events: auto; }
     .checkout-modal {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 40px;
-      max-width: 420px;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 380px;
       width: 90%;
       text-align: center;
     }
-    .checkout-modal h3 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .checkout-modal p {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 24px;
-    }
-    .checkout-modal input {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--text);
-      font-size: 15px;
-      font-family: inherit;
-      margin-bottom: 16px;
-      outline: none;
-    }
-    .checkout-modal input:focus { border-color: var(--primary); }
-    .checkout-modal .btn { width: 100%; justify-content: center; }
-    .checkout-modal .checkout-cancel {
+    .checkout-modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .checkout-modal > p { font-size: 14px; color: var(--fg-muted); margin-bottom: 20px; }
+    .checkout-error { display: none; color: var(--destructive); font-size: 13px; margin-bottom: 12px; }
+    .checkout-cancel {
       margin-top: 12px;
-      font-size: 13px;
-      color: var(--text-muted);
-      cursor: pointer;
-      border: none;
       background: none;
-      font-family: inherit;
-    }
-    .checkout-modal .checkout-cancel:hover { color: var(--text); }
-    .checkout-modal .checkout-error {
-      color: #ef4444;
+      border: none;
+      color: var(--fg-muted);
       font-size: 13px;
-      margin-bottom: 12px;
-      display: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
     }
-
-    /* ---- Footer ---- */
-    footer {
-      padding: 32px 0;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
+    .checkout-cancel:hover { color: var(--fg); }
 
     /* ---- Responsive ---- */
     @media (max-width: 960px) {
       .nav-links { gap: 16px; }
       .nav-links a { font-size: 13px; }
+      .app-sidebar, .app-activity { display: none; }
     }
     @media (max-width: 768px) {
-      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
-      .features-grid { grid-template-columns: 1fr; }
       .nav-links { display: none; }
-      .hero { padding-top: 120px; }
+      .hero { padding-top: 120px; min-height: auto; }
+      .feature-grid-2 { grid-template-columns: 1fr; }
+      .feature-grid-2.reverse .feature-demo { order: 0; }
+      .features-grid { grid-template-columns: 1fr; }
+      .hiw-grid { grid-template-columns: 1fr; }
+      .hiw-grid::before { display: none; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 380px; }
+      .comparison-grid { grid-template-columns: 1fr 60px 60px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
       section { padding: 60px 0; }
-      .get-started-box { padding: 40px 24px; }
+      .gs-buttons { flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
-<div class="bg-glow"></div>
-
-<!-- Nav -->
-<nav>
+<!-- ========== NAV ========== -->
+<nav id="navbar">
   <div class="container">
-    <a href="#" class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
       </div>
-      VoxGen
+      <span>VoxGen</span>
     </a>
     <div class="nav-links">
       <a href="#features">Features</a>
-      <a href="walkthrough.html">How It Works</a>
       <a href="#pricing">Pricing</a>
       <a href="whats-new.html">What's New</a>
-      <a href="#get-started" class="btn btn-primary btn-sm">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-        Download
-      </a>
+      <a href="#get-started">Download</a>
     </div>
+    <a href="#get-started" class="btn btn-primary btn-sm">Get Started</a>
   </div>
 </nav>
 
-<!-- Hero -->
+<!-- ========== HERO ========== -->
 <section class="hero">
-  <div class="container">
-    <div class="hero-badge reveal">
-      <span class="dot"></span>
-      Now available for Windows
-    </div>
-    <h1 class="reveal stagger-1">Type with your <span class="gradient">voice</span></h1>
-    <p class="reveal stagger-2">Press a hotkey from any app, speak naturally, and your cleaned-up text appears right where your cursor is. No switching windows. No copying. Just talk.</p>
-    <div class="reveal stagger-3">
-      <a href="#get-started" class="btn btn-primary">Get Started Free</a>
-    </div>
-    <p class="hero-note reveal stagger-4">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Free 30-day trial. No credit card required.
-    </p>
+  <div class="hero-blob-1 blob"></div>
+  <div class="hero-blob-2 blob"></div>
+  <div class="hero-blob-3"></div>
 
-    <!-- Demo visual -->
-    <div class="demo-wrapper reveal stagger-5">
-      <div class="demo-window">
-        <div class="demo-titlebar">
-          <span class="demo-dot demo-dot-red"></span>
-          <span class="demo-dot demo-dot-yellow"></span>
-          <span class="demo-dot demo-dot-green"></span>
-        </div>
-        <div class="demo-body">
-          <div class="demo-mic">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-          </div>
-          <div class="demo-waveform">
-            <div class="bar" style="animation-delay:0s;height:12px"></div>
-            <div class="bar" style="animation-delay:0.1s;height:20px"></div>
-            <div class="bar" style="animation-delay:0.2s;height:32px"></div>
-            <div class="bar" style="animation-delay:0.3s;height:24px"></div>
-            <div class="bar" style="animation-delay:0.15s;height:36px"></div>
-            <div class="bar" style="animation-delay:0.25s;height:28px"></div>
-            <div class="bar" style="animation-delay:0.05s;height:16px"></div>
-            <div class="bar" style="animation-delay:0.35s;height:30px"></div>
-            <div class="bar" style="animation-delay:0.1s;height:22px"></div>
-            <div class="bar" style="animation-delay:0.2s;height:34px"></div>
-            <div class="bar" style="animation-delay:0.3s;height:18px"></div>
-            <div class="bar" style="animation-delay:0.25s;height:26px"></div>
-            <div class="bar" style="animation-delay:0.15s;height:14px"></div>
-            <div class="bar" style="animation-delay:0.05s;height:30px"></div>
-            <div class="bar" style="animation-delay:0.35s;height:20px"></div>
-          </div>
-          <div class="demo-text">
-            <span class="typed" id="typed-text"></span>
-          </div>
-        </div>
-      </div>
+  <!-- SVG flowing text background -->
+  <div class="voice-text-bg">
+    <svg viewBox="0 0 1000 400" style="width:100%;height:100%;position:absolute;inset:0" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <path id="tp1" d="M -100,180 Q 300,80 600,160 T 1100,120" fill="none"/>
+        <path id="tp2" d="M 1100,260 Q 700,340 400,240 T -100,300" fill="none"/>
+        <path id="tp3" d="M -50,80 Q 500,20 1050,90" fill="none"/>
+      </defs>
+      <text fill="hsl(220,20%,16%)" opacity="0.18" font-size="16" font-family="'Playfair Display',serif" font-style="italic">
+        <textPath href="#tp1" startOffset="0%">schedule a meeting with the design team next Tuesday to review the new mockups &middot; remind me to follow up with the client about the proposal &middot; <animate attributeName="startOffset" from="-50%" to="100%" dur="30s" repeatCount="indefinite"/></textPath>
+      </text>
+      <text fill="hsl(220,20%,16%)" opacity="0.14" font-size="18" font-family="'Playfair Display',serif" font-style="italic">
+        <textPath href="#tp2" startOffset="0%">the quarterly report needs to be finalized and sent to stakeholders by Friday &middot; make sure yesterday's notes were shared &middot; <animate attributeName="startOffset" from="-50%" to="100%" dur="36s" repeatCount="indefinite"/></textPath>
+      </text>
+      <text fill="hsl(220,20%,16%)" opacity="0.12" font-size="14" font-family="'Playfair Display',serif" font-style="italic">
+        <textPath href="#tp3" startOffset="0%">I just updated the API endpoints and pushed the changes to the staging branch &middot; check if the deploy went through &middot; <animate attributeName="startOffset" from="-50%" to="100%" dur="26s" repeatCount="indefinite"/></textPath>
+      </text>
+    </svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="reveal">
+      <span class="badge">AI-Powered Voice Intelligence</span>
+    </div>
+    <h1 class="reveal stagger-1">Your voice. <br><span class="gradient-text">Your command.</span></h1>
+    <p class="reveal stagger-2">Hold a hotkey, speak, and polished text appears in any app. AI-powered dictation with smart cleanup and content generation &mdash; system-wide.</p>
+    <div class="hero-buttons reveal stagger-3">
+      <a href="#get-started" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        Try Transcription
+      </a>
+      <a href="#get-started" class="btn btn-outline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3Z"/></svg>
+        Try Voice Commands
+      </a>
     </div>
   </div>
 </section>
 
-<!-- How It Works -->
-<section id="how-it-works">
+<!-- ========== FEATURES ========== -->
+<section id="features" class="feature-section">
   <div class="container">
-    <div class="section-header reveal">
-      <h2>Three steps. That's it.</h2>
-      <p>VoxGen runs silently in your system tray. You never leave the app you're working in.</p>
+
+    <!-- AI Dictation & Cleanup -->
+    <div class="feature-grid-2 reveal">
+      <div>
+        <span class="badge feature-tag">Core Feature</span>
+        <h2 class="feature-title">AI Dictation &amp; Cleanup</h2>
+        <p class="feature-desc">Hold a hotkey, speak naturally, release &mdash; polished text appears in any app. VoxGen removes filler words, fixes grammar, and delivers clean text instantly.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Hold-to-Record or Toggle modes</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Filler word removal (um, uh, like)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Smart grammar &amp; punctuation fix</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Raw vs cleaned output toggle</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Custom vocabulary (200+ terms)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Code Mode &mdash; speak code naturally</li>
+        </ul>
+      </div>
+      <div class="feature-demo">
+        <div class="demo-card glass">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <div class="demo-tabs">
+              <button class="demo-tab active" id="demo-raw-btn" onclick="showDemo('raw')">Raw</button>
+              <button class="demo-tab" id="demo-clean-btn" onclick="showDemo('clean')">Cleaned</button>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-left:auto;color:var(--primary)"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.288L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.288Z"/></svg>
+          </div>
+          <div class="demo-text" id="demo-text">um so basically I was thinking we should
+probably like schedule a meeting with the
+design team uh maybe next tuesday or
+wednesday to go over the new mockups and
+stuff like that</div>
+        </div>
+      </div>
     </div>
 
-    <div class="timeline">
-      <div class="timeline-step reveal">
-        <div class="timeline-dot">1</div>
-        <h3>Download &amp; Install</h3>
-        <p>Download the installer, run it, and add your Groq or OpenAI API key. Takes 30 seconds.</p>
+    <!-- AI Prompt Mode -->
+    <div class="feature-grid-2 reverse reveal">
+      <div>
+        <span class="badge feature-tag">AI Generation</span>
+        <h2 class="feature-title">AI Prompt Mode</h2>
+        <p class="feature-desc">Double-tap the hotkey and speak instructions &mdash; VoxGen generates full emails, code, summaries, or any content. Uses clipboard context and active window to deliver perfectly tailored results.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Keyword triggers: "write me an email about..."</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Clipboard context for names &amp; terms</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Prompt Picker to switch AI modes</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Custom prompts you define</li>
+        </ul>
       </div>
-      <div class="timeline-step reveal stagger-1">
-        <div class="timeline-dot">2</div>
-        <h3>Press Your Hotkey</h3>
-        <p>From any app &mdash; Slack, VS Code, Word, Gmail, anywhere &mdash; hold <kbd>Alt</kbd> and start talking. Release to finish. You can also set a toggle hotkey.</p>
-      </div>
-      <div class="timeline-step reveal stagger-2">
-        <div class="timeline-dot">3</div>
-        <h3>Text Appears</h3>
-        <p>VoxGen transcribes, removes filler words, fixes grammar, and pastes the clean text right where your cursor was.</p>
+      <div class="feature-demo">
+        <div class="demo-card glass">
+          <div id="cmd-demo" style="display:flex;flex-direction:column;gap:16px">
+            <div class="cmd-step" id="cmd-0">
+              <div class="cmd-icon" style="background:hsla(152,32%,42%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+              <span style="color:var(--fg-muted);font-style:italic">"Write me an email about the project update"</span>
+            </div>
+            <div class="cmd-step" id="cmd-1">
+              <div class="cmd-icon" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" stroke-width="2" width="16" height="16"><path d="M12 2.5c3.5 1.8 6 5.8 6 10S15.5 21.7 12 23.5c-3.5-1.8-6-5.8-6-10S8.5 4.3 12 2.5Z"/><path d="M12 2.5v21"/></svg></div>
+              <span style="color:hsla(220,20%,16%,0.7)">AI refining prompt &amp; generating...</span>
+            </div>
+            <div class="cmd-step" id="cmd-2">
+              <div class="cmd-icon" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+              <span style="color:hsla(220,20%,16%,0.7)">Polished email generated</span>
+            </div>
+            <div class="cmd-step" id="cmd-3">
+              <div class="cmd-icon" style="background:var(--primary)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary-fg)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <span style="font-weight:500">Pasted into your app!</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- Features -->
-<section id="features">
-  <div class="container">
-    <div class="section-header reveal">
-      <h2>Everything you need</h2>
-      <p>Powerful dictation with AI cleanup, built for speed.</p>
+    <!-- Feature grid -->
+    <div class="reveal" style="text-align:center;margin-bottom:48px">
+      <h2 class="feature-title">Everything you need</h2>
+      <p style="color:var(--fg-muted)">Built for professionals who live by voice.</p>
     </div>
     <div class="features-grid">
-      <div class="feature-card reveal stagger-1">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.855z"/></svg>
-        </div>
-        <h3>Works Everywhere</h3>
-        <p>Any text field, any app. Emails, documents, chat, code editors. Just press the hotkey.</p>
+      <div class="feature-card glass reveal stagger-1">
+        <div class="feature-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><rect width="20" height="5" x="2" y="4" rx="2"/><path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg></div>
+        <h3>Recording Modes</h3>
+        <p>Hold-to-Record, Toggle, or AI Prompt Mode &mdash; dictate however feels natural.</p>
       </div>
-      <div class="feature-card reveal stagger-2">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.288L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.288Z"/></svg>
-        </div>
-        <h3>AI Text Cleanup</h3>
-        <p>AI removes "um", "like", filler words, and fixes grammar &mdash; so you sound polished, not rambling.</p>
+      <div class="feature-card glass reveal stagger-2">
+        <div class="feature-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><path d="M12 2.5c3.5 1.8 6 5.8 6 10S15.5 21.7 12 23.5c-3.5-1.8-6-5.8-6-10S8.5 4.3 12 2.5Z"/><path d="M12 2.5v21"/></svg></div>
+        <h3>Multi-Provider STT</h3>
+        <p>Groq Whisper (fastest, ~$0.0007/min), OpenAI Whisper, or managed cloud &mdash; your choice.</p>
       </div>
-      <div class="feature-card reveal stagger-3">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <h3>Lightning Fast</h3>
-        <p>Groq Whisper transcribes in under a second. Choose between Groq (fast &amp; cheap) or OpenAI for transcription and cleanup.</p>
+      <div class="feature-card glass reveal stagger-3">
+        <div class="feature-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg></div>
+        <h3>Active Window Detection</h3>
+        <p>Detects Gmail, Slack, VS Code and adjusts behavior per app with Power Modes.</p>
       </div>
-      <div class="feature-card reveal stagger-4">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
-        </div>
-        <h3>Private &amp; Secure</h3>
-        <p>Your API key is encrypted with Windows DPAPI. Audio goes directly to your chosen provider &mdash; no middleman servers.</p>
-      </div>
-      <div class="feature-card reveal stagger-5">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </div>
+      <div class="feature-card glass reveal stagger-4">
+        <div class="feature-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
         <h3>99+ Languages</h3>
-        <p>Whisper supports over 99 languages. Set your preferred language or let it auto-detect.</p>
+        <p>Whisper supports over 99 languages out of the box. Speak in any language.</p>
       </div>
-      <div class="feature-card reveal stagger-6">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M11 19c-1.7 0-3-1.3-3-3v-2h8v2c0 1.7-1.3 3-3 3Z"/><path d="M12 22v-3"/></svg>
-        </div>
-        <h3>Snippets</h3>
-        <p>Create trigger words like "sign off" that expand to full text blocks. Save time on repetitive phrases.</p>
+      <div class="feature-card glass reveal stagger-5">
+        <div class="feature-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.288L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.288Z"/></svg></div>
+        <h3>AI Prompts &amp; Cleanup</h3>
+        <p>4 built-in prompts (Email, Chat, Rewrite, Cleanup) plus custom prompts you define.</p>
+      </div>
+      <div class="feature-card glass reveal stagger-6">
+        <div class="feature-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg></div>
+        <h3>Privacy-First</h3>
+        <p>API keys encrypted with Windows DPAPI. Runs locally &mdash; your audio stays yours.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Pricing -->
-<section id="pricing">
+<!-- ========== HOW IT WORKS ========== -->
+<section id="how-it-works" class="hiw">
   <div class="container">
-    <div class="section-header reveal">
-      <h2>Simple pricing</h2>
-      <p>Choose the plan that works for you. Cancel anytime.</p>
+    <div class="reveal">
+      <span class="badge">Simple as 1-2-3</span>
+      <h2 class="feature-title" style="margin-top:16px">How It Works</h2>
+    </div>
+    <div class="hiw-grid">
+      <div class="hiw-step reveal stagger-1">
+        <div class="hiw-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        </div>
+        <span class="step-num">Step 1</span>
+        <h3>Hold &amp; Speak</h3>
+        <p>Hold Alt (or your chosen hotkey) from any app. Speak naturally &mdash; no special syntax needed.</p>
+      </div>
+      <div class="hiw-step reveal stagger-2">
+        <div class="hiw-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h6"/></svg>
+        </div>
+        <span class="step-num">Step 2</span>
+        <h3>AI Processes</h3>
+        <p>Groq or OpenAI Whisper transcribes in real-time. AI removes fillers, fixes grammar, and polishes.</p>
+      </div>
+      <div class="hiw-step reveal stagger-3">
+        <div class="hiw-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </div>
+        <span class="step-num">Step 3</span>
+        <h3>Text Appears</h3>
+        <p>Release the key &mdash; cleaned text is instantly pasted into whatever app you're using.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== COMPARISON ========== -->
+<section>
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:48px">
+      <span class="badge">Why VoxGen?</span>
+      <h2 class="feature-title" style="margin-top:16px">VoxGen vs. the rest</h2>
+    </div>
+    <div class="comparison-table glass reveal">
+      <div class="comparison-grid">
+        <div class="comparison-header" style="padding:12px 16px">Feature</div>
+        <div class="comparison-header voxgen" style="text-align:center;padding:12px 16px">VoxGen</div>
+        <div class="comparison-header" style="text-align:center;padding:12px 16px">Others</div>
+
+        <div class="comparison-feature">System-wide dictation (any app)</div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fg-muted)" stroke-width="2" width="16" height="16" opacity="0.4"><polyline points="20 6 9 17 4 12"/></svg></div>
+
+        <div class="comparison-feature">AI text cleanup &amp; filler removal</div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fg-muted)" stroke-width="2" width="16" height="16" opacity="0.25"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+
+        <div class="comparison-feature">AI Prompt Mode (content generation)</div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fg-muted)" stroke-width="2" width="16" height="16" opacity="0.25"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+
+        <div class="comparison-feature">Active window detection &amp; Power Modes</div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fg-muted)" stroke-width="2" width="16" height="16" opacity="0.25"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+
+        <div class="comparison-feature">BYOK &mdash; free forever with own key</div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fg-muted)" stroke-width="2" width="16" height="16" opacity="0.25"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+
+        <div class="comparison-feature">Multi-provider (Groq + OpenAI)</div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fg-muted)" stroke-width="2" width="16" height="16" opacity="0.25"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+
+        <div class="comparison-feature">99+ languages</div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="comparison-check"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fg-muted)" stroke-width="2" width="16" height="16" opacity="0.4"><polyline points="20 6 9 17 4 12"/></svg></div>
+
+        <div class="comparison-feature" style="border:none">Encrypted API key storage</div>
+        <div class="comparison-check" style="border:none"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="comparison-check" style="border:none"><svg viewBox="0 0 24 24" fill="none" stroke="var(--fg-muted)" stroke-width="2" width="16" height="16" opacity="0.25"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== APP PREVIEW ========== -->
+<section>
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:56px">
+      <span class="badge">The App</span>
+      <h2 class="feature-title" style="margin-top:16px">Beautifully crafted desktop experience</h2>
+      <p style="color:var(--fg-muted);max-width:480px;margin:8px auto 0">A clean, focused workspace that keeps you productive and in flow.</p>
+    </div>
+    <div class="app-preview-wrap reveal">
+      <div class="app-preview glass" style="position:relative">
+        <!-- Recording Pill -->
+        <div class="recording-pill">
+          <div class="pill-mic">
+            <div class="pill-mic-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="12" height="12"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+            </div>
+            <span class="pill-dot"></span>
+            <span class="pill-time" id="pill-time">0:03</span>
+          </div>
+          <div class="pill-sep"></div>
+          <div class="pill-waves">
+            <div class="pill-wave-bar" style="height:8px;animation-delay:0s"></div>
+            <div class="pill-wave-bar" style="height:14px;animation-delay:0.1s"></div>
+            <div class="pill-wave-bar" style="height:10px;animation-delay:0.2s"></div>
+            <div class="pill-wave-bar" style="height:16px;animation-delay:0.3s"></div>
+            <div class="pill-wave-bar" style="height:8px;animation-delay:0.4s"></div>
+          </div>
+          <div class="pill-sep"></div>
+          <div class="pill-actions">
+            <button class="pill-stop"><svg viewBox="0 0 24 24" fill="var(--cream)" width="8" height="8"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>
+            <button class="pill-cancel"><svg viewBox="0 0 24 24" fill="none" stroke="hsla(40,33%,96%,0.5)" stroke-width="2" width="10" height="10"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>
+        </div>
+
+        <div class="app-preview-inner">
+          <!-- Title bar -->
+          <div class="app-titlebar">
+            <div style="display:flex;gap:6px">
+              <div class="app-dot" style="background:hsla(0,72%,51%,0.5)"></div>
+              <div class="app-dot" style="background:var(--sage-light)"></div>
+              <div class="app-dot" style="background:var(--primary)"></div>
+            </div>
+            <span class="app-titlebar-text">VoxGen &mdash; Desktop</span>
+            <div class="app-searchbar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              Search...
+            </div>
+          </div>
+          <div class="app-body">
+            <!-- Sidebar -->
+            <div class="app-sidebar">
+              <div class="app-sidebar-logo">
+                <div class="app-sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary-fg)" stroke-width="2.5" width="14" height="14"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+                <span>VoxGen</span>
+              </div>
+              <nav class="app-sidebar-nav">
+                <button class="app-nav-item" onclick="switchAppTab('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
+                <button class="app-nav-item active" id="nav-transcribe" onclick="switchAppTab('transcribe')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg> Transcribe</button>
+                <button class="app-nav-item" id="nav-commands" onclick="switchAppTab('commands')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg> Commands</button>
+                <button class="app-nav-item" onclick="switchAppTab('history')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> History</button>
+                <button class="app-nav-item" onclick="switchAppTab('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings</button>
+              </nav>
+              <div class="app-sidebar-user">
+                <div class="app-avatar">A</div>
+                <div>
+                  <div class="app-user-name">Alex Chen</div>
+                  <div class="app-user-plan">Pro Plan</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main content area -->
+            <div class="app-main" id="app-content">
+              <div class="app-tabs">
+                <button class="app-tab active" id="tab-transcribe" onclick="switchAppTab('transcribe')">Transcribe</button>
+                <button class="app-tab" id="tab-commands" onclick="switchAppTab('commands')">Commands</button>
+              </div>
+              <div id="app-view-transcribe">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                  <div style="width:40px;height:40px;border-radius:12px;background:hsla(152,32%,42%,0.1);display:flex;align-items:center;justify-content:center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600">Live Transcription</div>
+                    <div style="font-size:12px;color:var(--primary);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--primary);display:inline-block;animation:pulse-soft 1s ease-in-out infinite"></span> Recording &mdash; 3:24</div>
+                  </div>
+                </div>
+                <div class="waveform-bars" id="app-waveform"></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0">
+                  <div style="display:flex;gap:4px;background:hsla(40,15%,92%,0.4);border-radius:100px;padding:2px">
+                    <button class="demo-tab active" id="app-raw-btn" onclick="showAppDemo('raw')">Raw</button>
+                    <button class="demo-tab" id="app-clean-btn" onclick="showAppDemo('clean')">Cleaned</button>
+                  </div>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.288L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.288Z"/></svg>
+                </div>
+                <div id="app-demo-text" style="background:hsla(40,15%,92%,0.2);border-radius:12px;padding:16px;font-size:14px;line-height:1.7;color:hsla(220,20%,16%,0.8)">um so basically I was thinking we should probably like schedule a meeting with the design team uh maybe next tuesday or wednesday to go over the new mockups and stuff like that and also talk about the timeline for the Q1 launch</div>
+              </div>
+              <div id="app-view-commands" style="display:none">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                  <div style="width:40px;height:40px;border-radius:12px;background:hsla(152,32%,42%,0.1);display:flex;align-items:center;justify-content:center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="20" height="20"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600">Voice Commands</div>
+                    <div style="font-size:12px;color:var(--fg-muted)">Ready &mdash; say a command</div>
+                  </div>
+                </div>
+                <div style="background:hsla(40,15%,92%,0.2);border-radius:12px;padding:12px;display:flex;align-items:center;gap:8px;border:1px solid hsla(40,18%,88%,0.3);margin-bottom:16px">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                  <span style="font-size:14px;color:var(--fg-muted);font-style:italic">"Open the budget spreadsheet and highlight Q4 expenses"</span>
+                </div>
+                <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--fg-muted);margin-bottom:8px">Recent Commands</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:14px;padding:12px;border-radius:8px;background:hsla(40,15%,92%,0.1);border:1px solid hsla(40,18%,88%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg><span style="flex:1;color:hsla(220,20%,16%,0.7)">Send email to Sarah about project update</span><span style="font-size:10px;background:var(--accent);color:var(--accent-fg);padding:2px 8px;border-radius:100px;font-weight:500">done</span></div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:14px;padding:12px;border-radius:8px;background:hsla(40,15%,92%,0.1);border:1px solid hsla(40,18%,88%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg><span style="flex:1;color:hsla(220,20%,16%,0.7)">Create task: Review mockups by Friday</span><span style="font-size:10px;background:var(--accent);color:var(--accent-fg);padding:2px 8px;border-radius:100px;font-weight:500">done</span></div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:14px;padding:12px;border-radius:8px;background:hsla(40,15%,92%,0.1);border:1px solid hsla(40,18%,88%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg><span style="flex:1;color:hsla(220,20%,16%,0.7)">Search files: Q4 budget report</span><span style="font-size:10px;background:var(--accent);color:var(--accent-fg);padding:2px 8px;border-radius:100px;font-weight:500">done</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Activity feed -->
+            <div class="app-activity">
+              <div class="app-activity-title">Recent Activity</div>
+              <div class="app-activity-item">
+                <div class="app-activity-icon" style="background:hsla(152,32%,42%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="14" height="14"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div>
+                <div><div class="app-activity-text">Meeting Notes &mdash; Q4 Planning</div><div class="app-activity-time">2 min ago</div></div>
+              </div>
+              <div class="app-activity-item">
+                <div class="app-activity-icon" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" stroke-width="2" width="14" height="14"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></div>
+                <div><div class="app-activity-text">Email sent to Sarah</div><div class="app-activity-time">5 min ago</div></div>
+              </div>
+              <div class="app-activity-item">
+                <div class="app-activity-icon" style="background:hsla(152,32%,42%,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="14" height="14"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+                <div><div class="app-activity-text">Voice memo &mdash; Product ideas</div><div class="app-activity-time">12 min ago</div></div>
+              </div>
+              <div class="app-activity-item">
+                <div class="app-activity-icon" style="background:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-fg)" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+                <div><div class="app-activity-text">File search: budget.xlsx</div><div class="app-activity-time">18 min ago</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PRICING ========== -->
+<section id="pricing" class="pricing">
+  <div class="container">
+    <div class="reveal" style="text-align:center">
+      <span class="badge">Pricing</span>
+      <h2 class="feature-title" style="margin-top:16px">Simple, transparent pricing</h2>
+      <p style="color:var(--fg-muted);max-width:440px;margin:8px auto 0">Every plan starts with a free 30-day trial. No credit card required.</p>
     </div>
     <div class="pricing-grid">
-      <div class="pricing-card reveal stagger-1">
-        <div class="pricing-badge">Monthly</div>
-        <div class="pricing-price">$9<span>/mo</span></div>
+      <!-- Pro -->
+      <div class="pricing-card pricing-card-pro reveal stagger-1">
+        <div class="pricing-popular-tag">Most Popular</div>
+        <h3 class="pricing-plan-name">Pro</h3>
+        <p class="pricing-plan-desc">For power users who dictate daily</p>
+        <div class="pricing-toggle">
+          <button class="pricing-toggle-btn" id="toggle-monthly" onclick="switchPricingTab('monthly')">Monthly</button>
+          <button class="pricing-toggle-btn active" id="toggle-yearly" onclick="switchPricingTab('yearly')">Yearly</button>
+        </div>
+        <div>
+          <div class="pricing-price" id="pro-price">$59<span>/yr</span></div>
+          <div class="pricing-savings" id="pro-savings">Save 45%</div>
+        </div>
         <ul class="pricing-features">
-          <li>Managed API keys (no setup)</li>
-          <li>Groq &amp; OpenAI cloud STT</li>
-          <li>AI text cleanup</li>
-          <li>All languages</li>
-          <li>Priority support</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="hsla(40,33%,96%,0.8)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Managed API keys &mdash; no setup</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="hsla(40,33%,96%,0.8)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Unlimited transcription</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="hsla(40,33%,96%,0.8)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> AI cleanup &amp; Prompt Mode</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="hsla(40,33%,96%,0.8)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Priority support</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="hsla(40,33%,96%,0.8)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Auto-updates</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="hsla(40,33%,96%,0.8)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> All future features</li>
         </ul>
-        <button class="btn btn-outline pricing-btn" onclick="openCheckout('monthly')">Get Pro Monthly</button>
+        <button class="btn pricing-cta" id="pro-cta" onclick="openCheckout('yearly')">Start Free Trial</button>
       </div>
-      <div class="pricing-card pricing-card-popular reveal stagger-2">
-        <div class="pricing-popular-tag">Best Value</div>
-        <div class="pricing-badge">Yearly</div>
-        <div class="pricing-price">$59<span>/yr</span></div>
-        <p class="pricing-savings">Save 45% &mdash; $4.92/mo</p>
+      <!-- Lifetime -->
+      <div class="pricing-card pricing-card-lifetime glass reveal stagger-2">
+        <h3 class="pricing-plan-name">Lifetime</h3>
+        <p class="pricing-plan-desc" style="color:var(--fg-muted)">Own it forever &mdash; bring your own API key</p>
+        <div>
+          <div class="pricing-price">$149<span> one-time</span></div>
+        </div>
         <ul class="pricing-features">
-          <li>Everything in Monthly</li>
-          <li>Managed API keys (no setup)</li>
-          <li>Priority support</li>
-          <li>All future updates</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> BYOK (Groq or OpenAI)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> All features forever</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> No recurring fees</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> All future updates</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> Community support</li>
         </ul>
-        <button class="btn btn-primary pricing-btn" onclick="openCheckout('yearly')">Get Pro Yearly</button>
-      </div>
-      <div class="pricing-card reveal stagger-3">
-        <div class="pricing-badge">Lifetime</div>
-        <div class="pricing-price">$149<span> once</span></div>
-        <p class="pricing-note">BYOK &mdash; bring your own API key</p>
-        <ul class="pricing-features">
-          <li>Pay once, use forever</li>
-          <li>Use your own API key</li>
-          <li>All app features</li>
-          <li>No recurring charges</li>
-        </ul>
-        <button class="btn btn-outline pricing-btn" onclick="openCheckout('lifetime')">Get Lifetime Access</button>
+        <button class="btn btn-primary pricing-cta" onclick="openCheckout('lifetime')">Start Free Trial</button>
       </div>
     </div>
-    <p class="pricing-byok-note reveal">
-      Already have a Groq or OpenAI API key? <strong>Use VoxGen free for 30 days</strong>, then BYOK forever &mdash; no license needed.
+    <p class="pricing-byok reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="display:inline;vertical-align:-2px;margin-right:4px"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
+      Bring your own <a href="https://console.groq.com/keys">Groq</a> or <a href="https://platform.openai.com/api-keys">OpenAI</a> API key &mdash; use VoxGen <strong>free forever</strong> after your trial.
     </p>
   </div>
 </section>
 
-<!-- Get Started -->
-<section id="get-started" class="get-started-section">
+<!-- ========== GET STARTED ========== -->
+<section id="get-started" class="get-started">
   <div class="container">
-    <div class="get-started-box reveal">
+    <div class="get-started-box glass reveal">
       <h2>Get VoxGen</h2>
       <p>Download for free. You'll activate your trial inside the app.</p>
-
-      <div class="get-started-email-wrap">
+      <div class="gs-email-wrap">
         <input type="email" id="gs-email" placeholder="your@email.com (optional)" />
-        <div class="get-started-error" id="gs-error"></div>
+        <div class="gs-error" id="gs-error"></div>
       </div>
-
-      <div class="get-started-buttons">
+      <div class="gs-buttons">
         <button class="btn btn-primary" id="gs-free-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
           Download Free
         </button>
         <button class="btn btn-outline" id="gs-pro-btn">
           Go Pro
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
-
       <p class="platform-note">Windows 10/11 &bull; 64-bit &bull; 30-day free trial</p>
     </div>
   </div>
 </section>
 
-<!-- Footer -->
+<!-- ========== FOOTER ========== -->
 <footer>
   <div class="container">
-    <p>&copy; 2026 VoxGen. Built with Electron, React, and Whisper AI.</p>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo" style="margin-bottom:0">
+          <div class="nav-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="16" height="16"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div>
+          <span>VoxGen</span>
+        </a>
+        <p>AI-powered dictation and smart content generation that works everywhere.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#get-started">Download</a></li>
+          <li><a href="whats-new.html">What's New</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="https://github.com/simchap123/VoxGen/releases" target="_blank" rel="noopener noreferrer">Releases</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 VoxGen. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
   </div>
 </footer>
 
-<!-- Checkout modal -->
+<!-- ========== CHECKOUT MODAL ========== -->
 <div class="checkout-overlay" id="checkout-overlay">
   <div class="checkout-modal">
     <h3>Choose your plan</h3>
     <p>Select a plan to continue to payment.</p>
     <div class="checkout-error" id="checkout-error"></div>
-    <input type="email" id="checkout-email" placeholder="you@example.com" style="display:none" />
+    <input type="email" id="checkout-email" placeholder="you@example.com" style="display:none;width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--fg);outline:none;margin-bottom:12px" />
     <div class="checkout-plans" id="checkout-plans">
       <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('monthly')">Monthly &mdash; $9/mo</button>
       <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('yearly')">Yearly &mdash; $59/yr (Best Value)</button>
       <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('lifetime')">Lifetime &mdash; $149 once (BYOK)</button>
     </div>
-    <button class="btn btn-primary" id="checkout-submit" style="display:none">Continue to Payment</button>
+    <button class="btn btn-primary" id="checkout-submit" style="display:none;width:100%;justify-content:center">Continue to Payment</button>
     <button class="checkout-cancel" id="checkout-cancel">Cancel</button>
   </div>
 </div>
 
+<!-- ========== SCRIPTS ========== -->
 <script>
-  // --- Scroll reveal with IntersectionObserver ---
+  // --- Navbar scroll effect ---
+  (function() {
+    var nav = document.getElementById('navbar');
+    window.addEventListener('scroll', function() {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+  })();
+
+  // --- Scroll reveal ---
   (function() {
     var reveals = document.querySelectorAll('.reveal');
     if ('IntersectionObserver' in window) {
@@ -952,24 +1438,121 @@
       }, { threshold: 0.15 });
       reveals.forEach(function(el) { observer.observe(el); });
     } else {
-      // Fallback: show everything immediately
       reveals.forEach(function(el) { el.classList.add('visible'); });
     }
   })();
 
-  // Dynamically resolve the latest .exe from GitHub Releases
+  // --- Transcription demo toggle ---
+  var demoRawText = "um so basically I was thinking we should\nprobably like schedule a meeting with the\ndesign team uh maybe next tuesday or\nwednesday to go over the new mockups and\nstuff like that";
+  var demoCleanText = "We should schedule a meeting with the design\nteam next Tuesday or Wednesday to review\nthe new mockups.";
+
+  function showDemo(mode) {
+    document.getElementById('demo-text').textContent = mode === 'clean' ? demoCleanText : demoRawText;
+    document.getElementById('demo-raw-btn').classList.toggle('active', mode === 'raw');
+    document.getElementById('demo-clean-btn').classList.toggle('active', mode === 'clean');
+  }
+
+  // Auto-toggle demo every 3 seconds
+  (function() {
+    var clean = false;
+    setInterval(function() {
+      clean = !clean;
+      showDemo(clean ? 'clean' : 'raw');
+    }, 3000);
+  })();
+
+  // --- Command pipeline animation ---
+  (function() {
+    function runPipeline() {
+      var steps = document.querySelectorAll('.cmd-step');
+      steps.forEach(function(s) { s.classList.remove('active'); });
+      steps[0].classList.add('active');
+      setTimeout(function() { steps[1].classList.add('active'); }, 1000);
+      setTimeout(function() { steps[2].classList.add('active'); }, 2200);
+      setTimeout(function() { steps[3].classList.add('active'); }, 3400);
+    }
+    runPipeline();
+    setInterval(runPipeline, 5500);
+  })();
+
+  // --- App waveform bars ---
+  (function() {
+    var wf = document.getElementById('app-waveform');
+    if (!wf) return;
+    for (var i = 0; i < 55; i++) {
+      var bar = document.createElement('div');
+      bar.className = 'waveform-bar';
+      bar.style.height = (12 + Math.sin(i * 0.35) * 55 + Math.cos(i * 0.75) * 22) + '%';
+      bar.style.animationDelay = (i * 0.05) + 's';
+      wf.appendChild(bar);
+    }
+  })();
+
+  // --- App demo Raw/Clean toggle ---
+  function showAppDemo(mode) {
+    var raw = "um so basically I was thinking we should probably like schedule a meeting with the design team uh maybe next tuesday or wednesday to go over the new mockups and stuff like that and also talk about the timeline for the Q1 launch";
+    var clean = "We should schedule a meeting with the design team next Tuesday or Wednesday to review the new mockups and discuss the timeline for the Q1 launch.";
+    document.getElementById('app-demo-text').textContent = mode === 'clean' ? clean : raw;
+    document.getElementById('app-raw-btn').classList.toggle('active', mode === 'raw');
+    document.getElementById('app-clean-btn').classList.toggle('active', mode === 'clean');
+  }
+
+  // --- App tab switching ---
+  function switchAppTab(tab) {
+    document.getElementById('app-view-transcribe').style.display = tab === 'transcribe' ? '' : 'none';
+    document.getElementById('app-view-commands').style.display = tab === 'commands' ? '' : 'none';
+    document.getElementById('tab-transcribe').classList.toggle('active', tab === 'transcribe');
+    document.getElementById('tab-commands').classList.toggle('active', tab === 'commands');
+    // Sidebar active state
+    document.querySelectorAll('.app-nav-item').forEach(function(el) { el.classList.remove('active'); });
+    var navId = tab === 'transcribe' ? 'nav-transcribe' : (tab === 'commands' ? 'nav-commands' : null);
+    if (navId) document.getElementById(navId).classList.add('active');
+  }
+
+  // --- Recording pill timer ---
+  (function() {
+    var secs = 3;
+    setInterval(function() {
+      secs++;
+      var m = Math.floor(secs / 60);
+      var s = secs % 60;
+      document.getElementById('pill-time').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    }, 1000);
+  })();
+
+  // --- Pricing toggle ---
+  function switchPricingTab(tab) {
+    var monthly = document.getElementById('toggle-monthly');
+    var yearly = document.getElementById('toggle-yearly');
+    var price = document.getElementById('pro-price');
+    var savings = document.getElementById('pro-savings');
+    var cta = document.getElementById('pro-cta');
+    if (tab === 'monthly') {
+      monthly.classList.add('active');
+      yearly.classList.remove('active');
+      price.innerHTML = '$9<span>/mo</span>';
+      savings.style.display = 'none';
+      cta.setAttribute('onclick', "openCheckout('monthly')");
+    } else {
+      yearly.classList.add('active');
+      monthly.classList.remove('active');
+      price.innerHTML = '$59<span>/yr</span>';
+      savings.textContent = 'Save 45%';
+      savings.style.display = '';
+      cta.setAttribute('onclick', "openCheckout('yearly')");
+    }
+  }
+
+  // --- Download URL resolution ---
   var DOWNLOAD_URL = 'https://github.com/simchap123/VoxGen/releases/latest';
   var hasDirectExe = false;
   fetch('https://api.github.com/repos/simchap123/VoxGen/releases/latest')
     .then(function(r) { return r.json(); })
     .then(function(release) {
       var exe = release.assets && release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
-      if (exe) {
-        DOWNLOAD_URL = exe.browser_download_url;
-        hasDirectExe = true;
-      }
+      if (exe) { DOWNLOAD_URL = exe.browser_download_url; hasDirectExe = true; }
     })
-    .catch(function() { /* fallback to releases page */ });
+    .catch(function() {});
 
   // --- Element refs ---
   var gsEmail = document.getElementById('gs-email');
@@ -983,7 +1566,6 @@
   var checkoutSubmit = document.getElementById('checkout-submit');
   var checkoutCancel = document.getElementById('checkout-cancel');
 
-  // --- Helpers ---
   function getEmail() {
     var email = gsEmail.value.trim();
     if (!email || !email.includes('@')) {
@@ -996,15 +1578,7 @@
   }
 
   async function captureLead(email, path) {
-    try {
-      await fetch('/api/capture-lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, path: path }),
-      });
-    } catch (e) {
-      // Don't block user flow if lead capture fails
-    }
+    try { await fetch('/api/capture-lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, path: path }) }); } catch (e) {}
   }
 
   function triggerDownload() {
@@ -1016,20 +1590,16 @@
       link.click();
       document.body.removeChild(link);
     } else {
-      // Fallback: open releases page in new tab so user can download manually
       window.open(DOWNLOAD_URL, '_blank');
     }
   }
 
-  // --- Get Started: "Download Free" ---
   gsFreeBtn.addEventListener('click', async function() {
     var email = gsEmail.value.trim();
     gsError.style.display = 'none';
     gsFreeBtn.disabled = true;
     gsFreeBtn.textContent = 'Starting download...';
-    if (email && email.includes('@')) {
-      await captureLead(email, 'free');
-    }
+    if (email && email.includes('@')) await captureLead(email, 'free');
     triggerDownload();
     setTimeout(function() {
       var url = 'download.html';
@@ -1038,7 +1608,6 @@
     }, 500);
   });
 
-  // --- Get Started: "Go Pro" ---
   gsProBtn.addEventListener('click', async function() {
     var email = getEmail();
     if (!email) return;
@@ -1048,43 +1617,33 @@
     checkoutEmail.value = email;
     checkoutOverlay.classList.add('active');
     gsProBtn.disabled = false;
-    gsProBtn.innerHTML = 'Go Pro <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>';
+    gsProBtn.innerHTML = 'Go Pro <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>';
   });
 
-  gsEmail.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') gsFreeBtn.click();
-  });
+  gsEmail.addEventListener('keydown', function(e) { if (e.key === 'Enter') gsFreeBtn.click(); });
 
-  // --- Open checkout from pricing cards ---
+  // --- Checkout ---
   function openCheckout(plan) {
     checkoutOverlay.classList.add('active');
-    // Auto-select the plan
     selectPlan(plan);
   }
 
-  // --- Checkout modal ---
   var checkoutPlans = document.getElementById('checkout-plans');
 
   function selectPlan(plan) {
     selectedPlan = plan;
     var email = checkoutEmail.value || gsEmail.value.trim();
     if (!email || !email.includes('@')) {
-      // Show email input in modal if no email yet
       checkoutEmail.style.display = 'block';
       checkoutEmail.focus();
       checkoutError.textContent = 'Please enter your email to continue.';
       checkoutError.style.display = 'block';
-      // Store pending plan selection
       checkoutSubmit.style.display = 'flex';
       checkoutSubmit.textContent = 'Continue to Payment';
       checkoutPlans.style.display = 'none';
       checkoutSubmit.onclick = function() {
         var em = checkoutEmail.value.trim();
-        if (!em || !em.includes('@')) {
-          checkoutError.textContent = 'Please enter a valid email address.';
-          checkoutError.style.display = 'block';
-          return;
-        }
+        if (!em || !em.includes('@')) { checkoutError.textContent = 'Please enter a valid email address.'; checkoutError.style.display = 'block'; return; }
         checkoutError.style.display = 'none';
         doCheckout(plan, em);
       };
@@ -1097,39 +1656,24 @@
   async function doCheckout(plan, email) {
     checkoutPlans.style.pointerEvents = 'none';
     checkoutPlans.style.opacity = '0.5';
-    if (checkoutSubmit) {
-      checkoutSubmit.disabled = true;
-      checkoutSubmit.textContent = 'Processing...';
-    }
-
+    if (checkoutSubmit) { checkoutSubmit.disabled = true; checkoutSubmit.textContent = 'Processing...'; }
     try {
-      var resp = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: plan, email: email }),
-      });
+      var resp = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: plan, email: email }) });
       var data = await resp.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
+      if (data.url) { window.location.href = data.url; }
+      else { throw new Error(data.error || 'Failed to create checkout session'); }
     } catch (err) {
       checkoutError.textContent = err.message || 'Something went wrong. Please try again.';
       checkoutError.style.display = 'block';
       checkoutPlans.style.pointerEvents = '';
       checkoutPlans.style.opacity = '';
-      if (checkoutSubmit) {
-        checkoutSubmit.disabled = false;
-        checkoutSubmit.textContent = 'Continue to Payment';
-      }
+      if (checkoutSubmit) { checkoutSubmit.disabled = false; checkoutSubmit.textContent = 'Continue to Payment'; }
     }
   }
 
   function closeCheckout() {
     checkoutOverlay.classList.remove('active');
     selectedPlan = null;
-    // Reset modal state
     checkoutEmail.style.display = 'none';
     checkoutSubmit.style.display = 'none';
     checkoutPlans.style.display = '';
@@ -1139,65 +1683,7 @@
   }
 
   checkoutCancel.addEventListener('click', closeCheckout);
-
-  checkoutOverlay.addEventListener('click', function(e) {
-    if (e.target === checkoutOverlay) closeCheckout();
-  });
-
-  // --- Typewriter effect for demo text ---
-  (function() {
-    var phrases = [
-      'I wanted to schedule a meeting for tomorrow afternoon',
-      'Hey team, just following up on the project deadline',
-      'Can you send me the report by end of day Friday',
-      'Write me an email about rescheduling the client call',
-      'The quarterly results exceeded our expectations by 20 percent',
-    ];
-    var el = document.getElementById('typed-text');
-    if (!el) return;
-
-    var phraseIndex = 0;
-    var charIndex = 0;
-    var isDeleting = false;
-    var pauseTime = 2000;
-
-    function tick() {
-      var current = phrases[phraseIndex];
-
-      if (!isDeleting) {
-        // Typing — add chars in chunks (word-like pace)
-        var step = Math.random() < 0.3 ? 2 : 1; // occasionally type 2 chars
-        charIndex = Math.min(charIndex + step, current.length);
-        el.textContent = current.substring(0, charIndex);
-
-        if (charIndex >= current.length) {
-          // Done typing — pause then start deleting
-          setTimeout(function() { isDeleting = true; tick(); }, pauseTime);
-          return;
-        }
-        // Typing speed: faster in the middle of words, slight pause on spaces
-        var nextChar = current[charIndex];
-        var delay = nextChar === ' ' ? 120 : (40 + Math.random() * 60);
-        setTimeout(tick, delay);
-      } else {
-        // Deleting — fast, in chunks
-        var deleteStep = 3 + Math.floor(Math.random() * 3);
-        charIndex = Math.max(charIndex - deleteStep, 0);
-        el.textContent = current.substring(0, charIndex);
-
-        if (charIndex <= 0) {
-          isDeleting = false;
-          phraseIndex = (phraseIndex + 1) % phrases.length;
-          setTimeout(tick, 400);
-          return;
-        }
-        setTimeout(tick, 25);
-      }
-    }
-
-    // Start after the demo section is visible
-    setTimeout(tick, 1500);
-  })();
+  checkoutOverlay.addEventListener('click', function(e) { if (e.target === checkoutOverlay) closeCheckout(); });
 </script>
 
 </body>

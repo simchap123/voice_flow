@@ -5,7 +5,6 @@ import type { PowerMode, AppMatcher } from '@/types/power-mode'
 import type { CustomPrompt } from '@/types/custom-prompt'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from '@/hooks/useToast'
 import { Plus, Pencil, Trash2, X, Check, Zap } from 'lucide-react'
 
@@ -51,49 +50,49 @@ function ModeForm({ draft, onChange, allPrompts }: ModeFormProps) {
           placeholder="Emoji"
           value={draft.emoji}
           onChange={e => onChange({ ...draft, emoji: e.target.value })}
-          className="w-14 text-center text-base"
+          className="w-14 text-center text-base rounded-xl"
           maxLength={2}
         />
         <Input
           placeholder="Mode name (e.g. Outlook Email)"
           value={draft.name}
           onChange={e => onChange({ ...draft, name: e.target.value })}
-          className="flex-1 text-sm"
+          className="flex-1 text-[13px] rounded-xl"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-medium text-muted-foreground">App process names (comma-separated)</label>
+        <label className="text-[11px] font-medium text-muted-foreground/60">App process names (comma-separated)</label>
         <Input
           placeholder="chrome, outlook, slack"
           value={appProcessText}
           onChange={e => setAppProcesses(e.target.value)}
-          className="text-sm font-mono"
+          className="text-[13px] font-mono rounded-xl"
         />
-        <p className="text-[11px] text-muted-foreground/60">
-          Matches when the foreground app process name contains any of these strings
+        <p className="text-[10px] text-muted-foreground/40">
+          Matches when the foreground app process contains any of these strings
         </p>
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-medium text-muted-foreground">Window title patterns (one per line)</label>
+        <label className="text-[11px] font-medium text-muted-foreground/60">Window title patterns (one per line)</label>
         <textarea
           placeholder="Gmail&#10;Outlook&#10;compose"
           value={urlPatternsText}
           onChange={e => setUrlPatterns(e.target.value)}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs font-mono resize-none h-16 focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
+          className="w-full rounded-xl border border-input bg-background px-3 py-2 text-[12px] font-mono resize-none h-16 focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/40"
         />
-        <p className="text-[11px] text-muted-foreground/60">
-          Matches when the active window title contains any of these strings (checked before process names)
+        <p className="text-[10px] text-muted-foreground/40">
+          Matches when the active window title contains any of these strings
         </p>
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-medium text-muted-foreground">Prompt</label>
+        <label className="text-[11px] font-medium text-muted-foreground/60">Prompt</label>
         <select
           value={draft.selectedPromptId}
           onChange={e => onChange({ ...draft, selectedPromptId: e.target.value })}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          className="w-full rounded-xl border border-input bg-background px-3 py-2 text-[13px] focus:outline-none focus:ring-1 focus:ring-ring"
         >
           {allPrompts.map(p => (
             <option key={p.id} value={p.id}>
@@ -174,23 +173,23 @@ export function PowerModesSection() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold">Power Modes</h2>
-        <p className="text-sm text-muted-foreground">
-          Auto-detect the active application and apply custom AI settings — prompt, STT provider, and cleanup — per context.
+        <h2 className="text-lg font-semibold tracking-tight">Power Modes</h2>
+        <p className="text-[12px] text-muted-foreground/60">
+          Auto-detect the active application and apply custom AI settings per context.
         </p>
       </div>
 
       {/* Master toggle */}
-      <div className="flex items-center justify-between rounded-lg border border-border/50 px-4 py-3">
+      <div className="glass-card flex items-center justify-between px-5 py-4">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-purple-400" />
-            <span className="text-sm font-medium">Enable Power Modes</span>
+            <Zap className="h-4 w-4 text-primary" />
+            <span className="text-[13px] font-medium">Enable Power Modes</span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Automatically apply mode overrides based on the focused app at recording start
+          <p className="text-[11px] text-muted-foreground/60">
+            Auto-apply mode overrides based on the focused app at recording start
           </p>
         </div>
         <button
@@ -207,87 +206,84 @@ export function PowerModesSection() {
 
       {/* Mode list */}
       {powerModes.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {powerModes.map(mode => {
             const isEditing = editingId === mode.id
             const linkedPrompt = allPrompts.find(p => p.id === mode.selectedPromptId)
             return (
-              <Card key={mode.id}>
-                <CardHeader className="pb-2 pt-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="text-lg">{mode.emoji}</span>
-                      <div className="min-w-0">
-                        <CardTitle className="text-sm">{mode.name}</CardTitle>
-                        {!isEditing && (
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {mode.appMatchers.map(a => (
-                              <span key={a.processName} className="text-[10px] bg-muted rounded px-1.5 py-px font-mono text-muted-foreground">
-                                {a.processName}
-                              </span>
-                            ))}
-                            {mode.urlMatchers.map(u => (
-                              <span key={u} className="text-[10px] bg-muted rounded px-1.5 py-px font-mono text-muted-foreground italic">
-                                "{u}"
-                              </span>
-                            ))}
-                            {linkedPrompt && (
-                              <span className="text-[10px] text-muted-foreground/70 ml-1">
-                                → {linkedPrompt.icon} {linkedPrompt.title}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {/* Enable toggle */}
+              <div key={mode.id} className="glass-card overflow-hidden">
+                <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-lg">{mode.emoji}</span>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium">{mode.name}</p>
                       {!isEditing && (
-                        <button
-                          onClick={() => toggleMode(mode.id, !mode.isEnabled)}
-                          className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${
-                            mode.isEnabled ? 'bg-primary' : 'bg-muted'
-                          }`}
-                          title={mode.isEnabled ? 'Enabled — click to disable' : 'Disabled — click to enable'}
-                        >
-                          <span className={`inline-block h-3 w-3 transform rounded-full bg-white shadow-sm transition-transform ${
-                            mode.isEnabled ? 'translate-x-3.5' : 'translate-x-0.5'
-                          }`} />
-                        </button>
-                      )}
-
-                      {isEditing ? (
-                        <>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={saveEdit}>
-                            <Check className="h-3.5 w-3.5 text-green-500" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                            onClick={() => { setEditingId(null) }}>
-                            <X className="h-3.5 w-3.5" />
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => startEdit(mode)}>
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-destructive"
-                            onClick={() => deleteMode(mode.id)}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {mode.appMatchers.map(a => (
+                            <span key={a.processName} className="text-[10px] bg-muted/50 rounded-md px-1.5 py-px font-mono text-muted-foreground/60">
+                              {a.processName}
+                            </span>
+                          ))}
+                          {mode.urlMatchers.map(u => (
+                            <span key={u} className="text-[10px] bg-muted/50 rounded-md px-1.5 py-px font-mono text-muted-foreground/60 italic">
+                              "{u}"
+                            </span>
+                          ))}
+                          {linkedPrompt && (
+                            <span className="text-[10px] text-muted-foreground/50 ml-1">
+                              → {linkedPrompt.icon} {linkedPrompt.title}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
-                </CardHeader>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    {!isEditing && (
+                      <button
+                        onClick={() => toggleMode(mode.id, !mode.isEnabled)}
+                        className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${
+                          mode.isEnabled ? 'bg-primary' : 'bg-muted'
+                        }`}
+                        title={mode.isEnabled ? 'Enabled' : 'Disabled'}
+                      >
+                        <span className={`inline-block h-3 w-3 transform rounded-full bg-white shadow-sm transition-transform ${
+                          mode.isEnabled ? 'translate-x-3.5' : 'translate-x-0.5'
+                        }`} />
+                      </button>
+                    )}
+
+                    {isEditing ? (
+                      <>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 rounded-lg" onClick={saveEdit}>
+                          <Check className="h-3.5 w-3.5 text-primary" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 rounded-lg"
+                          onClick={() => { setEditingId(null) }}>
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 rounded-lg" onClick={() => startEdit(mode)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 rounded-lg hover:text-destructive"
+                          onClick={() => deleteMode(mode.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
 
                 {isEditing && (
-                  <CardContent className="pb-4">
+                  <div className="px-4 pb-4">
                     <ModeForm draft={editDraft} onChange={setEditDraft} allPrompts={allPrompts} />
-                  </CardContent>
+                  </div>
                 )}
-              </Card>
+              </div>
             )
           })}
         </div>
@@ -295,34 +291,36 @@ export function PowerModesSection() {
 
       {/* Add form */}
       {showAddForm ? (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm">New Power Mode</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="glass-card overflow-hidden">
+          <div className="border-b border-border/30 px-5 py-4">
+            <h3 className="text-[13px] font-semibold">New Power Mode</h3>
+          </div>
+          <div className="space-y-3 p-5">
             <ModeForm draft={newModeDraft} onChange={setNewModeDraft} allPrompts={allPrompts} />
             <div className="flex gap-2 justify-end">
-              <Button variant="ghost" size="sm" onClick={() => { setShowAddForm(false); setNewModeDraft(newBlankMode()) }}>
+              <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => { setShowAddForm(false); setNewModeDraft(newBlankMode()) }}>
                 Cancel
               </Button>
-              <Button size="sm" onClick={addMode} disabled={!newModeDraft.name.trim()}>
+              <Button size="sm" className="rounded-xl" onClick={addMode} disabled={!newModeDraft.name.trim()}>
                 Add Mode
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : (
-        <Button variant="outline" className="w-full gap-2" onClick={() => setShowAddForm(true)}>
+        <Button variant="outline" className="w-full gap-2 rounded-xl" onClick={() => setShowAddForm(true)}>
           <Plus className="h-4 w-4" />
           Add Power Mode
         </Button>
       )}
 
       {powerModes.length === 0 && !showAddForm && (
-        <div className="rounded-lg border border-dashed border-border/50 p-6 text-center">
-          <Zap className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No power modes yet.</p>
-          <p className="text-xs text-muted-foreground/60 mt-1">
+        <div className="rounded-xl border border-dashed border-border/30 p-8 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/5">
+            <Zap className="h-5 w-5 text-primary/30" />
+          </div>
+          <p className="text-[13px] text-muted-foreground/60">No power modes yet</p>
+          <p className="text-[11px] text-muted-foreground/40 mt-1">
             Add a mode to auto-apply AI settings based on the active app.
           </p>
         </div>
