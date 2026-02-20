@@ -104,3 +104,21 @@
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Staggered settings animations */
+.settings-tab-enter {
+  animation: settings-tab-in 0.15s ease-out;
+}
+@keyframes settings-tab-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.settings-section-enter {
+  opacity: 0;
+  animation: settings-section-in 0.25s ease-out forwards;
+}
+@keyframes settings-section-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

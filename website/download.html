@@ -11,24 +11,59 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #06080f;
-      --bg-card: #0c1020;
-      --text: #e8eaf0;
-      --text-muted: #7a7f96;
-      --primary: #7c3aed;
-      --primary-light: #a78bfa;
-      --primary-glow: rgba(124, 58, 237, 0.3);
-      --accent: #3b82f6;
-      --border: rgba(255,255,255,0.06);
-      --green: #22c55e;
+      /* Brand sage green */
+      --brand-50: #eef3ee;
+      --brand-100: #dce7dc;
+      --brand-200: #b9cfb9;
+      --brand-300: #8fb48f;
+      --brand-500: #4f8250;
+      --brand-600: #3d7044;
+      --brand-700: #2f5a34;
+      --brand-800: #244828;
+      --brand-900: #1a361e;
+
+      /* Warm grays */
+      --gray-25: #fdfcfb;
+      --gray-50: #f8f5f1;
+      --gray-100: #f0ebe4;
+      --gray-200: #e4ded5;
+      --gray-300: #cdc5b9;
+      --gray-400: #a39c91;
+      --gray-500: #7a756c;
+      --gray-600: #5e5a53;
+      --gray-700: #45423c;
+      --gray-800: #2d2b27;
+      --gray-900: #1c1b18;
+
+      /* Success */
+      --success-50: #ecfdf3;
+      --success-100: #dcfae6;
+      --success-500: #17b26a;
+      --success-600: #079455;
+      --success-700: #067647;
+
+      /* Error */
+      --error-500: #f04438;
+
+      --shadow-xs: 0 1px 2px rgba(28, 27, 24, 0.04);
+      --shadow-sm: 0 1px 2px rgba(28, 27, 24, 0.05), 0 1px 3px rgba(28, 27, 24, 0.08);
+      --shadow-md: 0 2px 4px -2px rgba(28, 27, 24, 0.05), 0 4px 8px -2px rgba(28, 27, 24, 0.08);
+      --shadow-lg: 0 4px 6px -2px rgba(28, 27, 24, 0.02), 0 12px 16px -4px rgba(28, 27, 24, 0.06);
+      --shadow-xl: 0 8px 16px -4px rgba(28, 27, 24, 0.04), 0 20px 36px -8px rgba(28, 27, 24, 0.1);
+
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-2xl: 20px;
+      --radius-full: 9999px;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: var(--gray-50);
+      color: var(--gray-900);
       line-height: 1.6;
       overflow-x: hidden;
       min-height: 100vh;
@@ -36,9 +71,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Ambient glow */
+    /* ===== AMBIENT BACKGROUND ===== */
     .bg-glow {
       position: fixed;
       inset: 0;
@@ -49,201 +85,403 @@
     .bg-glow::before {
       content: '';
       position: absolute;
-      width: 800px;
-      height: 800px;
-      top: -200px;
+      width: 700px;
+      height: 700px;
+      top: -250px;
       left: 50%;
       transform: translateX(-50%);
-      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-      animation: float 8s ease-in-out infinite;
+      background: radial-gradient(circle, rgba(61, 112, 68, 0.08) 0%, transparent 70%);
+      animation: float 10s ease-in-out infinite;
+    }
+    .bg-glow::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      bottom: -200px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(61, 112, 68, 0.05) 0%, transparent 70%);
+      animation: float 12s ease-in-out infinite reverse;
     }
     @keyframes float {
       0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(30px); }
+      50% { transform: translateX(-50%) translateY(20px); }
     }
 
-    /* Scroll reveal */
+    /* ===== REVEAL ANIMATIONS ===== */
     .reveal {
       opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(24px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .stagger-1 { transition-delay: 0.1s; }
-    .stagger-2 { transition-delay: 0.2s; }
-    .stagger-3 { transition-delay: 0.3s; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .stagger-1 { transition-delay: 0.08s; }
+    .stagger-2 { transition-delay: 0.16s; }
+    .stagger-3 { transition-delay: 0.24s; }
+    .stagger-4 { transition-delay: 0.32s; }
 
+    @keyframes checkBounce {
+      0%   { transform: scale(0); }
+      50%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.6; }
+    }
+
+    /* ===== PAGE CONTAINER ===== */
     .page {
-      max-width: 560px;
+      max-width: 520px;
       width: 100%;
-      padding: 40px 24px;
+      padding: 48px 24px;
       text-align: center;
     }
 
-    /* Logo */
+    /* ===== LOGO ===== */
     .logo {
       display: inline-flex;
       align-items: center;
       gap: 10px;
       font-weight: 700;
-      font-size: 20px;
+      font-size: 18px;
       text-decoration: none;
-      color: var(--text);
+      color: var(--gray-900);
       margin-bottom: 48px;
+      transition: transform 0.2s ease;
     }
+    .logo:hover { transform: translateY(-1px); }
     .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 10px;
+      width: 38px;
+      height: 38px;
+      background: var(--brand-700);
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+    .logo:hover .logo-icon {
+      transform: scale(1.06) rotate(-3deg);
+      box-shadow: 0 4px 14px rgba(47, 90, 52, 0.25);
     }
 
-    /* Download started badge */
+    /* ===== DOWNLOAD BADGE ===== */
     .download-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 8px 18px;
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.2);
-      border-radius: 100px;
+      background: var(--success-50);
+      border: 1.5px solid var(--success-500);
+      border-radius: var(--radius-full);
       font-size: 14px;
-      font-weight: 500;
-      color: var(--green);
-      margin-bottom: 32px;
+      font-weight: 600;
+      color: var(--success-700);
+      margin-bottom: 28px;
     }
     .download-badge svg { width: 16px; height: 16px; }
-
-    h1 {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
+    .download-badge .check-icon {
+      animation: checkBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
     }
-    h1 .gradient {
-      background: linear-gradient(135deg, var(--primary-light), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+
+    /* ===== HEADINGS ===== */
+    h1 {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+      color: var(--gray-900);
+    }
+    h1 .accent {
+      color: var(--brand-600);
     }
     .subtitle {
-      font-size: 15px;
-      color: var(--text-muted);
-      margin-bottom: 48px;
+      font-size: 16px;
+      color: var(--gray-500);
+      margin-bottom: 40px;
     }
 
-    /* Steps */
+    /* ===== CARD ===== */
+    .card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-2xl);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+      text-align: left;
+      transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    /* ===== STEPS ===== */
     .steps {
       display: flex;
       flex-direction: column;
       gap: 0;
-      text-align: left;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
-
     .step {
       display: flex;
-      gap: 20px;
-      padding: 24px 0;
-      border-bottom: 1px solid var(--border);
+      gap: 16px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--gray-100);
+      align-items: flex-start;
+      transition: background 0.15s ease;
+      border-radius: var(--radius-md);
     }
-    .step:first-child { border-top: 1px solid var(--border); }
+    .step:first-child { padding-top: 4px; }
+    .step:last-child { border-bottom: none; padding-bottom: 4px; }
 
-    .step-num {
+    .step-icon {
       flex-shrink: 0;
-      width: 40px;
-      height: 40px;
-      background: rgba(124, 58, 237, 0.12);
-      color: var(--primary-light);
-      border-radius: 12px;
+      width: 42px;
+      height: 42px;
+      background: var(--brand-50);
+      border: 1px solid var(--brand-200);
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       justify-content: center;
+      color: var(--brand-600);
       font-weight: 700;
-      font-size: 16px;
+      font-size: 15px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 0 4px var(--brand-50);
+    }
+    .step:hover .step-icon {
+      background: var(--brand-100);
+      transform: scale(1.06);
+      box-shadow: 0 0 0 6px var(--brand-50);
     }
 
+    .step-content { flex: 1; padding-top: 2px; }
     .step-content h3 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
+      color: var(--gray-900);
       margin-bottom: 4px;
     }
     .step-content p {
       font-size: 14px;
-      color: var(--text-muted);
+      color: var(--gray-500);
       line-height: 1.5;
     }
+    .step-content strong {
+      color: var(--gray-700);
+      font-weight: 600;
+    }
     .step-content kbd {
-      background: rgba(124, 58, 237, 0.15);
-      padding: 2px 8px;
-      border-radius: 4px;
+      display: inline-block;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      padding: 1px 8px;
+      border-radius: var(--radius-md);
       font-size: 12px;
-      font-family: inherit;
-      font-weight: 500;
-      color: var(--primary-light);
+      font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+      font-weight: 600;
+      color: var(--brand-700);
+      box-shadow: 0 1px 0 var(--gray-200);
+      transition: all 0.15s ease;
+    }
+    .step-content kbd:hover {
+      background: var(--brand-50);
+      border-color: var(--brand-200);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
     }
 
-    /* Retry link */
+    /* ===== LINKS ===== */
     .retry-link {
-      display: inline-block;
-      font-size: 14px;
-      color: var(--primary-light);
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-      margin-bottom: 24px;
-    }
-    .retry-link:hover { text-decoration: underline; }
-
-    /* Back link */
-    .back-link {
-      display: inline-block;
-      font-size: 14px;
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-    .back-link:hover { color: var(--text); }
-
-    /* Email gate styles */
-    .gate-input {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--text);
-      font-size: 16px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .gate-input:focus { border-color: var(--primary); }
-    .gate-btn {
       display: inline-flex;
       align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--brand-600);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .retry-link:hover { color: var(--brand-700); transform: translateY(-1px); }
+    .retry-link svg { width: 16px; height: 16px; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--gray-400);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .back-link:hover { color: var(--gray-600); }
+    .back-link svg { width: 16px; height: 16px; }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 28px;
+    }
+
+    /* ===== EMAIL GATE ===== */
+    .gate-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-2xl);
+      padding: 40px 32px;
+      box-shadow: var(--shadow-md);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .gate-card:hover {
+      box-shadow: var(--shadow-xl);
+      transform: translateY(-2px);
+    }
+
+    .gate-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--brand-50);
+      border: 1px solid var(--brand-200);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      color: var(--brand-600);
+      box-shadow: 0 0 0 6px var(--brand-50);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .gate-card:hover .gate-icon {
+      transform: scale(1.06);
+      box-shadow: 0 0 0 8px var(--brand-50);
+    }
+    .gate-icon svg { width: 26px; height: 26px; }
+
+    .gate-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+    .gate-subtitle {
+      font-size: 15px;
+      color: var(--gray-500);
+      margin-bottom: 28px;
+    }
+
+    .gate-input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      background: white;
+      color: var(--gray-900);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.2s ease;
+    }
+    .gate-input::placeholder { color: var(--gray-400); }
+    .gate-input:focus {
+      border-color: var(--brand-300);
+      box-shadow: 0 0 0 4px var(--brand-50), var(--shadow-xs);
+    }
+    .gate-input:hover { border-color: var(--gray-300); }
+
+    .gate-error {
+      color: var(--error-500);
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .gate-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       gap: 10px;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-size: 16px;
+      width: 100%;
+      padding: 12px 24px;
+      border-radius: var(--radius-lg);
+      font-size: 15px;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
       border: none;
-      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      background: var(--brand-600);
       color: white;
-      box-shadow: 0 4px 24px var(--primary-glow);
-      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-top: 14px;
     }
     .gate-btn:hover {
+      background: var(--brand-700);
       transform: translateY(-2px);
-      box-shadow: 0 8px 32px var(--primary-glow);
+      box-shadow: var(--shadow-md);
+    }
+    .gate-btn:active { transform: translateY(0); box-shadow: var(--shadow-xs); }
+    .gate-btn:disabled {
+      background: var(--gray-200);
+      color: var(--gray-400);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .gate-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .gate-terms {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-top: 14px;
+    }
+    .gate-terms a { color: var(--brand-600); text-decoration: none; }
+    .gate-terms a:hover { text-decoration: underline; }
+
+    /* Windows badge */
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-400);
+      margin-bottom: 32px;
+    }
+    .platform-badge svg { width: 14px; height: 14px; }
+
+    /* Spinner for loading */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 560px) {
+      .page { padding: 32px 16px; }
+      .gate-card { padding: 28px 20px; }
+      .card { padding: 24px 20px; }
+      h1 { font-size: 26px; }
     }
   </style>
 </head>
@@ -254,63 +492,92 @@
 <div class="page">
   <a href="index.html" class="logo reveal">
     <div class="logo-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
     </div>
     VoxGen
   </a>
 
-  <!-- Email gate: shown when no email param -->
+  <!-- =============================== -->
+  <!-- EMAIL GATE                      -->
+  <!-- =============================== -->
   <div id="email-gate" style="display:none;">
-    <h1 class="reveal">Download <span class="gradient">VoxGen</span></h1>
-    <p class="subtitle reveal stagger-1">Enter your email to get the download.</p>
-    <div class="reveal stagger-2" style="max-width:400px;margin:0 auto 16px;">
-      <input type="email" id="gate-email" placeholder="your@email.com" class="gate-input" />
-      <div id="gate-error" style="color:#ef4444;font-size:13px;margin-top:8px;display:none;"></div>
+    <div class="gate-card reveal">
+      <div class="gate-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+      </div>
+      <div class="gate-title">Download <span class="accent">VoxGen</span></div>
+      <p class="gate-subtitle">Free AI dictation for Windows. Enter your email to get started.</p>
+      <div>
+        <input type="email" id="gate-email" placeholder="you@email.com" class="gate-input" autocomplete="email" />
+        <div id="gate-error" class="gate-error"></div>
+      </div>
+      <button id="gate-btn" class="gate-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        Download Free
+      </button>
+      <p class="gate-terms">Windows 10+ required. No credit card needed.</p>
     </div>
-    <button id="gate-btn" class="reveal stagger-3 gate-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-      Download Free
-    </button>
+
+    <div class="footer-links reveal stagger-2">
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to home
+      </a>
+    </div>
   </div>
 
-  <!-- Main content: shown only with valid email -->
+  <!-- =============================== -->
+  <!-- DOWNLOAD CONTENT (post-email)   -->
+  <!-- =============================== -->
   <div id="download-content" style="display:none;">
-  <div class="download-badge reveal">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-    Your download has started
+    <div class="download-badge reveal">
+      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      Your download has started
+    </div>
+
+    <h1 class="reveal stagger-1">Get started in <span class="accent">3 steps</span></h1>
+    <p class="subtitle reveal stagger-2">Up and running in under a minute.</p>
+
+    <div class="card reveal stagger-3">
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">1</div>
+          <div class="step-content">
+            <h3>Open the installer</h3>
+            <p>Find <strong>VoxGen-Setup.exe</strong> in your downloads folder or at the bottom of your browser.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon">2</div>
+          <div class="step-content">
+            <h3>Run the installer</h3>
+            <p>If Windows SmartScreen appears, click <kbd>More info</kbd> then <kbd>Run anyway</kbd>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon">3</div>
+          <div class="step-content">
+            <h3>Start dictating</h3>
+            <p>Hold <kbd>Alt</kbd> from any app to dictate. Release to stop and auto-paste.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-links reveal stagger-4">
+      <a class="retry-link" id="retry-link" href="#" onclick="retryDownload(); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        Try again
+      </a>
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to home
+      </a>
+    </div>
   </div>
 
-  <h1 class="reveal stagger-1">Get started in <span class="gradient">3 steps</span></h1>
-  <p class="subtitle reveal stagger-2">Up and running in under a minute.</p>
-
-  <div class="steps">
-    <div class="step reveal stagger-1">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <h3>Open the installer</h3>
-        <p>Find <strong>VoxGen-Setup.exe</strong> in your downloads folder or at the bottom of your browser.</p>
-      </div>
-    </div>
-    <div class="step reveal stagger-2">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <h3>Run the installer</h3>
-        <p>If Windows SmartScreen appears, click <strong>"More info"</strong> then <strong>"Run anyway"</strong>.</p>
-      </div>
-    </div>
-    <div class="step reveal stagger-3">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <h3>Start dictating</h3>
-        <p>Hold <kbd>Alt</kbd> from any app to dictate. Release to stop and paste.</p>
-      </div>
-    </div>
-  </div>
-
-  <a class="retry-link" id="retry-link" href="#" onclick="retryDownload(); return false;">Not working? Try again.</a>
-  <br />
-  <a href="index.html" class="back-link reveal">Back to home</a>
-  </div><!-- end download-content -->
 </div>
 
 <script>
@@ -414,26 +681,59 @@
   }
 
   // Gate form handler
-  document.getElementById('gate-btn').addEventListener('click', async function() {
-    var input = document.getElementById('gate-email');
-    var error = document.getElementById('gate-error');
-    var val = input.value.trim();
+  var gateBtn = document.getElementById('gate-btn');
+  var gateEmail = document.getElementById('gate-email');
+  var gateError = document.getElementById('gate-error');
+
+  gateBtn.addEventListener('click', async function() {
+    var val = gateEmail.value.trim();
     if (!val || !val.includes('@')) {
-      error.textContent = 'Please enter a valid email address.';
-      error.style.display = 'block';
+      gateError.textContent = 'Please enter a valid email address.';
+      gateError.style.display = 'block';
+      gateEmail.style.borderColor = 'var(--error-500)';
+      gateEmail.style.boxShadow = '0 0 0 4px rgba(240, 68, 56, 0.08)';
       return;
     }
-    error.style.display = 'none';
+    gateError.style.display = 'none';
+    gateEmail.style.borderColor = '';
+    gateEmail.style.boxShadow = '';
+
+    // Loading state
     this.disabled = true;
-    this.textContent = 'Starting download...';
+    this.innerHTML = '<div class="spinner"></div> Starting download...';
+
     await captureLead(val);
-    document.getElementById('email-gate').style.display = 'none';
-    document.getElementById('download-content').style.display = 'block';
-    startAutoDownload();
+
+    // Transition
+    var gate = document.getElementById('email-gate');
+    gate.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    gate.style.opacity = '0';
+    gate.style.transform = 'translateY(-10px)';
+
+    setTimeout(function() {
+      gate.style.display = 'none';
+      var content = document.getElementById('download-content');
+      content.style.display = 'block';
+
+      // Re-trigger reveals
+      content.querySelectorAll('.reveal').forEach(function(el) {
+        el.classList.remove('visible');
+        setTimeout(function() { el.classList.add('visible'); }, 50);
+      });
+
+      startAutoDownload();
+    }, 300);
   });
 
-  document.getElementById('gate-email').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') document.getElementById('gate-btn').click();
+  gateEmail.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') gateBtn.click();
+  });
+
+  // Reset error state on input
+  gateEmail.addEventListener('input', function() {
+    gateError.style.display = 'none';
+    this.style.borderColor = '';
+    this.style.boxShadow = '';
   });
 </script>
 

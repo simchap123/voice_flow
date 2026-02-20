@@ -36,6 +36,8 @@ export interface AppSettings {
 
   // UI
   autoCopy: boolean
+  soundEnabled: boolean
+  errorNotifications: boolean
 
   // License
   licenseKey: string
@@ -81,6 +83,8 @@ export const defaultSettings: AppSettings = {
   wordReplacements: [],
 
   autoCopy: true,
+  soundEnabled: true,
+  errorNotifications: true,
 
   licenseKey: '',
   licenseStatus: 'none',
