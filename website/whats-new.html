@@ -140,7 +140,7 @@
     .changelog { display: flex; flex-direction: column; gap: 24px; padding-bottom: 80px; }
     .changelog-entry {
       border-radius: var(--radius);
-      padding: 28px;
+      padding: 32px;
       transition: all 0.3s ease;
     }
     .changelog-entry:hover {
@@ -151,11 +151,9 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid hsla(40, 18%, 88%, 0.5);
+      margin-bottom: 24px;
     }
-    .changelog-version { font-size: 20px; font-weight: 700; }
+    .changelog-version { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
     .changelog-badge {
       display: inline-flex;
       align-items: center;
@@ -171,23 +169,56 @@
       font-family: 'DM Sans', sans-serif;
     }
     .changelog-date { font-size: 14px; color: var(--fg-muted); margin-left: auto; }
-    .changelog-highlights { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-    .changelog-highlights li {
-      font-size: 15px;
-      color: var(--fg-muted);
-      padding-left: 24px;
-      position: relative;
-      line-height: 1.6;
+
+    /* Changelog items with icon + pill badge */
+    .changelog-items { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0; }
+    .changelog-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-top: 1px solid hsla(40, 18%, 88%, 0.4);
     }
-    .changelog-highlights li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 8px;
-      width: 6px;
-      height: 6px;
+    .changelog-item:first-child { border-top: none; }
+    .changelog-item-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--fg-muted);
+      opacity: 0.5;
+    }
+    .changelog-item-icon svg { width: 16px; height: 16px; }
+    .changelog-item-text {
+      flex: 1;
+      font-size: 15px;
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    .changelog-pill {
+      flex-shrink: 0;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+    .pill-new {
       background: var(--primary);
-      border-radius: 50%;
+      color: white;
+    }
+    .pill-improved {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--fg-muted);
+    }
+    .pill-fixed {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--fg-muted);
     }
 
     /* Footer — match index.html */
@@ -269,250 +300,255 @@
           <div class="changelog-header">
             <span class="changelog-version">v2.13.1</span>
             <span class="changelog-badge">Latest</span>
-            <span class="changelog-date">Feb 19, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Settings accessed via avatar — click username to reveal Settings button</li>
-            <li>Added Notifications tab with sound effects and error alert toggles</li>
-            <li>Staggered section animations in Settings for smoother feel</li>
-            <li>Redesigned download page, fixed pricing key icon</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Settings accessed via avatar — click username to reveal Settings button</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Notifications tab with sound effects and error alert toggles</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Staggered section animations in Settings for smoother feel</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
+              <span class="changelog-item-text">Redesigned download page, fixed pricing key icon</span>
+              <span class="changelog-pill pill-fixed">Fixed</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.13.0 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.13.0</span>
-            <span class="changelog-date">Feb 19, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Complete UI redesign — new sage green theme with DM Sans typography and glassmorphism cards</li>
-            <li>Redesigned sidebar with filled pill navigation and user avatar</li>
-            <li>Website fully rebuilt with new landing page, animations, and simplified 2-card pricing</li>
-            <li>New tagline: "Your voice, perfected."</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Complete UI redesign — sage green theme with DM Sans typography</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Redesigned sidebar with filled pill navigation and user avatar</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Website rebuilt with new landing page, animations, and 2-card pricing</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.12.1 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.12.1</span>
-            <span class="changelog-date">Feb 19, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Faster dictation cleanup — regular dictation uses the simple v1 prompt, no context overhead</li>
-            <li>AI Prompt mode keeps full features — clipboard context, window detection, vocabulary</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Faster dictation cleanup — simple v1 prompt, no context overhead</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">AI Prompt mode keeps full features — clipboard context, window detection</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.12.0 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.12.0</span>
-            <span class="changelog-date">Feb 19, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Lighter dark mode — background and cards brightened for better readability</li>
-            <li>Removed Snippets page — cleaner sidebar with just History and Settings</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Lighter dark mode — background and cards brightened for readability</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Removed Snippets page — cleaner sidebar with just History and Settings</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.11.0 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.11.0</span>
-            <span class="changelog-date">Feb 19, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Recording modes redesigned — Hold, Toggle, and AI Prompt each in their own visual card with dedicated settings</li>
-            <li>Double-tap trigger — Toggle and AI Prompt modes can now be set to single-press or double-tap activation</li>
-            <li>Color refresh — new steel-blue accent throughout the app</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Recording modes redesigned — Hold, Toggle, and AI Prompt in their own cards</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Double-tap trigger for Toggle and AI Prompt modes</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Color refresh — new steel-blue accent throughout the app</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.10.0 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.10.0</span>
-            <span class="changelog-date">Feb 19, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Streamlined navigation — sidebar now shows only History, Snippets, and Settings for faster access</li>
-            <li>Simplified Settings — reorganized from 7 tabs to 5 focused sections (Recording, AI Processing, Prompts, Power Modes, Account)</li>
-            <li>Power Modes simplified — now focused on prompt switching per app/context (removed provider overrides for easier setup)</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Streamlined navigation — only History, Snippets, and Settings</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Simplified Settings — 5 focused sections instead of 7 tabs</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.9.0 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.9.0</span>
-            <span class="changelog-date">Feb 18, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Power Modes — auto-detect the active app and apply a custom prompt, STT provider, and cleanup per context (Settings &rarr; Power Modes)</li>
-            <li>Overlay prompt picker — click the emoji icon in the overlay to switch prompts without opening the main window</li>
-            <li>Overlay moved to the top of the screen, out of the way</li>
-            <li>Processing indicator simplified to a single spinner — no more three-step labels</li>
-            <li>Smarter Default Cleanup — when you deliberate and reach a final answer, only the decision is kept</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Power Modes — auto-detect active app and apply custom prompt per context</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Overlay prompt picker — switch prompts without opening the main window</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Processing indicator simplified to a single spinner</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.1.5 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.1.5</span>
-            <span class="changelog-date">Feb 18, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Fixed checkout — purchases now work correctly on the website</li>
-            <li>"Manage Subscription" button only shows for paid subscription plans (not Trial or Lifetime)</li>
-            <li>Fixed Stripe Customer Portal for subscription management and cancellation</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
+              <span class="changelog-item-text">Fixed checkout — purchases now work correctly on the website</span>
+              <span class="changelog-pill pill-fixed">Fixed</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
+              <span class="changelog-item-text">Fixed Stripe Customer Portal for subscription management</span>
+              <span class="changelog-pill pill-fixed">Fixed</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.1.4 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.1.4</span>
-            <span class="changelog-date">Feb 18, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Trial urgency warnings — toast notifications at 7, 3, and 1 days left</li>
-            <li>"Manage Subscription" button for paid users — opens Stripe Customer Portal to cancel or update billing</li>
-            <li>Better trial-expired overlay — actionable buttons to add your own API key or upgrade</li>
-            <li>Email reminder banner for users who haven't entered their email yet</li>
-            <li>Fixed auto-update (was pointing to wrong GitHub repo)</li>
-          </ul>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Trial urgency warnings — toast notifications at 7, 3, and 1 days left</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Manage Subscription button — opens Stripe Customer Portal</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
+              <span class="changelog-item-text">Fixed auto-update (was pointing to wrong GitHub repo)</span>
+              <span class="changelog-pill pill-fixed">Fixed</span>
+            </div>
+          </div>
         </div>
 
         <!-- v2.1.3 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.1.3</span>
-            <span class="changelog-date">Feb 17, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Rebranded VoiceFlow &rarr; VoxGen across the entire app</li>
-            <li>Fixed license flow — download no longer requires email gate</li>
-            <li>Updated all URLs, titles, and references to VoxGen</li>
-          </ul>
-        </div>
-
-        <!-- v2.1.2 -->
-        <div class="changelog-entry glass">
-          <div class="changelog-header">
-            <span class="changelog-version">v2.1.2</span>
-            <span class="changelog-date">Feb 12, 2026</span>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Rebranded VoiceFlow &rarr; VoxGen across the entire app</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
+              <span class="changelog-item-text">Fixed license flow — download no longer requires email gate</span>
+              <span class="changelog-pill pill-fixed">Fixed</span>
+            </div>
           </div>
-          <ul class="changelog-highlights">
-            <li>Reverted to the original v1.0 cleanup prompt — simple, proven, and effective</li>
-            <li>Temperature back to 0.3 (was over-tuned at 0.1)</li>
-            <li>Usage stats banner in Account tab (words dictated, minutes recorded)</li>
-          </ul>
-        </div>
-
-        <!-- v2.1.1 -->
-        <div class="changelog-entry glass">
-          <div class="changelog-header">
-            <span class="changelog-version">v2.1.1</span>
-            <span class="changelog-date">Feb 12, 2026</span>
-          </div>
-          <ul class="changelog-highlights">
-            <li>Cleanup no longer removes "OK", "okay", "like", "you know" — only true filler sounds (um, uh, er, ah, hmm)</li>
-            <li>Incomplete thoughts and trail-offs are preserved as spoken</li>
-            <li>Self-corrections only resolved when you explicitly correct yourself ("no", "wait", "never mind")</li>
-          </ul>
         </div>
 
         <!-- v2.1.0 -->
         <div class="changelog-entry glass">
           <div class="changelog-header">
             <span class="changelog-version">v2.1.0</span>
-            <span class="changelog-date">Feb 12, 2026</span>
+            <span class="changelog-date">February 2026</span>
           </div>
-          <ul class="changelog-highlights">
-            <li>Keyword triggers now work — say "write me an email about..." during dictation to generate content</li>
-            <li>Output length (Concise/Medium/Detailed) now controls generated content length</li>
-            <li>Prompt refinement cleans up spoken instructions before generation</li>
-            <li>Smart preamble handling — "OK perfect write me an email about..." is detected correctly</li>
-            <li>Updates auto-install silently when you're not recording</li>
-          </ul>
-        </div>
-
-        <!-- v2.0.9 -->
-        <div class="changelog-entry glass">
-          <div class="changelog-header">
-            <span class="changelog-version">v2.0.9</span>
-            <span class="changelog-date">Feb 12, 2026</span>
+          <div class="changelog-items">
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Keyword triggers — say "write me an email about..." to generate content</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 12 7-7 7 7"/></svg></div>
+              <span class="changelog-item-text">Prompt refinement cleans up spoken instructions before generation</span>
+              <span class="changelog-pill pill-new">New</span>
+            </div>
+            <div class="changelog-item">
+              <div class="changelog-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg></div>
+              <span class="changelog-item-text">Updates auto-install silently when you're not recording</span>
+              <span class="changelog-pill pill-improved">Improved</span>
+            </div>
           </div>
-          <ul class="changelog-highlights">
-            <li>Balanced cleanup prompt: keeps your exact words while resolving self-corrections</li>
-            <li>Words like "please", "just", "really" are no longer stripped</li>
-            <li>Added What's New page</li>
-          </ul>
-        </div>
-
-        <!-- v2.0.8 -->
-        <div class="changelog-entry glass">
-          <div class="changelog-header">
-            <span class="changelog-version">v2.0.8</span>
-            <span class="changelog-date">Feb 12, 2026</span>
-          </div>
-          <ul class="changelog-highlights">
-            <li>Stricter verbatim dictation — cleanup no longer rephrases your words</li>
-            <li>Temperature lowered to 0.1 for more literal transcription</li>
-          </ul>
-        </div>
-
-        <!-- v2.0.7 -->
-        <div class="changelog-entry glass">
-          <div class="changelog-header">
-            <span class="changelog-version">v2.0.7</span>
-            <span class="changelog-date">Feb 12, 2026</span>
-          </div>
-          <ul class="changelog-highlights">
-            <li>Silent one-click updates — no more installer wizard</li>
-            <li>Signed-in email shown in sidebar</li>
-            <li>Auto-detect updates in About section</li>
-          </ul>
-        </div>
-
-        <!-- v2.0.6 -->
-        <div class="changelog-entry glass">
-          <div class="changelog-header">
-            <span class="changelog-version">v2.0.6</span>
-            <span class="changelog-date">Feb 12, 2026</span>
-          </div>
-          <ul class="changelog-highlights">
-            <li>Fixed snippets not syncing to overlay window</li>
-            <li>Removed overly broad keyword trigger that intercepted normal dictation</li>
-          </ul>
-        </div>
-
-        <!-- v2.0.5 -->
-        <div class="changelog-entry glass">
-          <div class="changelog-header">
-            <span class="changelog-version">v2.0.5</span>
-            <span class="changelog-date">Feb 12, 2026</span>
-          </div>
-          <ul class="changelog-highlights">
-            <li>Added microphone selector in Settings</li>
-          </ul>
-        </div>
-
-        <!-- v2.0.4 -->
-        <div class="changelog-entry glass">
-          <div class="changelog-header">
-            <span class="changelog-version">v2.0.4</span>
-            <span class="changelog-date">Feb 12, 2026</span>
-          </div>
-          <ul class="changelog-highlights">
-            <li>Fixed free trial managed mode (stale closure bug)</li>
-            <li>Added first-run onboarding experience</li>
-            <li>Overlay follows mouse across monitors</li>
-            <li>Overlay stays on top of all windows</li>
-          </ul>
         </div>
 
       </div>
