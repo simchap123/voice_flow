@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoxGen — Theme &amp; Website Direction</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --ease: cubic-bezier(0.16, 1, 0.3, 1); }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #fafafa;
+    color: #18181b;
+    line-height: 1.5;
+  }
+
+  /* ── Page Layout ── */
+  .page-header {
+    text-align: center;
+    padding: 48px 32px 40px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #09090b; }
+  .page-header p { font-size: 13px; color: #71717a; margin-top: 4px; }
+
+  .section { padding: 40px 32px; }
+  .section + .section { border-top: 1px solid #f0f0f0; }
+  .section-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 2px; color: #a1a1aa; margin-bottom: 6px; text-align: center;
+  }
+  .section-title {
+    font-size: 17px; font-weight: 700; color: #18181b;
+    text-align: center; margin-bottom: 28px; letter-spacing: -0.3px;
+  }
+
+  /* ═══════════════════════════════
+     TAGLINES
+     ═══════════════════════════════ */
+  .tagline-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .tagline-card {
+    background: #fff;
+    border: 1px solid #e4e4e7;
+    border-radius: 10px;
+    padding: 22px 18px;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s var(--ease);
+    opacity: 0; transform: translateY(12px);
+  }
+  .tagline-card:hover { border-color: #a1a1aa; transform: translateY(-1px); }
+  .tagline-card.selected {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6, 0 4px 16px rgba(59,130,246,0.08);
+  }
+  .tagline-card .num { font-size: 10px; font-weight: 700; color: #a1a1aa; letter-spacing: 1px; margin-bottom: 10px; }
+  .tagline-card .headline { font-size: 19px; font-weight: 800; color: #09090b; letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 8px; }
+  .tagline-card .headline em { font-style: normal; color: #3b82f6; }
+  .tagline-card .sub { font-size: 11.5px; color: #71717a; line-height: 1.5; }
+
+  .avoid-box {
+    margin: 20px auto 0;
+    max-width: 1000px;
+    padding: 10px 16px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-size: 11px; color: #991b1b;
+  }
+  .avoid-box strong { font-weight: 700; }
+
+  /* ═══════════════════════════════
+     OPTION ROWS (App + Website side by side)
+     ═══════════════════════════════ */
+  .option-row {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+    opacity: 0; transform: translateY(16px);
+  }
+  .option-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 0 4px;
+  }
+  .option-header .badge {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.5px; color: #3b82f6; background: #eff6ff;
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .option-header .name { font-size: 15px; font-weight: 700; color: #18181b; }
+  .option-header .style { font-size: 12px; color: #71717a; margin-left: 8px; }
+
+  .option-panels {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 16px;
+  }
+  .panel-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.5px; color: #a1a1aa; margin-bottom: 8px;
+  }
+
+  /* ── App Frame ── */
+  .app-frame {
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    height: 420px;
+  }
+  .sidebar {
+    width: 170px; padding: 12px 8px; display: flex;
+    flex-direction: column; flex-shrink: 0;
+    border-right: 1px solid transparent;
+  }
+  .sidebar-logo { display: flex; align-items: center; gap: 7px; padding: 4px 8px; margin-bottom: 14px; }
+  .sidebar-logo .icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sidebar-logo .icon svg { width: 12px; height: 12px; stroke: white; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .sidebar-logo span { font-size: 13px; font-weight: 700; letter-spacing: -0.3px; }
+  .nav-items { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 8px; border-radius: 5px; font-size: 12px; font-weight: 500;
+  }
+  .nav-item svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .nav-sep { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 0 8px; margin-top: 10px; margin-bottom: 2px; }
+  .sidebar-foot { margin-top: auto; padding: 8px 8px 2px; display: flex; align-items: center; gap: 7px; border-top: 1px solid transparent; }
+  .sidebar-foot .av { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; }
+  .sidebar-foot .uname { font-size: 11px; font-weight: 600; }
+  .sidebar-foot .uplan { font-size: 9.5px; }
+
+  .main { flex: 1; padding: 14px 18px; overflow-y: auto; }
+  .main h2 { font-size: 15px; font-weight: 700; margin-bottom: 1px; letter-spacing: -0.2px; }
+  .main .sub { font-size: 11px; margin-bottom: 14px; }
+  .card { border-radius: 7px; padding: 12px 14px; border: 1px solid transparent; margin-bottom: 8px; }
+  .card .ch { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .card .ci { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .card .ci svg { width: 13px; height: 13px; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .card .ct { font-size: 12px; font-weight: 600; }
+  .card .cd { font-size: 10px; }
+  .tr { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; }
+  .tr + .tr { border-top: 1px solid transparent; }
+  .tr .tl { font-size: 12px; font-weight: 500; }
+  .tr .td { font-size: 9.5px; margin-top: 1px; }
+  .tog { width: 32px; height: 18px; border-radius: 9px; position: relative; cursor: pointer; transition: background 0.25s; flex-shrink: 0; }
+  .tog::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+  .tog.on::after { transform: translateX(14px); }
+  .sel { width: 100%; padding: 6px 9px; border-radius: 5px; font-size: 11px; font-family: inherit; border: 1px solid transparent; }
+  .hk { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 500; border: 1px solid transparent; }
+  .hk kbd { font-family: inherit; font-size: 9.5px; padding: 1px 4px; border-radius: 2px; font-weight: 700; }
+
+  /* ── Website Hero Frame ── */
+  .web-frame {
+    border-radius: 10px;
+    overflow: hidden;
+    height: 420px;
+    position: relative;
+  }
+  .web-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+    border-bottom: 1px solid transparent;
+  }
+  .web-nav .wlogo { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
+  .web-nav .wlogo .wicon { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+  .web-nav .wlogo .wicon svg { width: 11px; height: 11px; stroke: white; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .web-nav .wnav { display: flex; gap: 20px; font-size: 12px; font-weight: 500; }
+  .web-nav .wbtn { font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 6px; border: none; cursor: default; }
+
+  .web-hero {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center;
+    padding: 48px 40px 32px;
+  }
+  .web-hero .wh1 { font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1.15; margin-bottom: 12px; }
+  .web-hero .wh1 em { font-style: normal; }
+  .web-hero .wp { font-size: 13px; line-height: 1.6; max-width: 380px; margin-bottom: 20px; }
+  .web-hero .wcta { display: flex; gap: 10px; }
+  .web-hero .wcta .wbtn-primary { font-size: 12px; font-weight: 600; padding: 10px 22px; border-radius: 8px; border: none; cursor: default; display: flex; align-items: center; gap: 6px; }
+  .web-hero .wcta .wbtn-ghost { font-size: 12px; font-weight: 500; padding: 10px 22px; border-radius: 8px; border: 1px solid transparent; cursor: default; background: transparent; }
+
+  .web-demo-bar {
+    margin: 0 auto;
+    max-width: 320px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 11px;
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid transparent;
+  }
+  .pulse-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  /* ═══════════════════════════════
+     THEME A — Frost (calm, soft white/blue like Notion)
+     ═══════════════════════════════ */
+  .ta .app-frame { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.04); }
+  .ta .sidebar { background: #f7f7f8; border-right-color: #ebebef; }
+  .ta .sidebar-logo .icon { background: #18181b; }
+  .ta .sidebar-logo span { color: #18181b; }
+  .ta .nav-sep { color: #c4c4c8; }
+  .ta .nav-item { color: #a1a1a6; }
+  .ta .nav-item.active { background: #ebebef; color: #18181b; font-weight: 600; }
+  .ta .sidebar-foot { border-top-color: #ebebef; }
+  .ta .sidebar-foot .av { background: #e4e4e7; color: #52525b; }
+  .ta .sidebar-foot .uname { color: #18181b; }
+  .ta .sidebar-foot .uplan { color: #a1a1aa; }
+  .ta .main { background: #fff; }
+  .ta .main h2 { color: #09090b; }
+  .ta .main .sub { color: #a1a1aa; }
+  .ta .card { background: #fff; border-color: #f0f0f3; }
+  .ta .ci { background: #f4f4f5; }
+  .ta .ci svg { stroke: #71717a; }
+  .ta .ct { color: #18181b; }
+  .ta .cd { color: #a1a1aa; }
+  .ta .tr .tl { color: #27272a; }
+  .ta .tr .td { color: #a1a1aa; }
+  .ta .tr + .tr { border-top-color: #f4f4f5; }
+  .ta .tog { background: #e4e4e7; }
+  .ta .tog.on { background: #18181b; }
+  .ta .sel { background: #f7f7f8; border-color: #ebebef; color: #27272a; }
+  .ta .hk { background: #f4f4f5; border-color: #e4e4e7; color: #3f3f46; }
+  .ta .hk kbd { background: #fff; border: 1px solid #e4e4e7; color: #18181b; }
+
+  .ta .web-frame { background: #fafafa; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.04); }
+  .ta .web-nav { border-bottom-color: #f0f0f3; }
+  .ta .web-nav .wlogo { color: #09090b; }
+  .ta .web-nav .wlogo .wicon { background: #18181b; }
+  .ta .web-nav .wnav { color: #71717a; }
+  .ta .web-nav .wbtn { background: #18181b; color: #fff; }
+  .ta .web-hero .wh1 { color: #09090b; }
+  .ta .web-hero .wh1 em { color: #3b82f6; }
+  .ta .web-hero .wp { color: #71717a; }
+  .ta .web-hero .wbtn-primary { background: #18181b; color: #fff; }
+  .ta .web-hero .wbtn-ghost { border-color: #d4d4d8; color: #3f3f46; }
+  .ta .web-demo-bar { background: #fff; border-color: #e4e4e7; color: #52525b; }
+  .ta .pulse-dot { background: #3b82f6; }
+
+  /* ═══════════════════════════════
+     THEME B — Sage (warm, calming earth tones)
+     ═══════════════════════════════ */
+  .tb .app-frame { background: #fcfbf9; box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 20px rgba(80,60,30,0.04); }
+  .tb .sidebar { background: #f5f3ee; border-right-color: #e8e4db; }
+  .tb .sidebar-logo .icon { background: #5c6e58; }
+  .tb .sidebar-logo span { color: #2c3227; }
+  .tb .nav-sep { color: #c4bfb2; }
+  .tb .nav-item { color: #9a9487; }
+  .tb .nav-item.active { background: #ece9e0; color: #2c3227; font-weight: 600; }
+  .tb .sidebar-foot { border-top-color: #e8e4db; }
+  .tb .sidebar-foot .av { background: #d4cfbf; color: #5c5545; }
+  .tb .sidebar-foot .uname { color: #2c3227; }
+  .tb .sidebar-foot .uplan { color: #9a9487; }
+  .tb .main { background: #fcfbf9; }
+  .tb .main h2 { color: #1a1d17; }
+  .tb .main .sub { color: #9a9487; }
+  .tb .card { background: #fefdfb; border-color: #ece9e0; }
+  .tb .ci { background: #f0ede5; }
+  .tb .ci svg { stroke: #6b7d66; }
+  .tb .ct { color: #2c3227; }
+  .tb .cd { color: #9a9487; }
+  .tb .tr .tl { color: #333a2e; }
+  .tb .tr .td { color: #9a9487; }
+  .tb .tr + .tr { border-top-color: #f0ede5; }
+  .tb .tog { background: #d4cfbf; }
+  .tb .tog.on { background: #5c6e58; }
+  .tb .sel { background: #f5f3ee; border-color: #e8e4db; color: #333a2e; }
+  .tb .hk { background: #f0ede5; border-color: #e2ded3; color: #5c5545; }
+  .tb .hk kbd { background: #fefdfb; border: 1px solid #e2ded3; color: #2c3227; }
+
+  .tb .web-frame { background: #faf9f6; box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 20px rgba(80,60,30,0.04); }
+  .tb .web-nav { border-bottom-color: #ece9e0; }
+  .tb .web-nav .wlogo { color: #1a1d17; }
+  .tb .web-nav .wlogo .wicon { background: #5c6e58; }
+  .tb .web-nav .wnav { color: #9a9487; }
+  .tb .web-nav .wbtn { background: #5c6e58; color: #fff; }
+  .tb .web-hero .wh1 { color: #1a1d17; }
+  .tb .web-hero .wh1 em { color: #5c6e58; }
+  .tb .web-hero .wp { color: #81796c; }
+  .tb .web-hero .wbtn-primary { background: #5c6e58; color: #fff; }
+  .tb .web-hero .wbtn-ghost { border-color: #d4cfbf; color: #5c5545; }
+  .tb .web-demo-bar { background: #fefdfb; border-color: #e2ded3; color: #6b6356; }
+  .tb .pulse-dot { background: #5c6e58; }
+
+  /* ═══════════════════════════════
+     THEME C — Ink (dark sidebar, blue accent, SaaS)
+     ═══════════════════════════════ */
+  .tc .app-frame { background: #f8f9fb; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 20px rgba(15,23,42,0.06); }
+  .tc .sidebar { background: #0f172a; border-right-color: #1e293b; }
+  .tc .sidebar-logo .icon { background: linear-gradient(135deg, #3b82f6, #6366f1); }
+  .tc .sidebar-logo span { color: #f1f5f9; }
+  .tc .nav-sep { color: #334155; }
+  .tc .nav-item { color: #64748b; }
+  .tc .nav-item.active { background: rgba(59,130,246,0.08); color: #93c5fd; font-weight: 600; }
+  .tc .sidebar-foot { border-top-color: #1e293b; }
+  .tc .sidebar-foot .av { background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; }
+  .tc .sidebar-foot .uname { color: #e2e8f0; }
+  .tc .sidebar-foot .uplan { color: #475569; }
+  .tc .main { background: #f8f9fb; }
+  .tc .main h2 { color: #0f172a; }
+  .tc .main .sub { color: #94a3b8; }
+  .tc .card { background: #fff; border-color: #e2e8f0; }
+  .tc .ci { background: #eff6ff; }
+  .tc .ci svg { stroke: #3b82f6; }
+  .tc .ct { color: #0f172a; }
+  .tc .cd { color: #94a3b8; }
+  .tc .tr .tl { color: #1e293b; }
+  .tc .tr .td { color: #94a3b8; }
+  .tc .tr + .tr { border-top-color: #f1f5f9; }
+  .tc .tog { background: #cbd5e1; }
+  .tc .tog.on { background: #3b82f6; }
+  .tc .sel { background: #f8fafc; border-color: #e2e8f0; color: #334155; }
+  .tc .hk { background: #eff6ff; border-color: #dbeafe; color: #2563eb; }
+  .tc .hk kbd { background: #fff; border: 1px solid #dbeafe; color: #1e40af; }
+
+  .tc .web-frame { background: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 4px 20px rgba(15,23,42,0.15); }
+  .tc .web-nav { border-bottom-color: #1e293b; }
+  .tc .web-nav .wlogo { color: #f1f5f9; }
+  .tc .web-nav .wlogo .wicon { background: linear-gradient(135deg, #3b82f6, #6366f1); }
+  .tc .web-nav .wnav { color: #64748b; }
+  .tc .web-nav .wbtn { background: #3b82f6; color: #fff; }
+  .tc .web-hero .wh1 { color: #f1f5f9; }
+  .tc .web-hero .wh1 em { color: #60a5fa; }
+  .tc .web-hero .wp { color: #94a3b8; }
+  .tc .web-hero .wbtn-primary { background: #3b82f6; color: #fff; }
+  .tc .web-hero .wbtn-ghost { border-color: #334155; color: #94a3b8; }
+  .tc .web-demo-bar { background: #1e293b; border-color: #334155; color: #94a3b8; }
+  .tc .pulse-dot { background: #3b82f6; }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .option-panels { grid-template-columns: 1fr; }
+    .tagline-grid { grid-template-columns: 1fr; max-width: 380px; }
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- ═══════ TAGLINES ═══════ -->
+<div class="page-header">
+  <h1>VoxGen — Redesign Direction</h1>
+  <p>Tagline + app theme + website style — pick a direction for each.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">Step 1</div>
+  <div class="section-title">New tagline (replace "Type with your voice")</div>
+  <div class="tagline-grid">
+    <div class="tagline-card" onclick="sel(this,'.tagline-card')">
+      <div class="num">OPTION 1</div>
+      <div class="headline">Your voice, <em>perfected.</em></div>
+      <div class="sub">Three words. Premium feel. Emphasizes AI cleanup — your raw speech becomes polished text. Completely different angle from every competitor.</div>
+    </div>
+    <div class="tagline-card" onclick="sel(this,'.tagline-card')">
+      <div class="num">OPTION 2</div>
+      <div class="headline">Speak freely. <em>Write perfectly.</em></div>
+      <div class="sub">Parallel structure. "Freely" = natural speech, "perfectly" = AI polish. Shows the transformation gap that VoxGen bridges. Aspirational.</div>
+    </div>
+    <div class="tagline-card" onclick="sel(this,'.tagline-card')">
+      <div class="num">OPTION 3</div>
+      <div class="headline">Say it rough. <em>Get it polished.</em></div>
+      <div class="sub">Honest, casual, direct. Speaks to the real experience — you ramble, VoxGen cleans it up. Nobody else is owning this positioning.</div>
+    </div>
+  </div>
+  <div class="avoid-box">
+    <strong>Competitors to avoid:</strong> "Don't type, just speak" (Wispr Flow) &bull; "Speak, don't type" (Typeless) &bull; "Effortless voice dictation" (Wispr) &bull; "Type with your voice" (current VoxGen — too close)
+  </div>
+</div>
+
+<!-- ═══════ THEME OPTIONS ═══════ -->
+<div class="section">
+  <div class="section-label">Step 2</div>
+  <div class="section-title">App UI + matching website — three calm directions</div>
+
+  <!-- ── Option A: Frost ── -->
+  <div class="option-row ta">
+    <div class="option-header">
+      <span class="badge">A</span>
+      <span class="name">Frost</span>
+      <span class="style">Clean B&W, Notion-like restraint</span>
+    </div>
+    <div class="option-panels">
+      <div>
+        <div class="panel-label">Desktop App</div>
+        <div class="app-frame">
+          <div class="sidebar">
+            <div class="sidebar-logo"><div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div><span>VoxGen</span></div>
+            <div class="nav-items">
+              <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Record</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History</div>
+              <div class="nav-item active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25"/></svg>Settings</div>
+              <div class="nav-sep">Modes</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Dictation</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>AI Prompt</div>
+            </div>
+            <div class="sidebar-foot"><div class="av">SP</div><div><div class="uname">Simcha P.</div><div class="uplan">Pro Plan</div></div></div>
+          </div>
+          <div class="main">
+            <h2>Settings</h2><p class="sub">Recording, providers, and preferences</p>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div><div><div class="ct">Recording</div><div class="cd">Hotkeys and triggers</div></div></div><div class="hk"><kbd>Alt</kbd> Hold to record</div> <div class="hk" style="margin-left:4px"><kbd>Alt</kbd><kbd>Alt</kbd> AI Prompt</div></div>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg></div><div><div class="ct">STT Provider</div><div class="cd">Speech engine</div></div></div><div class="sel">Groq Whisper (fastest)</div></div>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></div><div><div class="ct">Preferences</div><div class="cd">Behavior settings</div></div></div>
+              <div class="tr"><div><div class="tl">Auto-paste</div><div class="td">Inject text into focused app</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="tr"><div><div class="tl">AI Cleanup</div><div class="td">Fix grammar automatically</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="tr"><div><div class="tl">Sound effects</div><div class="td">Audio cues</div></div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">Website Landing</div>
+        <div class="web-frame">
+          <div class="web-nav">
+            <div class="wlogo"><div class="wicon"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>VoxGen</div>
+            <div class="wnav"><span>Features</span><span>Pricing</span><span>What's New</span></div>
+            <div class="wbtn">Download</div>
+          </div>
+          <div class="web-hero">
+            <div class="wh1">Your voice,<br><em>perfected.</em></div>
+            <div class="wp">AI-powered dictation that turns messy speech into polished writing. Works in every app. Just hold a hotkey and talk.</div>
+            <div class="wcta">
+              <div class="wbtn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>Download for Windows</div>
+              <div class="wbtn-ghost">See how it works</div>
+            </div>
+          </div>
+          <div class="web-demo-bar"><div class="pulse-dot"></div><span>Hey team, can you check in with the client and...</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Option B: Sage ── -->
+  <div class="option-row tb">
+    <div class="option-header">
+      <span class="badge">B</span>
+      <span class="name">Sage</span>
+      <span class="style">Warm earth tones, calming, organic</span>
+    </div>
+    <div class="option-panels">
+      <div>
+        <div class="panel-label">Desktop App</div>
+        <div class="app-frame">
+          <div class="sidebar">
+            <div class="sidebar-logo"><div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div><span>VoxGen</span></div>
+            <div class="nav-items">
+              <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Record</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History</div>
+              <div class="nav-item active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25"/></svg>Settings</div>
+              <div class="nav-sep">Modes</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Dictation</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>AI Prompt</div>
+            </div>
+            <div class="sidebar-foot"><div class="av">SP</div><div><div class="uname">Simcha P.</div><div class="uplan">Pro Plan</div></div></div>
+          </div>
+          <div class="main">
+            <h2>Settings</h2><p class="sub">Recording, providers, and preferences</p>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div><div><div class="ct">Recording</div><div class="cd">Hotkeys and triggers</div></div></div><div class="hk"><kbd>Alt</kbd> Hold to record</div> <div class="hk" style="margin-left:4px"><kbd>Alt</kbd><kbd>Alt</kbd> AI Prompt</div></div>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg></div><div><div class="ct">STT Provider</div><div class="cd">Speech engine</div></div></div><div class="sel">Groq Whisper (fastest)</div></div>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></div><div><div class="ct">Preferences</div><div class="cd">Behavior settings</div></div></div>
+              <div class="tr"><div><div class="tl">Auto-paste</div><div class="td">Inject text into focused app</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="tr"><div><div class="tl">AI Cleanup</div><div class="td">Fix grammar automatically</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="tr"><div><div class="tl">Sound effects</div><div class="td">Audio cues</div></div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">Website Landing</div>
+        <div class="web-frame">
+          <div class="web-nav">
+            <div class="wlogo"><div class="wicon"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>VoxGen</div>
+            <div class="wnav"><span>Features</span><span>Pricing</span><span>What's New</span></div>
+            <div class="wbtn">Download</div>
+          </div>
+          <div class="web-hero">
+            <div class="wh1">Speak freely.<br><em>Write perfectly.</em></div>
+            <div class="wp">AI dictation that cleans up your words as you speak. No editing, no filler words, no awkward phrasing. Just polished text in any app.</div>
+            <div class="wcta">
+              <div class="wbtn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>Download for Windows</div>
+              <div class="wbtn-ghost">See how it works</div>
+            </div>
+          </div>
+          <div class="web-demo-bar"><div class="pulse-dot"></div><span>Hey team, can you check in with the client and...</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Option C: Ink ── -->
+  <div class="option-row tc">
+    <div class="option-header">
+      <span class="badge">C</span>
+      <span class="name">Ink</span>
+      <span class="style">Dark sidebar + dark website, pro SaaS</span>
+    </div>
+    <div class="option-panels">
+      <div>
+        <div class="panel-label">Desktop App</div>
+        <div class="app-frame">
+          <div class="sidebar">
+            <div class="sidebar-logo"><div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></div><span>VoxGen</span></div>
+            <div class="nav-items">
+              <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Record</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History</div>
+              <div class="nav-item active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25"/></svg>Settings</div>
+              <div class="nav-sep">Modes</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Dictation</div>
+              <div class="nav-item"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>AI Prompt</div>
+            </div>
+            <div class="sidebar-foot"><div class="av">SP</div><div><div class="uname">Simcha P.</div><div class="uplan">Pro Plan</div></div></div>
+          </div>
+          <div class="main">
+            <h2>Settings</h2><p class="sub">Recording, providers, and preferences</p>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div><div><div class="ct">Recording</div><div class="cd">Hotkeys and triggers</div></div></div><div class="hk"><kbd>Alt</kbd> Hold to record</div> <div class="hk" style="margin-left:4px"><kbd>Alt</kbd><kbd>Alt</kbd> AI Prompt</div></div>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg></div><div><div class="ct">STT Provider</div><div class="cd">Speech engine</div></div></div><div class="sel">Groq Whisper (fastest)</div></div>
+            <div class="card"><div class="ch"><div class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></div><div><div class="ct">Preferences</div><div class="cd">Behavior settings</div></div></div>
+              <div class="tr"><div><div class="tl">Auto-paste</div><div class="td">Inject text into focused app</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="tr"><div><div class="tl">AI Cleanup</div><div class="td">Fix grammar automatically</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+              <div class="tr"><div><div class="tl">Sound effects</div><div class="td">Audio cues</div></div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel-label">Website Landing</div>
+        <div class="web-frame">
+          <div class="web-nav">
+            <div class="wlogo"><div class="wicon"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>VoxGen</div>
+            <div class="wnav"><span>Features</span><span>Pricing</span><span>What's New</span></div>
+            <div class="wbtn">Download</div>
+          </div>
+          <div class="web-hero">
+            <div class="wh1">Say it rough.<br><em>Get it polished.</em></div>
+            <div class="wp">AI dictation that understands what you meant, not what you said. Speak naturally in any app — VoxGen handles the rest.</div>
+            <div class="wcta">
+              <div class="wbtn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>Download for Windows</div>
+              <div class="wbtn-ghost">See how it works</div>
+            </div>
+          </div>
+          <div class="web-demo-bar"><div class="pulse-dot"></div><span>Hey team, can you check in with the client and...</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function sel(el, group) {
+    document.querySelectorAll(group).forEach(function(c) { c.classList.remove('selected'); });
+    el.classList.add('selected');
+  }
+
+  // Gentle staggered entrance
+  document.addEventListener('DOMContentLoaded', function() {
+    var items = document.querySelectorAll('.tagline-card, .option-row');
+    items.forEach(function(el, i) {
+      setTimeout(function() {
+        el.style.transition = 'opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      }, 150 + i * 100);
+    });
+  });
+</script>
+</body>
+</html>
