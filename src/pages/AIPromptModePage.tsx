@@ -88,29 +88,19 @@ export function AIPromptModePage() {
             <div className="border-t border-border/20" />
             <div className="space-y-2 pt-1">
               <div className="text-[12px] font-medium">Output Length</div>
-              <div className="grid gap-1.5">
+              <div className="flex rounded-md border border-border/40 bg-muted/20 p-0.5">
                 {OUTPUT_LENGTHS.map((l) => (
-                  <label
+                  <button
                     key={l.value}
-                    className={`flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 transition-all duration-150 ${
+                    onClick={() => updateSetting('outputLength', l.value)}
+                    className={`flex-1 rounded-[5px] px-3 py-1.5 text-[11px] font-medium transition-all duration-150 ${
                       settings.outputLength === l.value
-                        ? 'border-primary/40 bg-primary/5'
-                        : 'border-border/30 hover:border-border/60'
+                        ? 'bg-card shadow-sm text-foreground border border-border/40'
+                        : 'text-muted-foreground/60 hover:text-foreground border border-transparent'
                     }`}
                   >
-                    <input
-                      type="radio"
-                      name="outputLength"
-                      value={l.value}
-                      checked={settings.outputLength === l.value}
-                      onChange={() => updateSetting('outputLength', l.value)}
-                      className="accent-primary"
-                    />
-                    <div>
-                      <div className="text-[12px] font-medium">{l.label}</div>
-                      <div className="text-[10px] text-muted-foreground/50">{l.description}</div>
-                    </div>
-                  </label>
+                    {l.label}
+                  </button>
                 ))}
               </div>
             </div>
