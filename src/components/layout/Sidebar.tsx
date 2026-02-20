@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { History, Settings, Mic, MessageSquare, Zap } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { useSettings } from '@/hooks/useSettings'
@@ -10,7 +10,6 @@ interface SidebarProps {
 
 const mainNav = [
   { id: 'history', icon: History, label: 'History' },
-  { id: 'settings', icon: Settings, label: 'Settings' },
 ]
 
 const modeNav = [
@@ -20,11 +19,25 @@ const modeNav = [
 
 export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
   const [version, setVersion] = useState('')
+  const [showSettingsBtn, setShowSettingsBtn] = useState(false)
+  const footerRef = useRef<HTMLDivElement>(null)
   const { settings } = useSettings()
 
   useEffect(() => {
     window.electronAPI?.getAppVersion().then(setVersion)
   }, [])
+
+  // Close the slide-up when clicking outside or navigating
+  useEffect(() => {
+    if (!showSettingsBtn) return
+    function handleClick(e: MouseEvent) {
+      if (footerRef.current && !footerRef.current.contains(e.target as Node)) {
+        setShowSettingsBtn(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showSettingsBtn])
 
   const userEmail = settings.userEmail
   const licensePlan = settings.licensePlan
@@ -88,10 +101,34 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="mt-auto border-t border-border/30 pt-3">
+      <div ref={footerRef} className="mt-auto border-t border-border/30 pt-3">
+        {/* Slide-up Settings button */}
+        <div
+          className={cn(
+            'overflow-hidden transition-all duration-200 ease-out',
+            showSettingsBtn ? 'max-h-10 opacity-100 mb-1' : 'max-h-0 opacity-0'
+          )}
+        >
+          <button
+            onClick={() => {
+              onNavigate('settings')
+              setShowSettingsBtn(false)
+            }}
+            className={cn(
+              'flex w-full items-center gap-2.5 rounded-lg px-3 py-[7px] text-[13px] font-medium transition-all duration-150',
+              currentPage === 'settings'
+                ? 'bg-primary text-white shadow-sm'
+                : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+            )}
+          >
+            <Settings className="h-[15px] w-[15px] shrink-0" />
+            Settings
+          </button>
+        </div>
+
         {userEmail ? (
           <button
-            onClick={() => onNavigate('settings')}
+            onClick={() => setShowSettingsBtn((v) => !v)}
             className="group flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted/50"
             title={userEmail}
           >
@@ -113,7 +150,7 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
           </button>
         ) : (
           <button
-            onClick={() => onNavigate('settings')}
+            onClick={() => setShowSettingsBtn((v) => !v)}
             className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[12px] text-muted-foreground/60 transition-colors hover:text-primary"
           >
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted/50">

@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.13.1',
+    date: '2026-02-19',
+    highlights: [
+      'Settings accessed via avatar — click username to reveal Settings button',
+      'Added Notifications tab with sound effects and error alert toggles',
+      'Staggered section animations in Settings',
+      'Redesigned download page, fixed pricing key icon',
+    ],
+  },
+  {
     version: '2.13.0',
     date: '2026-02-19',
     highlights: [
