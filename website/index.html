@@ -1316,7 +1316,7 @@ stuff like that</div>
       <h2>Get VoxGen</h2>
       <p>Download for free. You'll activate your trial inside the app.</p>
       <div class="gs-email-wrap">
-        <input type="email" id="gs-email" placeholder="your@email.com (optional)" />
+        <input type="email" id="gs-email" placeholder="your@email.com" />
         <div class="gs-error" id="gs-error"></div>
       </div>
       <div class="gs-buttons">
@@ -1508,17 +1508,6 @@ stuff like that</div>
     }
   }
 
-  // --- Download URL resolution ---
-  var DOWNLOAD_URL = 'https://github.com/simchap123/VoxGen/releases/latest';
-  var hasDirectExe = false;
-  fetch('https://api.github.com/repos/simchap123/VoxGen/releases/latest')
-    .then(function(r) { return r.json(); })
-    .then(function(release) {
-      var exe = release.assets && release.assets.find(function(a) { return a.name.endsWith('.exe') && !a.name.endsWith('.blockmap'); });
-      if (exe) { DOWNLOAD_URL = exe.browser_download_url; hasDirectExe = true; }
-    })
-    .catch(function() {});
-
   // --- Element refs ---
   var gsEmail = document.getElementById('gs-email');
   var gsError = document.getElementById('gs-error');
@@ -1546,31 +1535,14 @@ stuff like that</div>
     try { await fetch('/api/capture-lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, path: path }) }); } catch (e) {}
   }
 
-  function triggerDownload() {
-    if (hasDirectExe) {
-      var link = document.createElement('a');
-      link.href = DOWNLOAD_URL;
-      link.download = '';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      window.open(DOWNLOAD_URL, '_blank');
-    }
-  }
-
   gsFreeBtn.addEventListener('click', async function() {
-    var email = gsEmail.value.trim();
-    gsError.style.display = 'none';
+    var email = getEmail();
+    if (!email) return;
     gsFreeBtn.disabled = true;
     gsFreeBtn.textContent = 'Starting download...';
-    if (email && email.includes('@')) await captureLead(email, 'free');
-    triggerDownload();
-    setTimeout(function() {
-      var url = 'download.html';
-      if (email && email.includes('@')) url += '?email=' + encodeURIComponent(email);
-      window.location.href = url;
-    }, 500);
+    await captureLead(email, 'free');
+    // Redirect to download.html — it handles the actual download
+    window.location.href = 'download.html?email=' + encodeURIComponent(email);
   });
 
   gsProBtn.addEventListener('click', async function() {
