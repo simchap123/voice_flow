@@ -23,6 +23,16 @@ export function LicenseInput() {
 
   useEffect(() => {
     loadLicenseInfo()
+
+    // Listen for deep link auto-activation (voxgen://activate?email=xxx)
+    if (window.electronAPI?.onDeepLinkActivated) {
+      const unsub = window.electronAPI.onDeepLinkActivated((data) => {
+        if (data.valid) {
+          loadLicenseInfo()
+        }
+      })
+      return unsub
+    }
   }, [])
 
   async function loadLicenseInfo() {

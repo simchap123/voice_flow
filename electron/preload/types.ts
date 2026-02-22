@@ -43,6 +43,7 @@ export interface ElectronAPI {
   openCustomerPortal: (email: string) => Promise<{ success: boolean; error?: string }>
   openExternal: (url: string) => Promise<void>
   onTrialExpired: (callback: () => void) => () => void
+  onDeepLinkActivated: (callback: (data: { email: string; valid: boolean; plan?: string; expiresAt?: string | null }) => void) => () => void
 
   // Clipboard
   copyToClipboard: (text: string) => Promise<void>

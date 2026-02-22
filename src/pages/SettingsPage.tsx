@@ -5,7 +5,7 @@ import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { ProviderApiKeyInput } from '@/components/settings/ProviderApiKeyInput'
 import { LicenseInput } from '@/components/settings/LicenseInput'
 import { Switch } from '@/components/ui/switch'
-import { Mic, Zap, Sliders, User, Sparkles, Volume2, Bell } from 'lucide-react'
+import { Mic, Zap, User, Sparkles, Bell, Key, X, RefreshCw, Check, Download } from 'lucide-react'
 import { toast } from '@/hooks/useToast'
 import type { STTProviderType } from '@/lib/stt/types'
 
@@ -29,6 +29,9 @@ export function SettingsPage() {
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false)
   const [hasGroqKey, setHasGroqKey] = useState(false)
   const [appVersion, setAppVersion] = useState('')
+  const [showKeyDialog, setShowKeyDialog] = useState(false)
+  const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'available' | 'downloaded' | 'uptodate'>('idle')
+  const [updateVersion, setUpdateVersion] = useState('')
 
   useEffect(() => {
     async function init() {
@@ -61,7 +64,31 @@ export function SettingsPage() {
     toast({ title: 'API key deleted', variant: 'success' })
   }
 
+  const handleCheckUpdate = async () => {
+    if (!window.electronAPI) return
+    setUpdateStatus('checking')
+    try {
+      const result = await window.electronAPI.checkForUpdates()
+      if (result.updateAvailable) {
+        setUpdateVersion(result.version || '')
+        setUpdateStatus(result.downloaded ? 'downloaded' : 'available')
+      } else {
+        setUpdateStatus('uptodate')
+        setTimeout(() => setUpdateStatus('idle'), 3000)
+      }
+    } catch {
+      setUpdateStatus('idle')
+      toast({ title: 'Failed to check for updates', variant: 'error' })
+    }
+  }
+
+  const handleInstallUpdate = async () => {
+    if (!window.electronAPI) return
+    await window.electronAPI.installUpdate()
+  }
+
   const currentSTT = settings.sttProvider || 'groq'
+  const currentKeyExists = currentSTT === 'openai' ? hasOpenAIKey : currentSTT === 'groq' ? hasGroqKey : false
 
   return (
     <ScrollArea className="h-full">
@@ -180,29 +207,36 @@ export function SettingsPage() {
                 </div>
               </div>
 
-              {/* API Key — inline under provider selector */}
-              {currentSTT === 'openai' && (
-                <div className="mt-3 pl-[180px]">
-                  <ProviderApiKeyInput
-                    provider="openai"
-                    label="OpenAI"
-                    placeholder="sk-..."
-                    hasKey={hasOpenAIKey}
-                    onSave={handleSaveKey}
-                    onDelete={handleDeleteKey}
-                  />
-                </div>
-              )}
-              {currentSTT === 'groq' && !isManagedMode && (
-                <div className="mt-3 pl-[180px]">
-                  <ProviderApiKeyInput
-                    provider="groq"
-                    label="Groq"
-                    placeholder="gsk_..."
-                    hasKey={hasGroqKey}
-                    onSave={handleSaveKey}
-                    onDelete={handleDeleteKey}
-                  />
+              {/* API Key — compact row with popup */}
+              {currentSTT !== 'local' && !isManagedMode && (
+                <div className="flex items-center gap-5 mt-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">API Key</div>
+                  </div>
+                  <div className="flex-1 flex items-center gap-2">
+                    {currentKeyExists ? (
+                      <>
+                        <span className="flex items-center gap-1.5 text-[11px] text-green-600 font-medium">
+                          <Check className="w-3 h-3" />
+                          Key configured
+                        </span>
+                        <button
+                          onClick={() => setShowKeyDialog(true)}
+                          className="text-[11px] text-muted-foreground/50 hover:text-primary transition-colors underline"
+                        >
+                          Change
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => setShowKeyDialog(true)}
+                        className="flex items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                      >
+                        <Key className="w-3 h-3" />
+                        Add API key
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -297,22 +331,50 @@ export function SettingsPage() {
                 </div>
                 <div className="text-[12px] text-muted-foreground/50">Keep VoxGen up to date</div>
               </div>
-              <div className="flex items-center gap-5 py-3">
-                <div className="w-[160px] shrink-0">
-                  <div className="text-[13px] font-medium text-muted-foreground">Auto-update</div>
-                  <div className="text-[10px] text-muted-foreground/40">Download & install automatically</div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
+              <div className="space-y-0">
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Auto-update</div>
+                    <div className="text-[10px] text-muted-foreground/40">Download & install automatically</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
                     <span className="text-[12px] text-muted-foreground/60">Enabled</span>
                     <Switch checked disabled />
                   </div>
-                  {appVersion && (
-                    <div className="mt-2 flex items-center gap-2 rounded-md bg-primary/5 border border-primary/10 px-3 py-2">
-                      <Volume2 className="w-3.5 h-3.5 text-primary" />
-                      <span className="text-[11px] text-primary font-medium">You're up to date — v{appVersion}</span>
-                    </div>
-                  )}
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Version</div>
+                    <div className="text-[10px] text-muted-foreground/40">v{appVersion || '—'}</div>
+                  </div>
+                  <div className="flex-1">
+                    {updateStatus === 'downloaded' ? (
+                      <button
+                        onClick={handleInstallUpdate}
+                        className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-primary/90 transition-colors"
+                      >
+                        <Download className="w-3 h-3" />
+                        Install v{updateVersion} & restart
+                      </button>
+                    ) : updateStatus === 'available' ? (
+                      <span className="text-[11px] text-primary font-medium">v{updateVersion} downloading...</span>
+                    ) : updateStatus === 'uptodate' ? (
+                      <div className="flex items-center gap-1.5 text-[11px] text-green-600 font-medium">
+                        <Check className="w-3 h-3" />
+                        Up to date
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleCheckUpdate}
+                        disabled={updateStatus === 'checking'}
+                        className="flex items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-3 h-3 ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />
+                        {updateStatus === 'checking' ? 'Checking...' : 'Check for updates'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -343,26 +405,49 @@ export function SettingsPage() {
               <LicenseInput />
             </div>
 
-            {/* App Info */}
-            <div className="settings-section-enter py-5" style={{ animationDelay: '0.06s' }}>
-              <div className="mb-4">
-                <div className="text-[14px] font-semibold flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-primary" />
-                  App
-                </div>
-              </div>
-              <div className="flex items-center gap-5 py-2.5">
-                <div className="w-[160px] shrink-0">
-                  <div className="text-[13px] font-medium text-muted-foreground">Version</div>
-                </div>
-                <div className="flex-1">
-                  <span className="text-[13px] font-medium">{appVersion || '—'}</span>
-                </div>
-              </div>
-            </div>
           </div>
         )}
       </div>
+
+      {/* API Key Dialog */}
+      {showKeyDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowKeyDialog(false)} />
+          <div className="relative bg-card border border-border rounded-xl shadow-xl p-5 w-[380px] max-w-[90vw]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Key className="w-4 h-4 text-primary" />
+                <span className="text-[14px] font-semibold">
+                  {currentSTT === 'openai' ? 'OpenAI' : 'Groq'} API Key
+                </span>
+              </div>
+              <button
+                onClick={() => setShowKeyDialog(false)}
+                className="flex items-center justify-center w-6 h-6 rounded-full hover:bg-muted transition-colors"
+              >
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            </div>
+            <ProviderApiKeyInput
+              provider={currentSTT}
+              label={currentSTT === 'openai' ? 'OpenAI' : 'Groq'}
+              placeholder={currentSTT === 'openai' ? 'sk-...' : 'gsk_...'}
+              hasKey={currentSTT === 'openai' ? hasOpenAIKey : hasGroqKey}
+              onSave={async (key, provider) => {
+                const result = await handleSaveKey(key, provider)
+                if (result.success) {
+                  setTimeout(() => setShowKeyDialog(false), 1000)
+                }
+                return result
+              }}
+              onDelete={async (provider) => {
+                await handleDeleteKey(provider)
+                setTimeout(() => setShowKeyDialog(false), 1000)
+              }}
+            />
+          </div>
+        </div>
+      )}
     </ScrollArea>
   )
 }

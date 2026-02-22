@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.13.3',
+    date: '2026-02-22',
+    highlights: [
+      'Auto-activation — click "Activate in VoxGen" on the payment success page to activate your license instantly',
+      'Fixed Copy Email button on payment success page',
+      'API key entry is now a popup dialog — no more navigating to another page',
+      'Check for Updates button in Settings with install prompt',
+    ],
+  },
+  {
     version: '2.13.2',
     date: '2026-02-21',
     highlights: [

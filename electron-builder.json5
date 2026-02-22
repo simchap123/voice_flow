@@ -29,6 +29,12 @@
     "shortcutName": "VoxGen",
     "artifactName": "VoxGen-Setup-${version}.${ext}"
   },
+  "protocols": [
+    {
+      "name": "VoxGen",
+      "schemes": ["voxgen"]
+    }
+  ],
   "mac": {
     "target": ["dmg"],
     "icon": "resources/icon.icns"

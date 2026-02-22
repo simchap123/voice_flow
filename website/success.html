@@ -89,7 +89,7 @@
     }
 
     .page {
-      max-width: 520px;
+      max-width: 640px;
       width: 100%;
       text-align: center;
     }
@@ -199,14 +199,14 @@
       margin-top: 8px;
     }
 
-    /* Copy button */
-    .copy-btn {
+    /* Activate button (primary CTA) */
+    .activate-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 28px;
+      gap: 10px;
+      padding: 14px 32px;
       border-radius: var(--radius-lg);
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
@@ -215,15 +215,49 @@
       color: white;
       box-shadow: var(--shadow-sm);
       transition: all 0.2s ease;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
+      text-decoration: none;
     }
-    .copy-btn:hover {
+    .activate-btn:hover {
       background: var(--brand-700);
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
     }
+    .activate-btn:active { transform: translateY(0); }
+    .activate-btn svg { width: 20px; height: 20px; }
+
+    .activate-status {
+      font-size: 13px;
+      color: var(--success-700);
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* Copy button (secondary) */
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: var(--radius-lg);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--gray-200);
+      background: white;
+      color: var(--gray-700);
+      box-shadow: var(--shadow-xs);
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+    }
+    .copy-btn:hover {
+      background: var(--gray-50);
+      border-color: var(--gray-300);
+      transform: translateY(-1px);
+    }
     .copy-btn:active { transform: translateY(0); }
-    .copy-btn svg { width: 18px; height: 18px; }
+    .copy-btn svg { width: 16px; height: 16px; }
 
     /* Retry button */
     .retry-btn {
@@ -371,21 +405,29 @@
         var data = await resp.json();
 
         if (resp.ok && data.email) {
+          var deepLink = 'voxgen://activate?email=' + encodeURIComponent(data.email);
           content.innerHTML =
             '<div class="license-box">' +
               '<div class="license-label">Your Activation Email</div>' +
               '<div class="license-email" id="activation-email">' + escapeHtml(data.email) + '</div>' +
               '<div class="plan-info">Plan: ' + escapeHtml(data.plan) + (data.expiresAt ? ' &bull; Expires: ' + new Date(data.expiresAt).toLocaleDateString() : ' &bull; Never expires') + '</div>' +
             '</div>' +
-            '<button class="copy-btn" onclick="copyEmail()">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
-              '<span id="copy-text">Copy Email</span>' +
-            '</button>' +
-            '<div class="instructions">' +
-              '<h3>How to activate:</h3>' +
+            '<a href="' + deepLink + '" class="activate-btn" id="activate-btn" onclick="onActivateClick()">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>' +
+              'Activate in VoxGen' +
+            '</a>' +
+            '<div class="activate-status" id="activate-status">Opening VoxGen...</div>' +
+            '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
+              '<button class="copy-btn" onclick="copyEmail()">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
+                '<span id="copy-text">Copy Email</span>' +
+              '</button>' +
+            '</div>' +
+            '<div class="instructions" style="margin-top:16px">' +
+              '<h3>Manual activation:</h3>' +
               '<ol>' +
                 '<li>Open <strong>VoxGen</strong> on your computer</li>' +
-                '<li>Go to <strong>Settings</strong> &rarr; <strong>Account</strong></li>' +
+                '<li>Click your <strong>avatar</strong> (top-right) &rarr; <strong>Account</strong></li>' +
                 '<li>Enter your email: <strong>' + escapeHtml(data.email) + '</strong></li>' +
                 '<li>Click <strong>Activate</strong></li>' +
               '</ol>' +
@@ -431,11 +473,43 @@
 
   function copyEmail() {
     var email = document.getElementById('activation-email').textContent;
-    navigator.clipboard.writeText(email).then(function() {
-      var btn = document.getElementById('copy-text');
+    var btn = document.getElementById('copy-text');
+
+    function onSuccess() {
       btn.textContent = 'Copied!';
       setTimeout(function() { btn.textContent = 'Copy Email'; }, 2000);
-    });
+    }
+
+    // Try modern clipboard API first, then fallback
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(email).then(onSuccess).catch(function() {
+        fallbackCopy(email, onSuccess);
+      });
+    } else {
+      fallbackCopy(email, onSuccess);
+    }
+  }
+
+  function fallbackCopy(text, callback) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); callback(); }
+    catch (e) { alert('Copy failed — please select the email manually'); }
+    document.body.removeChild(ta);
+  }
+
+  function onActivateClick() {
+    var status = document.getElementById('activate-status');
+    if (status) {
+      status.style.display = 'block';
+      setTimeout(function() {
+        status.textContent = 'VoxGen should open and activate automatically. If not, use manual activation below.';
+      }, 3000);
+    }
   }
 
   fetchLicense();

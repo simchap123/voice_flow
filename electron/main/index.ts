@@ -6,11 +6,49 @@ import { registerHotkeys, unregisterAllHotkeys } from './hotkeys'
 import { createTray, destroyTray } from './tray'
 import { registerIpcHandlers } from './ipc-handlers'
 import { initStore, getSetting } from './store'
-import { checkLicenseOnStartup } from './license'
+import { checkLicenseOnStartup, validateByEmail } from './license'
 import { initAutoUpdater } from './updater'
 import { trackAppLaunch, setupErrorReporting } from './event-tracker'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+// Register voxgen:// deep link protocol (for auto-activation after purchase)
+if (process.defaultApp) {
+  // Dev mode: register with path to electron executable
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('voxgen', process.execPath, [path.resolve(process.argv[1])])
+  }
+} else {
+  app.setAsDefaultProtocolClient('voxgen')
+}
+
+// Deep link handler — parses voxgen://activate?email=xxx
+async function handleDeepLink(url: string) {
+  console.log('[VoxGen] Deep link received:', url)
+  try {
+    // Parse: voxgen://activate?email=xxx or voxgen://activate/email@example.com
+    const parsed = new URL(url)
+    if (parsed.hostname === 'activate' || parsed.pathname?.startsWith('//activate')) {
+      const email = parsed.searchParams.get('email')
+      if (email) {
+        console.log('[VoxGen] Deep link activation for:', email)
+        const result = await validateByEmail(email)
+        console.log('[VoxGen] Deep link validation result:', result.valid, result.plan)
+
+        // Show main window and notify renderer
+        const mainWin = getMainWindow()
+        if (mainWin && !mainWin.isDestroyed()) {
+          if (mainWin.isMinimized()) mainWin.restore()
+          mainWin.show()
+          mainWin.focus()
+          mainWin.webContents.send('deep-link-activated', { email, ...result })
+        }
+      }
+    }
+  } catch (err: any) {
+    console.error('[VoxGen] Deep link error:', err.message)
+  }
+}
 
 // Prevent multiple instances
 const gotLock = app.requestSingleInstanceLock()
@@ -57,6 +95,20 @@ app.whenReady().then(async () => {
   const isFirstLaunch = getSetting('trialStartedAt') > Date.now() - 10000 // within 10s = first launch
   trackAppLaunch(isFirstLaunch)
 
+  // Windows: handle deep link on cold start (app wasn't running when link clicked)
+  const deepLinkArg = process.argv.find(arg => arg.startsWith('voxgen://'))
+  if (deepLinkArg) {
+    // Wait a moment for windows to be ready, then handle
+    setTimeout(() => handleDeepLink(deepLinkArg), 1500)
+  }
+
+  // macOS: handle deep link via open-url event
+  app.on('open-url', (_event, url) => {
+    if (url.startsWith('voxgen://')) {
+      handleDeepLink(url)
+    }
+  })
+
   app.on('activate', () => {
     const mainWin = getMainWindow()
     if (!mainWin || mainWin.isDestroyed()) {
@@ -65,12 +117,18 @@ app.whenReady().then(async () => {
   })
 })
 
-app.on('second-instance', () => {
+app.on('second-instance', (_event, argv) => {
   const mainWin = getMainWindow()
   if (mainWin) {
     if (mainWin.isMinimized()) mainWin.restore()
     mainWin.show()
     mainWin.focus()
+  }
+
+  // Windows: deep link URL comes as last arg in argv
+  const deepLinkUrl = argv.find(arg => arg.startsWith('voxgen://'))
+  if (deepLinkUrl) {
+    handleDeepLink(deepLinkUrl)
   }
 })
 

@@ -73,6 +73,11 @@ const api: ElectronAPI = {
     ipcRenderer.on('trial-expired', handler)
     return () => ipcRenderer.removeListener('trial-expired', handler)
   },
+  onDeepLinkActivated: (callback: (data: any) => void) => {
+    const handler = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('deep-link-activated', handler)
+    return () => ipcRenderer.removeListener('deep-link-activated', handler)
+  },
 
   // Clipboard
   copyToClipboard: (text: string) => ipcRenderer.invoke('clipboard:write', text),
