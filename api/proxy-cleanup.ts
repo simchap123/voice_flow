@@ -105,6 +105,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Text too large (max 50KB)' })
   }
 
+  // Validate action is a known value (prevent parameter tampering)
+  const validActions = Object.keys(PROMPTS).concat('generateWithTemplate')
+  if (!validActions.includes(action)) {
+    return res.status(400).json({ error: `Unknown action: ${action}` })
+  }
+
   // Validate user
   const validation = await validateUser(email.trim().toLowerCase(), 'proxy-cleanup')
   if (!validation.valid) {

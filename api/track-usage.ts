@@ -33,17 +33,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (user) userId = user.id
     }
 
+    // Sanitize numeric fields to prevent abuse
+    const safeWords = Math.max(0, Math.min(Number(words) || 0, 100_000))
+    const safeAudioSeconds = Math.max(0, Math.min(Number(audioSeconds) || 0, 3600))
+
     // Insert usage log
     const { error: insertErr } = await supabase
       .from('usage_logs')
       .insert({
         user_id: userId,
         device_id: deviceId ?? null,
-        words: words ?? 0,
-        audio_seconds: audioSeconds ?? 0,
-        stt_provider: sttProvider ?? 'unknown',
-        cleanup_provider: cleanupProvider ?? 'none',
-        language: language ?? 'en',
+        words: safeWords,
+        audio_seconds: safeAudioSeconds,
+        stt_provider: (sttProvider ?? 'unknown').slice(0, 50),
+        cleanup_provider: (cleanupProvider ?? 'none').slice(0, 50),
+        language: (language ?? 'en').slice(0, 10),
       })
 
     if (insertErr) {

@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.14.1',
+    date: '2026-02-22',
+    highlights: [
+      'Fixed checkout modal on website — email field always visible, no more broken form',
+      '"No license found" now shows a direct link to buy a license instead of a dead-end error',
+      'Fixed trial warning toasts not showing for device trial users',
+      'Added developer tools in Settings → Account for testing trial flow',
+    ],
+  },
+  {
     version: '2.14.0',
     date: '2026-02-22',
     highlights: [

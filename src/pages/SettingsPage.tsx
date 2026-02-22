@@ -5,9 +5,136 @@ import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { ProviderApiKeyInput } from '@/components/settings/ProviderApiKeyInput'
 import { LicenseInput } from '@/components/settings/LicenseInput'
 import { Switch } from '@/components/ui/switch'
-import { Mic, Zap, User, Sparkles, Bell, Key, X, RefreshCw, Check, Download } from 'lucide-react'
+import { Mic, Zap, User, Sparkles, Bell, Key, X, RefreshCw, Check, Download, Bug, Trash2, RotateCcw } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/useToast'
 import type { STTProviderType } from '@/lib/stt/types'
+
+// ── DEV TOOLS — REMOVE BEFORE PUBLIC RELEASE ──
+function DevTools() {
+  const { settings, updateSetting } = useSettings()
+  const [trialDaysLeft, setTrialDaysLeft] = useState(30)
+  const [deviceId, setDeviceId] = useState('')
+
+  useEffect(() => {
+    loadTrialState()
+  }, [])
+
+  async function loadTrialState() {
+    if (!window.electronAPI) return
+    const info = await window.electronAPI.getLicenseInfo()
+    setDeviceId(info.userEmail?.includes('@device.voxgen.app') ? info.userEmail : '')
+    if (info.trialStartedAt) {
+      const elapsed = Date.now() - info.trialStartedAt
+      const daysUsed = elapsed / (1000 * 60 * 60 * 24)
+      setTrialDaysLeft(Math.max(0, Math.floor(30 - daysUsed)))
+    }
+  }
+
+  async function skipDays(days: number) {
+    if (!window.electronAPI) return
+    const info = await window.electronAPI.getLicenseInfo()
+    const currentStart = info.trialStartedAt || Date.now()
+    const newStart = currentStart - (days * 24 * 60 * 60 * 1000)
+    updateSetting('trialStartedAt', newStart)
+    // Recalculate
+    const elapsed = Date.now() - newStart
+    const daysUsed = elapsed / (1000 * 60 * 60 * 24)
+    const left = Math.max(0, Math.floor(30 - daysUsed))
+    setTrialDaysLeft(left)
+    toast({ title: `Skipped ${days} day${days > 1 ? 's' : ''}`, description: `Trial: ${left} days left`, variant: 'success' })
+  }
+
+  async function resetTrial() {
+    updateSetting('trialStartedAt', Date.now())
+    updateSetting('licenseStatus', 'active' as any)
+    updateSetting('licensePlan', 'Trial' as any)
+    setTrialDaysLeft(30)
+    toast({ title: 'Trial reset to 30 days', variant: 'success' })
+  }
+
+  async function clearAllHistory() {
+    if (!window.electronAPI) return
+    await window.electronAPI.setHistory([])
+    toast({ title: 'History cleared', variant: 'success' })
+  }
+
+  async function clearAllData() {
+    if (!window.electronAPI) return
+    await window.electronAPI.clearLicense()
+    await window.electronAPI.setHistory([])
+    updateSetting('trialStartedAt', 0)
+    updateSetting('onboardingComplete', false)
+    updateSetting('sessionCount', 0 as any)
+    toast({ title: 'All local data cleared', description: 'Restart the app for a fresh start', variant: 'success' })
+  }
+
+  return (
+    <div className="settings-section-enter py-5 border-t border-red-500/20" style={{ animationDelay: '0.06s' }}>
+      <div className="mb-4">
+        <div className="text-[14px] font-semibold flex items-center gap-2 text-red-400">
+          <Bug className="w-4 h-4" />
+          Developer Tools
+        </div>
+        <div className="text-[12px] text-red-400/50">Testing only — remove before public release</div>
+      </div>
+
+      {/* Trial Time Travel */}
+      <div className="rounded-lg border border-border/30 bg-muted/20 p-3 mb-3">
+        <div className="text-[12px] font-medium text-muted-foreground mb-2">Trial Time Travel</div>
+        <div className="text-[11px] text-muted-foreground/60 mb-2">
+          Current: <span className="font-mono font-medium text-foreground">{trialDaysLeft}</span> days left
+          {deviceId && <span className="ml-2 text-muted-foreground/40">({deviceId})</span>}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2" onClick={() => skipDays(1)}>
+            +1 day
+          </Button>
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2" onClick={() => skipDays(5)}>
+            +5 days
+          </Button>
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2" onClick={() => skipDays(10)}>
+            +10 days
+          </Button>
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2" onClick={() => skipDays(23)}>
+            →7 left
+          </Button>
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2" onClick={() => skipDays(27)}>
+            →3 left
+          </Button>
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2" onClick={() => skipDays(29)}>
+            →1 left
+          </Button>
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 text-red-400 border-red-500/30" onClick={() => skipDays(31)}>
+            Expire
+          </Button>
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 text-green-400 border-green-500/30" onClick={resetTrial}>
+            <RotateCcw className="w-3 h-3 mr-1" />
+            Reset
+          </Button>
+        </div>
+        <p className="text-[10px] text-muted-foreground/40 mt-2">
+          Adjusts local trialStartedAt. Server-side trial is unchanged — recording will still work until server trial expires.
+        </p>
+      </div>
+
+      {/* Data Management */}
+      <div className="rounded-lg border border-border/30 bg-muted/20 p-3">
+        <div className="text-[12px] font-medium text-muted-foreground mb-2">Data Management</div>
+        <div className="flex flex-wrap gap-1.5">
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2" onClick={clearAllHistory}>
+            <Trash2 className="w-3 h-3 mr-1" />
+            Clear History
+          </Button>
+          <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 text-red-400 border-red-500/30" onClick={clearAllData}>
+            <Trash2 className="w-3 h-3 mr-1" />
+            Wipe All Local Data
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 type Tab = 'general' | 'notifications' | 'account'
 
@@ -404,6 +531,9 @@ export function SettingsPage() {
               </div>
               <LicenseInput />
             </div>
+
+            {/* Developer Tools — REMOVE BEFORE PUBLIC RELEASE */}
+            <DevTools />
 
           </div>
         )}

@@ -20,8 +20,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return validateByEmail(email.trim().toLowerCase(), res)
   }
 
-  // 2. Device-based trial (no email needed)
-  if (deviceId && typeof deviceId === 'string' && deviceId.length >= 8) {
+  // 2. Device-based trial (no email needed, must be UUID format)
+  if (deviceId && typeof deviceId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deviceId.trim())) {
     return validateByDevice(deviceId.trim(), res)
   }
 
@@ -113,22 +113,22 @@ async function validateByDevice(deviceId: string, res: VercelResponse) {
       })
     }
 
-    // New device — create trial user with generated email
+    // New device — create trial user with generated email (race-safe via unique constraint)
     const shortId = deviceId.replace(/-/g, '').slice(0, 12)
     const trialEmail = `trial_${shortId}@device.voxgen.app`
     const now = new Date().toISOString()
 
-    const { error: createErr } = await supabase
+    const { data: created, error: createErr } = await supabase
       .from('users')
-      .insert({
-        email: trialEmail,
-        device_id: deviceId,
-        trial_started_at: now,
-      })
+      .upsert(
+        { email: trialEmail, device_id: deviceId, trial_started_at: now },
+        { onConflict: 'device_id', ignoreDuplicates: true }
+      )
+      .select('id, email, trial_started_at')
+      .single()
 
-    if (createErr) {
-      // Might be a race condition — try to fetch again
-      console.error('[validate-license] Device trial create error:', createErr.message)
+    if (createErr || !created) {
+      // Upsert didn't return (ignoreDuplicates) — fetch the existing row
       const { data: retryUser } = await supabase
         .from('users')
         .select('id, email, trial_started_at')
@@ -136,13 +136,18 @@ async function validateByDevice(deviceId: string, res: VercelResponse) {
         .single()
 
       if (retryUser) {
+        const trialStart = retryUser.trial_started_at ? new Date(retryUser.trial_started_at) : null
+        const daysLeft = trialStart
+          ? Math.max(0, Math.ceil(TRIAL_DAYS - (Date.now() - trialStart.getTime()) / (1000 * 60 * 60 * 24)))
+          : TRIAL_DAYS
         return res.status(200).json({
-          valid: true,
+          valid: daysLeft > 0,
           plan: 'Trial',
           planSlug: 'trial',
-          trialDaysLeft: TRIAL_DAYS,
+          trialDaysLeft: daysLeft,
           trialEmail: retryUser.email,
           expiresAt: null,
+          ...(daysLeft <= 0 ? { error: 'Trial expired' } : {}),
         })
       }
       return res.status(500).json({ error: 'Failed to register device trial' })
@@ -153,7 +158,7 @@ async function validateByDevice(deviceId: string, res: VercelResponse) {
       plan: 'Trial',
       planSlug: 'trial',
       trialDaysLeft: TRIAL_DAYS,
-      trialEmail,
+      trialEmail: created.email,
       expiresAt: null,
     })
   } catch (err: any) {

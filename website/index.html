@@ -1374,7 +1374,7 @@ stuff like that</div>
     <h3>Choose your plan</h3>
     <p>Select a plan to continue to payment.</p>
     <div class="checkout-error" id="checkout-error"></div>
-    <input type="email" id="checkout-email" placeholder="you@example.com" style="display:none;width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--fg);outline:none;margin-bottom:12px" />
+    <input type="email" id="checkout-email" placeholder="you@example.com" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--fg);outline:none;margin-bottom:12px" />
     <div class="checkout-plans" id="checkout-plans">
       <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('monthly')">Monthly &mdash; $9/mo</button>
       <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="selectPlan('yearly')">Yearly &mdash; $59/yr (Best Value)</button>
@@ -1514,24 +1514,21 @@ stuff like that</div>
   var checkoutCancel = document.getElementById('checkout-cancel');
 
   gsProBtn.addEventListener('click', function() {
-    checkoutOverlay.classList.add('active');
+    openCheckout();
   });
-
-  gsEmail.addEventListener('keydown', function(e) { if (e.key === 'Enter') gsFreeBtn.click(); });
 
   // --- Checkout ---
   function openCheckout(plan) {
     checkoutOverlay.classList.add('active');
-    selectPlan(plan);
+    if (plan) selectPlan(plan);
   }
 
   var checkoutPlans = document.getElementById('checkout-plans');
 
   function selectPlan(plan) {
     selectedPlan = plan;
-    var email = checkoutEmail.value || gsEmail.value.trim();
+    var email = checkoutEmail.value.trim();
     if (!email || !email.includes('@')) {
-      checkoutEmail.style.display = 'block';
       checkoutEmail.focus();
       checkoutError.textContent = 'Please enter your email to continue.';
       checkoutError.style.display = 'block';
@@ -1556,6 +1553,7 @@ stuff like that</div>
     if (checkoutSubmit) { checkoutSubmit.disabled = true; checkoutSubmit.textContent = 'Processing...'; }
     try {
       var resp = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: plan, email: email }) });
+      if (!resp.ok) { var errText = await resp.text(); throw new Error(errText || 'Server error (' + resp.status + ')'); }
       var data = await resp.json();
       if (data.url) { window.location.href = data.url; }
       else { throw new Error(data.error || 'Failed to create checkout session'); }
@@ -1571,7 +1569,6 @@ stuff like that</div>
   function closeCheckout() {
     checkoutOverlay.classList.remove('active');
     selectedPlan = null;
-    checkoutEmail.style.display = 'none';
     checkoutSubmit.style.display = 'none';
     checkoutPlans.style.display = '';
     checkoutPlans.style.pointerEvents = '';

@@ -67,6 +67,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await handleSubscriptionDeleted(subscription)
         break
       }
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge
+        await handleChargeRefunded(charge)
+        break
+      }
       default:
         console.log(`[webhook] Unhandled event type: ${event.type}`)
     }
@@ -139,20 +144,26 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     : null
 
   // Idempotency: check if a license already exists for this session/subscription
-  const idempotencyKey = stripeSubscriptionId || session.id
-  const { data: existingLicense } = await supabase
+  let idempotencyQuery = supabase
     .from('user_licenses')
     .select('id, license_key')
     .eq('user_id', user.id)
     .eq('license_type_id', licenseType.id)
-    .or(
-      stripeSubscriptionId
-        ? `stripe_subscription_id.eq.${stripeSubscriptionId}`
-        : `stripe_customer_id.eq.${stripeCustomerId}`
-    )
     .eq('status', 'active')
     .limit(1)
-    .maybeSingle()
+
+  if (stripeSubscriptionId) {
+    idempotencyQuery = idempotencyQuery.eq('stripe_subscription_id', stripeSubscriptionId)
+  } else if (stripeCustomerId) {
+    idempotencyQuery = idempotencyQuery.eq('stripe_customer_id', stripeCustomerId)
+  } else {
+    // Neither subscription nor customer ID — this shouldn't happen for completed checkouts.
+    // The base query (user_id + license_type_id + active) is still safe — it prevents
+    // duplicate active licenses of the same type for the same user.
+    console.warn(`[webhook] Checkout session ${session.id} has no subscription or customer ID`)
+  }
+
+  const { data: existingLicense } = await idempotencyQuery.maybeSingle()
 
   if (existingLicense) {
     console.log(`[webhook] License already exists for ${email} (${plan}), skipping duplicate: ${existingLicense.license_key}`)
@@ -255,4 +266,62 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   }
 
   console.log(`[webhook] License cancelled for subscription: ${subscriptionId}`)
+}
+
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  // Only revoke on full refunds — partial refunds (e.g. goodwill gestures) should not affect licenses
+  if (charge.amount_refunded < charge.amount) {
+    console.log(`[webhook] Partial refund (${charge.amount_refunded}/${charge.amount}) — skipping license revocation for charge: ${charge.id}`)
+    return
+  }
+
+  const customerId = charge.customer ? String(charge.customer) : null
+  if (!customerId) {
+    console.error('[webhook] Refund charge missing customer ID:', charge.id)
+    return
+  }
+
+  // Scope revocation: if the charge is tied to a subscription, only revoke that subscription's license
+  // Otherwise fall back to revoking by customer ID (for one-time/lifetime purchases)
+  let revokeQuery = supabase
+    .from('user_licenses')
+    .update({ status: 'revoked', updated_at: new Date().toISOString() })
+    .eq('status', 'active')
+
+  const invoiceId = charge.invoice ? String(charge.invoice) : null
+  if (invoiceId) {
+    // Subscription charge — look up the subscription from the invoice
+    try {
+      const invoice = await stripe.invoices.retrieve(invoiceId)
+      if (invoice.subscription) {
+        const subId = String(invoice.subscription)
+        revokeQuery = revokeQuery.eq('stripe_subscription_id', subId)
+        const { error } = await revokeQuery
+        if (error) {
+          console.error('[webhook] Failed to revoke license on refund:', error.message)
+          return
+        }
+        console.log(`[webhook] License revoked due to full refund for subscription: ${subId}`)
+        return
+      }
+    } catch (err: any) {
+      console.error('[webhook] Failed to retrieve invoice for refund scoping:', err.message)
+      // Fall through to customer-level revocation
+    }
+  }
+
+  // One-time charge (lifetime) or invoice lookup failed — revoke by customer ID
+  revokeQuery = supabase
+    .from('user_licenses')
+    .update({ status: 'revoked', updated_at: new Date().toISOString() })
+    .eq('stripe_customer_id', customerId)
+    .eq('status', 'active')
+
+  const { error } = await revokeQuery
+  if (error) {
+    console.error('[webhook] Failed to revoke license on refund:', error.message)
+    return
+  }
+
+  console.log(`[webhook] License revoked due to full refund for customer: ${customerId}`)
 }

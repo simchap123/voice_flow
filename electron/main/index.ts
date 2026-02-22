@@ -29,19 +29,24 @@ async function handleDeepLink(url: string) {
     // Parse: voxgen://activate?email=xxx or voxgen://activate/email@example.com
     const parsed = new URL(url)
     if (parsed.hostname === 'activate' || parsed.pathname?.startsWith('//activate')) {
-      const email = parsed.searchParams.get('email')
-      if (email) {
+      const email = parsed.searchParams.get('email')?.trim().toLowerCase()
+      if (email && email.includes('@') && email.length < 255) {
         console.log('[VoxGen] Deep link activation for:', email)
         const result = await validateByEmail(email)
         console.log('[VoxGen] Deep link validation result:', result.valid, result.plan)
 
-        // Show main window and notify renderer
+        // Show main window and notify all renderer windows
         const mainWin = getMainWindow()
         if (mainWin && !mainWin.isDestroyed()) {
           if (mainWin.isMinimized()) mainWin.restore()
           mainWin.show()
           mainWin.focus()
-          mainWin.webContents.send('deep-link-activated', { email, ...result })
+        }
+        // Broadcast to all windows so overlay also picks up the change
+        for (const win of BrowserWindow.getAllWindows()) {
+          if (!win.isDestroyed()) {
+            win.webContents.send('deep-link-activated', { email, ...result })
+          }
         }
       }
     }

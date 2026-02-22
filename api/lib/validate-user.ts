@@ -2,9 +2,14 @@ import { supabase } from './supabase'
 
 const TRIAL_DAYS = 30
 
+// Rate limits: requests per hour per user
+const RATE_LIMIT_TRIAL = 60     // Trial users: 60 req/hr
+const RATE_LIMIT_PAID = 300     // Paid users: 300 req/hr
+
 /**
  * Validate that a user has active trial or license.
  * Shared by proxy-stt and proxy-cleanup endpoints.
+ * Also enforces per-user rate limiting.
  */
 export async function validateUser(
   email: string,
@@ -22,6 +27,7 @@ export async function validateUser(
     }
 
     // Check for active license first
+    let isPaid = false
     const { data: license } = await supabase
       .from('user_licenses')
       .select('id, status, expires_at, license_types!inner ( slug )')
@@ -40,18 +46,31 @@ export async function validateUser(
           return { valid: false, error: 'License expired' }
         }
       }
-      return { valid: true }
+      isPaid = true
+    } else {
+      // Check trial
+      if (!user.trial_started_at) {
+        // Trial not started = still valid
+      } else {
+        const elapsed = Date.now() - new Date(user.trial_started_at).getTime()
+        const daysUsed = elapsed / (1000 * 60 * 60 * 24)
+        if (daysUsed >= TRIAL_DAYS) {
+          return { valid: false, error: 'Trial expired' }
+        }
+      }
     }
 
-    // Check trial
-    if (!user.trial_started_at) {
-      return { valid: true } // Trial not started = still valid (will start now)
-    }
+    // Rate limiting: count requests in the last hour
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const { count } = await supabase
+      .from('usage_logs')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('created_at', oneHourAgo)
 
-    const elapsed = Date.now() - new Date(user.trial_started_at).getTime()
-    const daysUsed = elapsed / (1000 * 60 * 60 * 24)
-    if (daysUsed >= TRIAL_DAYS) {
-      return { valid: false, error: 'Trial expired' }
+    const limit = isPaid ? RATE_LIMIT_PAID : RATE_LIMIT_TRIAL
+    if (count !== null && count >= limit) {
+      return { valid: false, error: `Rate limit exceeded (${limit} requests/hour). Try again later.` }
     }
 
     return { valid: true }

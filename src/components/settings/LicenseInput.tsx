@@ -44,7 +44,7 @@ export function LicenseInput() {
     if (info.trialStartedAt) {
       const elapsed = Date.now() - info.trialStartedAt
       const daysUsed = elapsed / (1000 * 60 * 60 * 24)
-      setTrialDaysLeft(Math.max(0, Math.ceil(30 - daysUsed)))
+      setTrialDaysLeft(Math.max(0, Math.floor(30 - daysUsed)))
     }
   }
 
@@ -259,9 +259,25 @@ export function LicenseInput() {
         </div>
       )}
 
-      {/* Error message */}
+      {/* Error message with buy link when no license found */}
       {error && (
-        <p className="text-xs text-red-400">{error}</p>
+        <div className="text-xs">
+          <p className="text-red-400">{error}</p>
+          {error.includes('No') && error.includes('license') && (
+            <p className="text-muted-foreground mt-1">
+              Don't have a license?{' '}
+              <a
+                href="https://voxgenflow.vercel.app/#pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
+                Buy one now
+              </a>{' '}
+              — use this email at checkout.
+            </p>
+          )}
+        </div>
       )}
 
       {/* Buy link when no active paid license */}

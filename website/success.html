@@ -412,11 +412,11 @@
               '<div class="license-email" id="activation-email">' + escapeHtml(data.email) + '</div>' +
               '<div class="plan-info">Plan: ' + escapeHtml(data.plan) + (data.expiresAt ? ' &bull; Expires: ' + new Date(data.expiresAt).toLocaleDateString() : ' &bull; Never expires') + '</div>' +
             '</div>' +
+            '<div class="activate-status" id="activate-status" style="display:block;color:var(--success-700)">Opening VoxGen...</div>' +
             '<a href="' + deepLink + '" class="activate-btn" id="activate-btn" onclick="onActivateClick()">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>' +
               'Activate in VoxGen' +
             '</a>' +
-            '<div class="activate-status" id="activate-status">Opening VoxGen...</div>' +
             '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">' +
               '<button class="copy-btn" onclick="copyEmail()">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
@@ -424,7 +424,11 @@
               '</button>' +
             '</div>' +
             '<div class="instructions" style="margin-top:16px">' +
-              '<h3>Manual activation:</h3>' +
+              '<h3>Don\'t have VoxGen installed?</h3>' +
+              '<p style="font-size:14px;color:var(--gray-500);margin-bottom:12px">' +
+                '<a href="download.html" style="color:var(--brand-600);font-weight:600;text-decoration:none">Download VoxGen</a> first, then come back to activate.' +
+              '</p>' +
+              '<h3 style="margin-top:12px">Manual activation:</h3>' +
               '<ol>' +
                 '<li>Open <strong>VoxGen</strong> on your computer</li>' +
                 '<li>Click <strong>Settings</strong> in the sidebar</li>' +
@@ -432,6 +436,20 @@
                 '<li>Click <strong>Activate</strong></li>' +
               '</ol>' +
             '</div>';
+
+          // Auto-attempt deep link redirect (like Zoom/Slack/VS Code)
+          setTimeout(function() {
+            window.location.href = deepLink;
+          }, 800);
+
+          // After 3s, if still on this page, show fallback message
+          setTimeout(function() {
+            var status = document.getElementById('activate-status');
+            if (status) {
+              status.innerHTML = 'If VoxGen didn\'t open automatically, click <strong>Activate in VoxGen</strong> above or copy your email below.';
+              status.style.color = 'var(--gray-500)';
+            }
+          }, 3000);
           return;
         }
 
@@ -507,9 +525,9 @@
     if (status) {
       status.style.display = 'block';
       status.textContent = 'Opening VoxGen...';
-      // After a short delay, show fallback instructions since deep links may not work on all systems
+      status.style.color = 'var(--success-700)';
       setTimeout(function() {
-        status.innerHTML = 'If VoxGen didn\'t open, <strong>copy your email</strong> and paste it in Settings &rarr; Account.';
+        status.innerHTML = 'If VoxGen didn\'t open, <strong>copy your email</strong> and paste it in Settings &rarr; Account. Or <a href="download.html" style="color:var(--brand-600);font-weight:600">download VoxGen</a> first.';
         status.style.color = 'var(--gray-500)';
       }, 2500);
     }

@@ -24,14 +24,15 @@ function MainApp() {
     if (!window.electronAPI) return
 
     window.electronAPI.getLicenseInfo().then((info: any) => {
-      // Skip if active license or BYOK user
-      if (info.licenseStatus === 'active') return
+      // Skip if active PAID license (not trial)
+      if (info.licenseStatus === 'active' && info.licensePlan && info.licensePlan !== 'Trial') return
+      // Skip if BYOK user (they don't need managed keys)
       if (hasApiKey) return
       if (!info.trialStartedAt) return
 
       const elapsed = Date.now() - info.trialStartedAt
       const daysUsed = elapsed / (1000 * 60 * 60 * 24)
-      const daysLeft = Math.max(0, Math.ceil(30 - daysUsed))
+      const daysLeft = Math.max(0, Math.floor(30 - daysUsed))
 
       if (daysLeft === 1) {
         toast({ title: 'Trial expires tomorrow!', description: 'Last day of your free trial. Upgrade now or add your own API key in Settings.', variant: 'error' })

@@ -12,6 +12,9 @@ import {
 const API_BASE = 'https://voxgenflow.vercel.app'
 const REVALIDATION_INTERVAL_MS = 24 * 60 * 60 * 1000 // 24 hours
 
+// Startup grace: allow usage while initial license check is in progress
+let startupCheckComplete = false
+
 export interface LicenseValidationResult {
   valid: boolean
   plan?: string
@@ -160,6 +163,14 @@ export async function registerDeviceTrial(deviceId: string): Promise<LicenseVali
 }
 
 export async function checkLicenseOnStartup(): Promise<void> {
+  try {
+    return await _checkLicenseOnStartupInner()
+  } finally {
+    startupCheckComplete = true
+  }
+}
+
+async function _checkLicenseOnStartupInner(): Promise<void> {
   // Try email-based validation first (paid users or already-registered device trials)
   const email = getSetting('userEmail')
   if (email) {
@@ -218,6 +229,10 @@ export async function checkLicenseOnStartup(): Promise<void> {
 }
 
 export function canUseApp(): boolean {
+  // During startup, allow usage while initial license check is in progress
+  // This prevents blocking users who press hotkey before async check completes
+  if (!startupCheckComplete) return true
+
   // If license is active, always allow
   const status = getSetting('licenseStatus') as LicenseStatus
   if (status === 'active') return true

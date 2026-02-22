@@ -334,7 +334,7 @@ export function getTrialInfo(): { daysLeft: number; isExpired: boolean } {
   }
   const elapsed = Date.now() - trialStartedAt
   const daysUsed = elapsed / (1000 * 60 * 60 * 24)
-  const daysLeft = Math.max(0, Math.ceil(30 - daysUsed))
+  const daysLeft = Math.max(0, Math.floor(30 - daysUsed))
   return { daysLeft, isExpired: daysLeft <= 0 }
 }
 

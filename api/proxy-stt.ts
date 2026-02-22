@@ -42,10 +42,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Decode base64 audio
     const audioBuffer = Buffer.from(audio, 'base64')
+    const validMimes = ['audio/webm', 'audio/mp4', 'audio/mpeg', 'audio/ogg', 'audio/wav']
+    const safeMime = validMimes.includes(mimeType || '') ? mimeType! : 'audio/webm'
     const audioFile = new File(
       [audioBuffer],
       'recording.webm',
-      { type: mimeType || 'audio/webm' }
+      { type: safeMime }
     )
 
     // Call Groq Whisper via OpenAI-compatible API
