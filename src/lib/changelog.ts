@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.13.2',
+    date: '2026-02-21',
+    highlights: [
+      'Fixed trial activation — new users get 30-day trial instantly (removed broken email verification)',
+      'Overlay error pill is now clickable — opens Settings window directly',
+      'Success page redesigned with sage green theme matching the rest of the site',
+      'Download page now shows "Enter your email in the app" step',
+    ],
+  },
+  {
     version: '2.13.1',
     date: '2026-02-19',
     highlights: [

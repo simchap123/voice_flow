@@ -18,8 +18,6 @@ export interface LicenseValidationResult {
   expiresAt?: string | null
   trialDaysLeft?: number
   error?: string
-  needsVerification?: boolean
-  message?: string
 }
 
 export async function validateByEmail(email: string): Promise<LicenseValidationResult> {
@@ -31,11 +29,6 @@ export async function validateByEmail(email: string): Promise<LicenseValidationR
     })
 
     const data = JSON.parse(response)
-
-    if (data.needsVerification) {
-      // Email needs verification — don't save as active, don't persist email
-      return data
-    }
 
     if (data.valid) {
       saveLicenseResult({

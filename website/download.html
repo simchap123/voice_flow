@@ -535,7 +535,7 @@
       Your download has started
     </div>
 
-    <h1 class="reveal stagger-1">Get started in <span class="accent">3 steps</span></h1>
+    <h1 class="reveal stagger-1">Get started in <span class="accent">4 steps</span></h1>
     <p class="subtitle reveal stagger-2">Up and running in under a minute.</p>
 
     <div class="card reveal stagger-3">
@@ -558,6 +558,14 @@
 
         <div class="step">
           <div class="step-icon">3</div>
+          <div class="step-content">
+            <h3>Enter your email in the app</h3>
+            <p>Go to <strong>Settings</strong> &rarr; <strong>Account</strong> and enter <strong id="user-email-display"></strong> to activate your free trial.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-icon">4</div>
           <div class="step-content">
             <h3>Start dictating</h3>
             <p>Hold <kbd>Alt</kbd> from any app to dictate. Release to stop and auto-paste.</p>
@@ -675,6 +683,8 @@
 
   if (email && email.includes('@')) {
     document.getElementById('download-content').style.display = 'block';
+    var emailDisplay = document.getElementById('user-email-display');
+    if (emailDisplay) emailDisplay.textContent = email;
     startAutoDownload();
   } else {
     document.getElementById('email-gate').style.display = 'block';

@@ -37,8 +37,8 @@ export interface ElectronAPI {
 
   // License
   validateLicense: (key: string) => Promise<{ valid: boolean; plan?: string; expiresAt?: string | null; error?: string }>
-  validateByEmail: (email: string) => Promise<{ valid: boolean; plan?: string; expiresAt?: string | null; error?: string; trialDaysLeft?: number; needsVerification?: boolean; message?: string }>
-  getLicenseInfo: () => Promise<{ licenseKey: string; licenseStatus: string; licensePlan: string; licenseExpiresAt: string; trialStartedAt: number; lastLicenseCheck: number }>
+  validateByEmail: (email: string) => Promise<{ valid: boolean; plan?: string; expiresAt?: string | null; error?: string; trialDaysLeft?: number }>
+  getLicenseInfo: () => Promise<{ licenseKey: string; licenseStatus: string; licensePlan: string; licenseExpiresAt: string; trialStartedAt: number; lastLicenseCheck: number; userEmail: string }>
   clearLicense: () => Promise<void>
   openCustomerPortal: (email: string) => Promise<{ success: boolean; error?: string }>
   openExternal: (url: string) => Promise<void>

@@ -273,12 +273,12 @@ export function OverlayShell() {
     )
   }
 
-  // --- ERROR: auto-hides after 4 seconds, shows the actual error ---
+  // --- ERROR: clickable pill that opens Settings, auto-hides after 4 seconds ---
   if (hasError) {
     // Friendly short messages for common errors
     let displayError = activeError || 'Something went wrong'
     if (displayError.toLowerCase().includes('not configured') || displayError.toLowerCase().includes('api key')) {
-      displayError = 'No API key — open Settings'
+      displayError = 'No API key — click to open Settings'
     } else if (displayError.toLowerCase().includes('network') || displayError.toLowerCase().includes('fetch')) {
       displayError = 'Network error — check connection'
     } else if (displayError.toLowerCase().includes('microphone') || displayError.toLowerCase().includes('permission')) {
@@ -288,10 +288,18 @@ export function OverlayShell() {
     }
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <div className="flex h-11 items-center gap-2 rounded-full bg-black/95 border border-red-500/30 shadow-2xl shadow-black/50 px-4 backdrop-blur-xl max-w-[300px]">
+        <button
+          onClick={() => {
+            window.electronAPI?.showMainWindow()
+            setOverlayError(null)
+            recording.clearError()
+            window.electronAPI?.hideOverlay()
+          }}
+          className="flex h-11 items-center gap-2 rounded-full bg-black/95 border border-red-500/30 shadow-2xl shadow-black/50 px-4 backdrop-blur-xl max-w-[300px] cursor-pointer hover:border-red-400/50 transition-colors"
+        >
           <div className="h-2 w-2 shrink-0 rounded-full bg-red-400" />
           <span className="text-[11px] font-medium text-red-300 truncate">{displayError}</span>
-        </div>
+        </button>
       </div>
     )
   }

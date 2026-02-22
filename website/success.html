@@ -10,275 +10,435 @@
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg: #06080f;
-      --bg-card: #0c1020;
-      --text: #e8eaf0;
-      --text-muted: #7a7f96;
-      --primary: #7c3aed;
-      --primary-light: #a78bfa;
-      --primary-glow: rgba(124, 58, 237, 0.3);
-      --accent: #3b82f6;
-      --border: rgba(255,255,255,0.06);
-      --radius: 16px;
+      /* Brand sage green */
+      --brand-50: #eef3ee;
+      --brand-100: #dce7dc;
+      --brand-200: #b9cfb9;
+      --brand-300: #8fb48f;
+      --brand-500: #4f8250;
+      --brand-600: #3d7044;
+      --brand-700: #2f5a34;
+      --brand-800: #244828;
+
+      /* Warm grays */
+      --gray-50: #f8f5f1;
+      --gray-100: #f0ebe4;
+      --gray-200: #e4ded5;
+      --gray-300: #cdc5b9;
+      --gray-400: #a39c91;
+      --gray-500: #7a756c;
+      --gray-600: #5e5a53;
+      --gray-700: #45423c;
+      --gray-900: #1c1b18;
+
+      /* Success */
+      --success-50: #ecfdf3;
+      --success-500: #17b26a;
+      --success-700: #067647;
+
+      /* Error */
+      --error-500: #f04438;
+
+      --shadow-xs: 0 1px 2px rgba(28, 27, 24, 0.04);
+      --shadow-sm: 0 1px 2px rgba(28, 27, 24, 0.05), 0 1px 3px rgba(28, 27, 24, 0.08);
+      --shadow-md: 0 2px 4px -2px rgba(28, 27, 24, 0.05), 0 4px 8px -2px rgba(28, 27, 24, 0.08);
+      --shadow-lg: 0 4px 6px -2px rgba(28, 27, 24, 0.02), 0 12px 16px -4px rgba(28, 27, 24, 0.06);
+
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-2xl: 20px;
+      --radius-full: 9999px;
     }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: var(--gray-50);
+      color: var(--gray-900);
       line-height: 1.6;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 24px;
+      -webkit-font-smoothing: antialiased;
     }
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 48px 40px;
+
+    /* Ambient background */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-glow::before {
+      content: '';
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      top: -250px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(61, 112, 68, 0.08) 0%, transparent 70%);
+      animation: float 10s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(20px); }
+    }
+
+    .page {
       max-width: 520px;
       width: 100%;
       text-align: center;
     }
-    .success-icon {
-      width: 64px;
-      height: 64px;
-      background: rgba(34, 197, 94, 0.12);
-      border-radius: 50%;
+
+    /* Logo */
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      text-decoration: none;
+      color: var(--gray-900);
+      margin-bottom: 40px;
+      transition: transform 0.2s ease;
+    }
+    .logo:hover { transform: translateY(-1px); }
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--brand-700);
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 24px;
     }
-    .success-icon svg { width: 32px; height: 32px; color: #22c55e; }
+
+    /* Success badge */
+    .success-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: var(--success-50);
+      border: 1.5px solid var(--success-500);
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--success-700);
+      margin-bottom: 24px;
+    }
+    .success-badge svg { width: 16px; height: 16px; }
+    @keyframes checkBounce {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .success-badge .check-icon {
+      animation: checkBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+    }
+
     h1 {
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
       margin-bottom: 8px;
+      color: var(--gray-900);
     }
+    h1 .accent { color: var(--brand-600); }
     .subtitle {
-      color: var(--text-muted);
-      font-size: 15px;
+      font-size: 16px;
+      color: var(--gray-500);
       margin-bottom: 32px;
     }
+
+    /* Card */
+    .card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-2xl);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    /* License box */
     .license-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
       padding: 20px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .license-label {
       font-size: 12px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--text-muted);
+      color: var(--gray-500);
       margin-bottom: 8px;
     }
     .license-email {
       font-size: 18px;
       font-weight: 600;
-      color: var(--primary-light);
+      color: var(--brand-700);
       min-height: 24px;
     }
     .plan-info {
       font-size: 14px;
-      color: var(--text-muted);
+      color: var(--gray-500);
       margin-top: 8px;
     }
+
+    /* Copy button */
     .copy-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 12px 28px;
-      border-radius: 10px;
+      border-radius: var(--radius-lg);
       font-size: 15px;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
       border: none;
-      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      background: var(--brand-600);
       color: white;
-      box-shadow: 0 4px 24px var(--primary-glow);
+      box-shadow: var(--shadow-sm);
       transition: all 0.2s ease;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
-    .copy-btn:hover { transform: translateY(-2px); }
+    .copy-btn:hover {
+      background: var(--brand-700);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
     .copy-btn:active { transform: translateY(0); }
     .copy-btn svg { width: 18px; height: 18px; }
+
+    /* Retry button */
     .retry-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 10px 24px;
-      border-radius: 10px;
+      border-radius: var(--radius-lg);
       font-size: 14px;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--primary-light);
+      border: 1px solid var(--gray-200);
+      background: white;
+      color: var(--brand-600);
       transition: all 0.2s ease;
       margin-top: 12px;
     }
-    .retry-btn:hover { background: rgba(124, 58, 237, 0.1); }
+    .retry-btn:hover {
+      background: var(--brand-50);
+      border-color: var(--brand-200);
+    }
+
+    /* Instructions */
     .instructions {
       text-align: left;
-      background: rgba(124, 58, 237, 0.05);
-      border: 1px solid rgba(124, 58, 237, 0.1);
-      border-radius: 12px;
+      background: var(--brand-50);
+      border: 1px solid var(--brand-200);
+      border-radius: var(--radius-lg);
       padding: 20px;
     }
     .instructions h3 {
       font-size: 14px;
       font-weight: 600;
       margin-bottom: 12px;
+      color: var(--gray-900);
     }
     .instructions ol {
       font-size: 14px;
-      color: var(--text-muted);
+      color: var(--gray-500);
       padding-left: 20px;
     }
     .instructions li { margin-bottom: 6px; }
-    .instructions strong { color: var(--text); }
+    .instructions strong { color: var(--gray-700); }
+
+    /* Loading */
     .loading {
-      color: var(--text-muted);
+      color: var(--gray-500);
       font-size: 15px;
+      padding: 20px 0;
     }
     .loading .spinner {
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: 2px solid var(--border);
-      border-top-color: var(--primary);
+      border: 2px solid var(--gray-200);
+      border-top-color: var(--brand-600);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       vertical-align: -4px;
       margin-right: 8px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .error-msg { color: #ef4444; font-size: 14px; }
-    .back-link {
-      display: inline-block;
-      margin-top: 24px;
-      color: var(--text-muted);
-      text-decoration: none;
+
+    .error-msg {
+      color: var(--error-500);
       font-size: 14px;
     }
-    .back-link:hover { color: var(--text); }
+
+    /* Links */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 24px;
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .back-link:hover { color: var(--gray-600); }
+    .back-link svg { width: 16px; height: 16px; }
+
+    @media (max-width: 560px) {
+      .page { padding: 32px 16px; }
+      .card { padding: 24px 20px; }
+      h1 { font-size: 26px; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="success-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
-    <h1>Payment Successful!</h1>
-    <p class="subtitle">Thank you for purchasing VoxGen Pro.</p>
 
+<div class="bg-glow"></div>
+
+<div class="page">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+    </div>
+    VoxGen
+  </a>
+
+  <div class="success-badge">
+    <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    Payment successful
+  </div>
+
+  <h1>Thank you for <span class="accent">VoxGen Pro</span></h1>
+  <p class="subtitle">Your license is ready to activate.</p>
+
+  <div class="card">
     <div id="content">
       <div class="loading">
         <span class="spinner"></span> Retrieving your license...
       </div>
     </div>
-
-    <a href="index.html" class="back-link">Back to VoxGen</a>
   </div>
 
-  <script>
-    var sessionId = null;
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to VoxGen
+  </a>
+</div>
 
-    async function fetchLicense() {
-      var content = document.getElementById('content');
-      var params = new URLSearchParams(window.location.search);
-      sessionId = params.get('session_id');
+<script>
+  var sessionId = null;
 
-      if (!sessionId) {
-        content.innerHTML = '<p class="error-msg">No session ID found. If you completed payment, check your email for activation instructions.</p>';
-        return;
-      }
+  async function fetchLicense() {
+    var content = document.getElementById('content');
+    var params = new URLSearchParams(window.location.search);
+    sessionId = params.get('session_id');
 
-      var attempts = 0;
-      var maxAttempts = 10;
+    if (!sessionId) {
+      content.innerHTML = '<p class="error-msg">No session ID found. If you completed payment, check your email for activation instructions.</p>';
+      return;
+    }
 
-      async function tryFetch() {
-        try {
-          var resp = await fetch('/api/get-license?session_id=' + encodeURIComponent(sessionId));
-          var data = await resp.json();
+    var attempts = 0;
+    var maxAttempts = 10;
 
-          if (resp.ok && data.email) {
-            content.innerHTML =
-              '<div class="license-box">' +
-                '<div class="license-label">Your Activation Email</div>' +
-                '<div class="license-email" id="activation-email">' + escapeHtml(data.email) + '</div>' +
-                '<div class="plan-info">Plan: ' + escapeHtml(data.plan) + (data.expiresAt ? ' &bull; Expires: ' + new Date(data.expiresAt).toLocaleDateString() : ' &bull; Never expires') + '</div>' +
-              '</div>' +
-              '<button class="copy-btn" onclick="copyEmail()">' +
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
-                '<span id="copy-text">Copy Email</span>' +
-              '</button>' +
-              '<div class="instructions">' +
-                '<h3>How to activate:</h3>' +
-                '<ol>' +
-                  '<li>Open <strong>VoxGen</strong> on your computer</li>' +
-                  '<li>Go to <strong>Settings</strong> &rarr; <strong>Account</strong></li>' +
-                  '<li>Enter your email: <strong>' + escapeHtml(data.email) + '</strong></li>' +
-                  '<li>Click <strong>Activate</strong></li>' +
-                '</ol>' +
-              '</div>';
-            return;
-          }
+    async function tryFetch() {
+      try {
+        var resp = await fetch('/api/get-license?session_id=' + encodeURIComponent(sessionId));
+        var data = await resp.json();
 
-          attempts++;
-          if (attempts < maxAttempts) {
-            content.innerHTML = '<div class="loading"><span class="spinner"></span> Retrieving your license... (attempt ' + (attempts + 1) + ')</div>';
-            setTimeout(tryFetch, 2000);
-          } else {
-            content.innerHTML =
-              '<p class="error-msg">License is still being processed. This can take up to a minute.</p>' +
-              '<button class="retry-btn" onclick="retryFetch()">Try Again</button>';
-          }
-        } catch (err) {
-          attempts++;
-          if (attempts < maxAttempts) {
-            setTimeout(tryFetch, 2000);
-          } else {
-            content.innerHTML =
-              '<p class="error-msg">Failed to retrieve license. Please try again.</p>' +
-              '<button class="retry-btn" onclick="retryFetch()">Try Again</button>';
-          }
+        if (resp.ok && data.email) {
+          content.innerHTML =
+            '<div class="license-box">' +
+              '<div class="license-label">Your Activation Email</div>' +
+              '<div class="license-email" id="activation-email">' + escapeHtml(data.email) + '</div>' +
+              '<div class="plan-info">Plan: ' + escapeHtml(data.plan) + (data.expiresAt ? ' &bull; Expires: ' + new Date(data.expiresAt).toLocaleDateString() : ' &bull; Never expires') + '</div>' +
+            '</div>' +
+            '<button class="copy-btn" onclick="copyEmail()">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
+              '<span id="copy-text">Copy Email</span>' +
+            '</button>' +
+            '<div class="instructions">' +
+              '<h3>How to activate:</h3>' +
+              '<ol>' +
+                '<li>Open <strong>VoxGen</strong> on your computer</li>' +
+                '<li>Go to <strong>Settings</strong> &rarr; <strong>Account</strong></li>' +
+                '<li>Enter your email: <strong>' + escapeHtml(data.email) + '</strong></li>' +
+                '<li>Click <strong>Activate</strong></li>' +
+              '</ol>' +
+            '</div>';
+          return;
+        }
+
+        attempts++;
+        if (attempts < maxAttempts) {
+          content.innerHTML = '<div class="loading"><span class="spinner"></span> Retrieving your license... (attempt ' + (attempts + 1) + ')</div>';
+          setTimeout(tryFetch, 2000);
+        } else {
+          content.innerHTML =
+            '<p class="error-msg">License is still being processed. This can take up to a minute.</p>' +
+            '<button class="retry-btn" onclick="retryFetch()">Try Again</button>';
+        }
+      } catch (err) {
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(tryFetch, 2000);
+        } else {
+          content.innerHTML =
+            '<p class="error-msg">Failed to retrieve license. Please try again.</p>' +
+            '<button class="retry-btn" onclick="retryFetch()">Try Again</button>';
         }
       }
-
-      tryFetch();
     }
 
-    function retryFetch() {
-      var content = document.getElementById('content');
-      content.innerHTML = '<div class="loading"><span class="spinner"></span> Retrying...</div>';
-      // Re-run the whole fetch with fresh attempts
-      fetchLicense();
-    }
+    tryFetch();
+  }
 
-    function escapeHtml(str) {
-      var div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function copyEmail() {
-      var email = document.getElementById('activation-email').textContent;
-      navigator.clipboard.writeText(email).then(function() {
-        var btn = document.getElementById('copy-text');
-        btn.textContent = 'Copied!';
-        setTimeout(function() { btn.textContent = 'Copy Email'; }, 2000);
-      });
-    }
-
+  function retryFetch() {
+    var content = document.getElementById('content');
+    content.innerHTML = '<div class="loading"><span class="spinner"></span> Retrying...</div>';
     fetchLicense();
-  </script>
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function copyEmail() {
+    var email = document.getElementById('activation-email').textContent;
+    navigator.clipboard.writeText(email).then(function() {
+      var btn = document.getElementById('copy-text');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy Email'; }, 2000);
+    });
+  }
+
+  fetchLicense();
+</script>
 </body>
 </html>
