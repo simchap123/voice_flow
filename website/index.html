@@ -464,11 +464,14 @@
     .app-body { display: flex; min-height: 420px; }
     .app-sidebar {
       width: 200px;
+      min-width: 200px;
+      flex-shrink: 0;
       border-right: 1px solid hsla(40, 18%, 88%, 0.3);
       background: hsla(40, 15%, 92%, 0.1);
       padding: 12px;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
     .app-sidebar-logo { display: flex; align-items: center; gap: 8px; padding: 8px 12px; margin-bottom: 16px; }
     .app-sidebar-logo-icon {
@@ -481,7 +484,7 @@
       justify-content: center;
     }
     .app-sidebar-logo span { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; }
-    .app-sidebar-nav { flex: 1 0 auto; }
+    .app-sidebar-nav { flex: 1; min-height: 0; overflow: hidden; }
     .app-nav-item {
       display: flex;
       align-items: center;
