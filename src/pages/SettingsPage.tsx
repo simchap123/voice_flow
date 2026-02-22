@@ -5,7 +5,7 @@ import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { ProviderApiKeyInput } from '@/components/settings/ProviderApiKeyInput'
 import { LicenseInput } from '@/components/settings/LicenseInput'
 import { Switch } from '@/components/ui/switch'
-import { Mic, Zap, Sliders, User, Key, Sparkles, Volume2, Bell } from 'lucide-react'
+import { Mic, Zap, Sliders, User, Sparkles, Volume2, Bell } from 'lucide-react'
 import { toast } from '@/hooks/useToast'
 import type { STTProviderType } from '@/lib/stt/types'
 
@@ -17,10 +17,10 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'account', label: 'Account' },
 ]
 
-const STT_OPTIONS: { value: STTProviderType; label: string }[] = [
+const STT_OPTIONS: { value: STTProviderType; label: string; disabled?: boolean }[] = [
   { value: 'groq', label: 'Groq' },
   { value: 'openai', label: 'OpenAI' },
-  { value: 'local', label: 'Local' },
+  { value: 'local', label: 'Local', disabled: true },
 ]
 
 export function SettingsPage() {
@@ -157,27 +157,54 @@ export function SettingsPage() {
                       <button
                         key={opt.value}
                         onClick={() => {
+                          if (opt.disabled) return
                           updateSetting('sttProvider', opt.value)
                           toast({ title: `Switched to ${opt.label}`, variant: 'success' })
                         }}
-                        className={`flex-1 rounded-[5px] px-3 py-1.5 text-[11px] font-medium transition-all duration-150 cursor-pointer ${
-                          currentSTT === opt.value
-                            ? 'bg-card shadow-sm text-foreground border border-border/40'
-                            : 'text-muted-foreground/60 hover:text-foreground border border-transparent'
+                        title={opt.disabled ? 'Coming soon' : undefined}
+                        className={`flex-1 rounded-[5px] px-3 py-1.5 text-[11px] font-medium transition-all duration-150 ${
+                          opt.disabled
+                            ? 'text-muted-foreground/30 cursor-not-allowed'
+                            : currentSTT === opt.value
+                              ? 'bg-card shadow-sm text-foreground border border-border/40 cursor-pointer'
+                              : 'text-muted-foreground/60 hover:text-foreground border border-transparent cursor-pointer'
                         }`}
                       >
-                        {opt.label}
+                        {opt.label}{opt.disabled ? ' (soon)' : ''}
                       </button>
                     ))}
                   </div>
-                  {currentSTT === 'local' && (
-                    <p className="mt-1.5 text-[10px] text-primary font-medium">Free forever — no API key or license needed</p>
-                  )}
-                  {isManagedMode && currentSTT !== 'local' && (
-                    <p className="mt-1.5 text-[10px] text-muted-foreground/40">Using VoxGen Cloud — add your own key in Account, or switch to Local (free)</p>
+                  {isManagedMode && (
+                    <p className="mt-1.5 text-[10px] text-muted-foreground/40">Using VoxGen Cloud — add your own key below to use a preferred provider</p>
                   )}
                 </div>
               </div>
+
+              {/* API Key — inline under provider selector */}
+              {currentSTT === 'openai' && (
+                <div className="mt-3 pl-[180px]">
+                  <ProviderApiKeyInput
+                    provider="openai"
+                    label="OpenAI"
+                    placeholder="sk-..."
+                    hasKey={hasOpenAIKey}
+                    onSave={handleSaveKey}
+                    onDelete={handleDeleteKey}
+                  />
+                </div>
+              )}
+              {currentSTT === 'groq' && !isManagedMode && (
+                <div className="mt-3 pl-[180px]">
+                  <ProviderApiKeyInput
+                    provider="groq"
+                    label="Groq"
+                    placeholder="gsk_..."
+                    hasKey={hasGroqKey}
+                    onSave={handleSaveKey}
+                    onDelete={handleDeleteKey}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Preferences */}
@@ -316,75 +343,20 @@ export function SettingsPage() {
               <LicenseInput />
             </div>
 
-            {/* API Keys */}
-            <div className="settings-section-enter py-5 border-b border-border/20" style={{ animationDelay: '0.06s' }}>
-              <div className="mb-4">
-                <div className="text-[14px] font-semibold flex items-center gap-2">
-                  <Key className="w-4 h-4 text-primary" />
-                  API Keys
-                </div>
-                <div className="text-[12px] text-muted-foreground/50">
-                  {isManagedMode
-                    ? 'Optional — add your own keys to use a preferred provider'
-                    : 'Required for transcription — encrypted on-device'}
-                </div>
-              </div>
-              <div className="space-y-3">
-                {currentSTT === 'openai' && (
-                  <ProviderApiKeyInput
-                    provider="openai"
-                    label="OpenAI"
-                    placeholder="sk-..."
-                    hasKey={hasOpenAIKey}
-                    onSave={handleSaveKey}
-                    onDelete={handleDeleteKey}
-                  />
-                )}
-                {currentSTT === 'groq' && (
-                  <ProviderApiKeyInput
-                    provider="groq"
-                    label="Groq"
-                    placeholder="gsk_..."
-                    hasKey={hasGroqKey}
-                    onSave={handleSaveKey}
-                    onDelete={handleDeleteKey}
-                  />
-                )}
-                {currentSTT === 'local' && (
-                  <p className="text-[12px] text-muted-foreground/50">
-                    No API key needed — local model runs on-device for free.
-                  </p>
-                )}
-              </div>
-            </div>
-
             {/* App Info */}
-            <div className="settings-section-enter py-5" style={{ animationDelay: '0.12s' }}>
+            <div className="settings-section-enter py-5" style={{ animationDelay: '0.06s' }}>
               <div className="mb-4">
                 <div className="text-[14px] font-semibold flex items-center gap-2">
                   <Sliders className="w-4 h-4 text-primary" />
                   App
                 </div>
               </div>
-              <div className="space-y-0">
-                <div className="flex items-center gap-5 py-2.5">
-                  <div className="w-[160px] shrink-0">
-                    <div className="text-[13px] font-medium text-muted-foreground">Version</div>
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-[13px] font-medium">{appVersion || '—'}</span>
-                  </div>
+              <div className="flex items-center gap-5 py-2.5">
+                <div className="w-[160px] shrink-0">
+                  <div className="text-[13px] font-medium text-muted-foreground">Version</div>
                 </div>
-                <div className="border-t border-border/10" />
-                <div className="flex items-center gap-5 py-2.5">
-                  <div className="w-[160px] shrink-0">
-                    <div className="text-[13px] font-medium text-muted-foreground">Local model</div>
-                  </div>
-                  <div className="flex-1">
-                    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-primary">
-                      Free forever
-                    </span>
-                  </div>
+                <div className="flex-1">
+                  <span className="text-[13px] font-medium">{appVersion || '—'}</span>
                 </div>
               </div>
             </div>
