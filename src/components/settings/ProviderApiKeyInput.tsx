@@ -46,10 +46,6 @@ export function ProviderApiKeyInput({ provider, label, placeholder, hasKey, onSa
 
   return (
     <div className="space-y-2">
-      <Label className="flex items-center gap-2">
-        <Key className="h-4 w-4" />
-        {label}
-      </Label>
       <p className="text-xs text-muted-foreground">
         {hasKey
           ? 'Key saved and encrypted. Enter a new key to replace.'

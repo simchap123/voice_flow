@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { History, Settings, Mic, MessageSquare, Zap } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { useSettings } from '@/hooks/useSettings'
@@ -18,26 +18,7 @@ const modeNav = [
 ]
 
 export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
-  const [version, setVersion] = useState('')
-  const [showSettingsBtn, setShowSettingsBtn] = useState(false)
-  const footerRef = useRef<HTMLDivElement>(null)
   const { settings } = useSettings()
-
-  useEffect(() => {
-    window.electronAPI?.getAppVersion().then(setVersion)
-  }, [])
-
-  // Close the slide-up when clicking outside or navigating
-  useEffect(() => {
-    if (!showSettingsBtn) return
-    function handleClick(e: MouseEvent) {
-      if (footerRef.current && !footerRef.current.contains(e.target as Node)) {
-        setShowSettingsBtn(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [showSettingsBtn])
 
   const userEmail = settings.userEmail
   const licensePlan = settings.licensePlan
@@ -101,34 +82,23 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div ref={footerRef} className="mt-auto border-t border-border/30 pt-3">
-        {/* Slide-up Settings button */}
-        <div
+      <div className="mt-auto border-t border-border/30 pt-3 flex flex-col gap-0.5">
+        <button
+          onClick={() => onNavigate('settings')}
           className={cn(
-            'overflow-hidden transition-all duration-200 ease-out',
-            showSettingsBtn ? 'max-h-10 opacity-100 mb-1' : 'max-h-0 opacity-0'
+            'flex w-full items-center gap-2.5 rounded-lg px-3 py-[7px] text-[13px] font-medium transition-all duration-150',
+            currentPage === 'settings'
+              ? 'bg-primary text-white shadow-sm'
+              : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
           )}
         >
-          <button
-            onClick={() => {
-              onNavigate('settings')
-              setShowSettingsBtn(false)
-            }}
-            className={cn(
-              'flex w-full items-center gap-2.5 rounded-lg px-3 py-[7px] text-[13px] font-medium transition-all duration-150',
-              currentPage === 'settings'
-                ? 'bg-primary text-white shadow-sm'
-                : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-            )}
-          >
-            <Settings className="h-[15px] w-[15px] shrink-0" />
-            Settings
-          </button>
-        </div>
+          <Settings className="h-[15px] w-[15px] shrink-0" />
+          Settings
+        </button>
 
         {userEmail ? (
           <button
-            onClick={() => setShowSettingsBtn((v) => !v)}
+            onClick={() => onNavigate('settings')}
             className="group flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted/50"
             title={userEmail}
           >
@@ -150,7 +120,7 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
           </button>
         ) : (
           <button
-            onClick={() => setShowSettingsBtn((v) => !v)}
+            onClick={() => onNavigate('settings')}
             className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[12px] text-muted-foreground/60 transition-colors hover:text-primary"
           >
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted/50">

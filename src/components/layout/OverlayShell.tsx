@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Mic, Loader2, X, Lock, Square } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
@@ -7,6 +7,82 @@ import { useSnippets } from '@/hooks/useSnippets'
 import { useCustomPrompts } from '@/hooks/useCustomPrompts'
 import { PREDEFINED_PROMPTS } from '@/lib/cleanup/predefined-prompts'
 import type { PowerMode } from '@/types/power-mode'
+
+/** Live audio level using Web Audio API */
+function useAudioLevel(isRecording: boolean) {
+  const [level, setLevel] = useState(0)
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null)
+  const rafRef = useRef<number>(0)
+  const contextRef = useRef<AudioContext | null>(null)
+
+  const start = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const ctx = new AudioContext()
+      contextRef.current = ctx
+      const source = ctx.createMediaStreamSource(stream)
+      sourceRef.current = source
+      const analyser = ctx.createAnalyser()
+      analyser.fftSize = 256
+      analyser.smoothingTimeConstant = 0.7
+      source.connect(analyser)
+      analyserRef.current = analyser
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount)
+      const tick = () => {
+        analyser.getByteFrequencyData(dataArray)
+        const voiceBins = dataArray.slice(0, 32)
+        const avg = voiceBins.reduce((a, b) => a + b, 0) / voiceBins.length / 255
+        setLevel(avg)
+        rafRef.current = requestAnimationFrame(tick)
+      }
+      tick()
+    } catch {
+      // mic not available
+    }
+  }, [])
+
+  const stop = useCallback(() => {
+    cancelAnimationFrame(rafRef.current)
+    sourceRef.current?.disconnect()
+    contextRef.current?.close()
+    analyserRef.current = null
+    sourceRef.current = null
+    contextRef.current = null
+    setLevel(0)
+  }, [])
+
+  useEffect(() => {
+    if (isRecording) start()
+    else stop()
+    return stop
+  }, [isRecording, start, stop])
+
+  return level
+}
+
+/** Waveform bars reacting to audio level */
+function AudioWaveform({ level }: { level: number }) {
+  const bars = [0.4, 0.7, 1.0, 0.65, 0.35]
+  return (
+    <div className="flex items-center gap-[2.5px] h-4">
+      {bars.map((weight, i) => {
+        const barHeight = 3 + Math.max(level * weight * 13, Math.sin(Date.now() / 400 + i) * 1.5 + 1.5)
+        return (
+          <div
+            key={i}
+            className="w-[2.5px] rounded-full transition-all duration-75"
+            style={{
+              height: `${barHeight}px`,
+              background: `linear-gradient(to top, rgba(239,68,68,0.9), rgba(251,146,60,${0.4 + level * 0.6}))`,
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
 
 export function OverlayShell() {
   const [trialExpired, setTrialExpired] = useState(false)
@@ -121,6 +197,9 @@ export function OverlayShell() {
 
   const isRecording = recording.state === 'RECORDING'
   const isProcessing = recording.state === 'PROCESSING_STT' || recording.state === 'PROCESSING_CLEANUP' || recording.state === 'INJECTING'
+
+  // Live audio level for waveform visualization
+  const audioLevel = useAudioLevel(isRecording)
   const activeError = recording.error || overlayError
   const hasError = !!activeError
   const isIdle = !isRecording && !isProcessing && !hasError && !trialExpired
@@ -162,30 +241,42 @@ export function OverlayShell() {
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
-  // --- RECORDING STATE: pill with pulsing mic + duration + controls ---
+  // --- RECORDING STATE: glassmorphic pill with live waveform ---
   if (isRecording) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <div className="flex h-11 items-center gap-2.5 rounded-full bg-black/95 border border-white/[0.08] shadow-2xl shadow-black/50 px-4 backdrop-blur-xl">
-          {/* Pulsing recording indicator */}
+        <div className="flex h-12 items-center gap-3 rounded-full bg-black/90 border border-white/[0.06] shadow-2xl shadow-black/60 px-4 backdrop-blur-2xl">
+          {/* Glow ring behind mic icon */}
           <div className="relative flex items-center justify-center">
-            <div className="absolute h-6 w-6 rounded-full bg-red-500/20 animate-ping" />
-            <Mic className="relative h-4 w-4 text-red-400" />
+            <div
+              className="absolute rounded-full bg-red-500/30 blur-sm transition-all duration-150"
+              style={{
+                width: `${22 + audioLevel * 14}px`,
+                height: `${22 + audioLevel * 14}px`,
+                opacity: 0.4 + audioLevel * 0.5,
+              }}
+            />
+            <div className="relative flex h-7 w-7 items-center justify-center rounded-full bg-red-500/20">
+              <Mic className="h-3.5 w-3.5 text-red-400" />
+            </div>
           </div>
 
+          {/* Live waveform bars */}
+          <AudioWaveform level={audioLevel} />
+
           {/* Duration */}
-          <span className="text-xs font-mono font-medium text-white/60 tabular-nums min-w-[2.5rem]">
+          <span className="text-[11px] font-mono font-medium text-white/50 tabular-nums min-w-[2.2rem]">
             {formatDuration(recording.duration)}
           </span>
 
-          {/* Power mode badge during recording */}
+          {/* Power mode badge */}
           {recording.matchedMode && (
-            <span className="text-xs text-white/50 max-w-[80px] truncate">
-              {recording.matchedMode.emoji} {recording.matchedMode.name}
+            <span className="text-[10px] text-white/40 max-w-[60px] truncate">
+              {recording.matchedMode.emoji}
             </span>
           )}
 
-          <div className="w-px h-4 bg-white/[0.08]" />
+          <div className="w-px h-5 bg-white/[0.06]" />
 
           {/* Stop */}
           <button
@@ -193,10 +284,10 @@ export function OverlayShell() {
               window.electronAPI?.notifyRecordingStopped()
               recording.stopRecording()
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.12] transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.08] hover:bg-white/[0.15] active:scale-95 transition-all"
             title="Stop recording"
           >
-            <Square className="h-3 w-3 text-white/80 fill-white/80" />
+            <Square className="h-2.5 w-2.5 text-white/70 fill-white/70" />
           </button>
 
           {/* Cancel */}
@@ -205,10 +296,10 @@ export function OverlayShell() {
               window.electronAPI?.notifyRecordingCancelled()
               recording.cancelRecording()
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/[0.08] transition-colors"
+            className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/[0.08] active:scale-95 transition-all"
             title="Cancel recording"
           >
-            <X className="h-3.5 w-3.5 text-white/40" />
+            <X className="h-3 w-3 text-white/30 hover:text-white/50" />
           </button>
         </div>
       </div>
