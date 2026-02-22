@@ -125,7 +125,7 @@
     .btn-sm { padding: 8px 20px; font-size: 13px; }
 
     /* ---- Nav ---- */
-    nav {
+    #navbar {
       position: fixed;
       top: 0;
       left: 0;
@@ -134,7 +134,7 @@
       padding: 20px 0;
       transition: all 0.3s ease;
     }
-    nav.scrolled {
+    #navbar.scrolled {
       padding: 12px 0;
       background: hsla(40, 30%, 98%, 0.7);
       backdrop-filter: blur(24px);
@@ -142,7 +142,7 @@
       border-bottom: 1px solid hsla(40, 18%, 88%, 0.5);
       box-shadow: 0 1px 8px rgba(0,0,0,0.04);
     }
-    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    #navbar .container { display: flex; align-items: center; justify-content: space-between; }
     .nav-logo {
       display: flex;
       align-items: center;
@@ -464,14 +464,12 @@
     .app-body { display: flex; min-height: 420px; }
     .app-sidebar {
       width: 200px;
-      min-width: 200px;
       flex-shrink: 0;
       border-right: 1px solid hsla(40, 18%, 88%, 0.3);
       background: hsla(40, 15%, 92%, 0.1);
       padding: 12px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
     .app-sidebar-logo { display: flex; align-items: center; gap: 8px; padding: 8px 12px; margin-bottom: 16px; }
     .app-sidebar-logo-icon {
@@ -484,7 +482,7 @@
       justify-content: center;
     }
     .app-sidebar-logo span { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; }
-    .app-sidebar-nav { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .app-sidebar-nav { flex: 1; }
     .app-nav-item {
       display: flex;
       align-items: center;
@@ -497,6 +495,7 @@
       transition: all 0.15s;
       border: none;
       background: none;
+      width: 100%;
       text-align: left;
       font-family: 'DM Sans', sans-serif;
     }
