@@ -6,54 +6,35 @@
   <title>Payment Successful - VoxGen</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
     :root {
-      /* Brand sage green */
-      --brand-50: #eef3ee;
-      --brand-100: #dce7dc;
-      --brand-200: #b9cfb9;
-      --brand-300: #8fb48f;
-      --brand-500: #4f8250;
-      --brand-600: #3d7044;
-      --brand-700: #2f5a34;
-      --brand-800: #244828;
+      --bg: hsl(40, 33%, 96%);
+      --bg-card: hsl(40, 30%, 98%);
+      --fg: hsl(220, 20%, 16%);
+      --fg-muted: hsl(220, 10%, 46%);
+      --primary: hsl(152, 32%, 42%);
+      --primary-fg: hsl(40, 33%, 96%);
+      --primary-dark: hsl(152, 32%, 28%);
+      --accent: hsl(152, 25%, 85%);
+      --accent-fg: hsl(152, 32%, 28%);
+      --border: hsl(40, 18%, 88%);
+      --muted: hsl(40, 15%, 92%);
 
-      /* Warm grays */
-      --gray-50: #f8f5f1;
-      --gray-100: #f0ebe4;
-      --gray-200: #e4ded5;
-      --gray-300: #cdc5b9;
-      --gray-400: #a39c91;
-      --gray-500: #7a756c;
-      --gray-600: #5e5a53;
-      --gray-700: #45423c;
-      --gray-900: #1c1b18;
-
-      /* Success */
-      --success-50: #ecfdf3;
-      --success-500: #17b26a;
-      --success-700: #067647;
-
-      /* Error */
-      --error-500: #f04438;
-
-      --shadow-xs: 0 1px 2px rgba(28, 27, 24, 0.04);
-      --shadow-sm: 0 1px 2px rgba(28, 27, 24, 0.05), 0 1px 3px rgba(28, 27, 24, 0.08);
-      --shadow-md: 0 2px 4px -2px rgba(28, 27, 24, 0.05), 0 4px 8px -2px rgba(28, 27, 24, 0.08);
-      --shadow-lg: 0 4px 6px -2px rgba(28, 27, 24, 0.02), 0 12px 16px -4px rgba(28, 27, 24, 0.06);
-
-      --radius-md: 8px;
-      --radius-lg: 12px;
-      --radius-xl: 16px;
-      --radius-2xl: 20px;
-      --radius-full: 9999px;
+      --success-bg: hsl(149, 80%, 95%);
+      --success: hsl(152, 69%, 31%);
+      --success-border: hsl(152, 69%, 40%);
+      --error: hsl(0, 72%, 51%);
     }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--gray-50);
-      color: var(--gray-900);
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
       line-height: 1.6;
       min-height: 100vh;
       display: flex;
@@ -61,315 +42,379 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Ambient background */
-    .bg-glow {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      overflow: hidden;
-      pointer-events: none;
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+    /* ===== BLOBS ===== */
+    .blob { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+    .hero-blob-1 {
+      position: fixed; top: -60px; left: -80px;
+      width: 340px; height: 340px;
+      background: hsla(152, 25%, 85%, 0.4);
+      filter: blur(48px);
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      animation: float-slow 8s ease-in-out infinite;
+      pointer-events: none; z-index: -1;
     }
-    .bg-glow::before {
-      content: '';
-      position: absolute;
-      width: 700px;
-      height: 700px;
-      top: -250px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(61, 112, 68, 0.08) 0%, transparent 70%);
-      animation: float 10s ease-in-out infinite;
+    .hero-blob-2 {
+      position: fixed; bottom: -60px; right: -80px;
+      width: 400px; height: 400px;
+      background: hsla(152, 25%, 85%, 0.3);
+      filter: blur(48px);
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      animation: float 6s ease-in-out infinite;
+      pointer-events: none; z-index: -1;
     }
-    @keyframes float {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(20px); }
+    .hero-blob-3 {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px; height: 500px;
+      background: hsla(152, 25%, 85%, 0.15);
+      border-radius: 50%; filter: blur(48px);
+      animation: pulse-soft 4s ease-in-out infinite;
+      pointer-events: none; z-index: -1;
     }
 
+    /* ===== ANIMATIONS ===== */
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    @keyframes float-slow { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-30px) rotate(5deg); } }
+    @keyframes pulse-soft { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+    @keyframes checkBounce { 0% { transform: scale(0); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== REVEAL ===== */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+    .stagger-4 { transition-delay: 0.4s; }
+
+    /* ===== GRADIENT TEXT ===== */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark), hsl(40, 33%, 50%));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ===== PAGE ===== */
     .page {
       max-width: 640px;
       width: 100%;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
-    /* Logo */
+    /* ===== LOGO ===== */
     .logo {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-weight: 700;
-      font-size: 18px;
       text-decoration: none;
-      color: var(--gray-900);
+      color: var(--fg);
       margin-bottom: 40px;
       transition: transform 0.2s ease;
     }
     .logo:hover { transform: translateY(-1px); }
     .logo-icon {
-      width: 38px;
-      height: 38px;
-      background: var(--brand-700);
-      border-radius: var(--radius-lg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 38px; height: 38px;
+      background: var(--primary);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+    .logo:hover .logo-icon {
+      transform: scale(1.06) rotate(-3deg);
+      box-shadow: 0 4px 14px hsla(152, 32%, 42%, 0.25);
+    }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
     }
 
-    /* Success badge */
+    /* ===== SUCCESS BADGE ===== */
     .success-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 18px;
-      background: var(--success-50);
-      border: 1.5px solid var(--success-500);
-      border-radius: var(--radius-full);
+      padding: 8px 20px;
+      background: var(--success-bg);
+      border: 1.5px solid var(--success-border);
+      border-radius: 100px;
       font-size: 14px;
       font-weight: 600;
-      color: var(--success-700);
+      color: var(--success);
       margin-bottom: 24px;
     }
     .success-badge svg { width: 16px; height: 16px; }
-    @keyframes checkBounce {
-      0% { transform: scale(0); }
-      50% { transform: scale(1.15); }
-      100% { transform: scale(1); }
-    }
     .success-badge .check-icon {
       animation: checkBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
     }
 
+    /* ===== HEADING ===== */
     h1 {
-      font-size: 30px;
+      font-size: 36px;
       font-weight: 700;
-      line-height: 1.25;
+      line-height: 1.15;
       letter-spacing: -0.02em;
       margin-bottom: 8px;
-      color: var(--gray-900);
     }
-    h1 .accent { color: var(--brand-600); }
     .subtitle {
       font-size: 16px;
-      color: var(--gray-500);
+      color: var(--fg-muted);
       margin-bottom: 32px;
+      line-height: 1.7;
     }
 
-    /* Card */
+    /* ===== GLASS CARD ===== */
     .card {
-      background: white;
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-2xl);
-      padding: 32px;
-      box-shadow: var(--shadow-sm);
+      background: hsla(40, 30%, 98%, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid hsla(40, 18%, 88%, 0.5);
+      border-radius: 20px;
+      padding: 36px;
       text-align: center;
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02);
+      transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .card:hover {
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03);
       transform: translateY(-2px);
     }
 
-    /* License box */
+    /* ===== LICENSE BOX ===== */
     .license-box {
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      margin-bottom: 20px;
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
     }
     .license-label {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--gray-500);
-      margin-bottom: 8px;
+      letter-spacing: 0.08em;
+      color: var(--fg-muted);
+      margin-bottom: 10px;
     }
     .license-email {
       font-size: 18px;
       font-weight: 600;
-      color: var(--brand-700);
+      color: var(--primary-dark);
       min-height: 24px;
+      word-break: break-all;
     }
     .plan-info {
       font-size: 14px;
-      color: var(--gray-500);
+      color: var(--fg-muted);
       margin-top: 8px;
     }
 
-    /* Activate button (primary CTA) */
+    /* ===== ACTIVATE BUTTON (PRIMARY CTA) ===== */
     .activate-btn {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 32px;
-      border-radius: var(--radius-lg);
+      padding: 14px 36px;
+      border-radius: 100px;
       font-size: 16px;
       font-weight: 600;
-      font-family: inherit;
+      font-family: 'DM Sans', sans-serif;
       cursor: pointer;
       border: none;
-      background: var(--brand-600);
-      color: white;
-      box-shadow: var(--shadow-sm);
+      background: var(--primary);
+      color: var(--primary-fg);
+      box-shadow: 0 4px 14px hsla(152, 32%, 42%, 0.25);
       transition: all 0.2s ease;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       text-decoration: none;
     }
     .activate-btn:hover {
-      background: var(--brand-700);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px hsla(152, 32%, 42%, 0.35);
     }
-    .activate-btn:active { transform: translateY(0); }
+    .activate-btn:active { transform: scale(1.02); }
     .activate-btn svg { width: 20px; height: 20px; }
 
     .activate-status {
       font-size: 13px;
-      color: var(--success-700);
+      color: var(--success);
       margin-bottom: 16px;
       display: none;
     }
 
-    /* Copy button (secondary) */
+    /* ===== COPY BUTTON (SECONDARY) ===== */
     .copy-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 10px 24px;
-      border-radius: var(--radius-lg);
+      border-radius: 100px;
       font-size: 14px;
-      font-weight: 600;
-      font-family: inherit;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
       cursor: pointer;
-      border: 1px solid var(--gray-200);
-      background: white;
-      color: var(--gray-700);
-      box-shadow: var(--shadow-xs);
+      border: 2px solid hsla(152, 32%, 42%, 0.2);
+      background: transparent;
+      color: var(--fg);
       transition: all 0.2s ease;
       margin-bottom: 20px;
     }
     .copy-btn:hover {
-      background: var(--gray-50);
-      border-color: var(--gray-300);
-      transform: translateY(-1px);
+      border-color: hsla(152, 32%, 42%, 0.4);
+      background: hsla(152, 25%, 85%, 0.4);
+      transform: scale(1.05);
     }
-    .copy-btn:active { transform: translateY(0); }
+    .copy-btn:active { transform: scale(1.02); }
     .copy-btn svg { width: 16px; height: 16px; }
 
-    /* Retry button */
-    .retry-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 24px;
-      border-radius: var(--radius-lg);
-      font-size: 14px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      border: 1px solid var(--gray-200);
-      background: white;
-      color: var(--brand-600);
-      transition: all 0.2s ease;
-      margin-top: 12px;
-    }
-    .retry-btn:hover {
-      background: var(--brand-50);
-      border-color: var(--brand-200);
-    }
-
-    /* Instructions */
+    /* ===== INSTRUCTIONS ===== */
     .instructions {
       text-align: left;
-      background: var(--brand-50);
-      border: 1px solid var(--brand-200);
-      border-radius: var(--radius-lg);
+      background: hsla(152, 25%, 85%, 0.2);
+      border: 1px solid hsla(152, 25%, 85%, 0.5);
+      border-radius: 12px;
       padding: 20px;
     }
     .instructions h3 {
+      font-family: 'DM Sans', sans-serif;
       font-size: 14px;
       font-weight: 600;
       margin-bottom: 12px;
-      color: var(--gray-900);
+      color: var(--fg);
     }
     .instructions ol {
       font-size: 14px;
-      color: var(--gray-500);
+      color: var(--fg-muted);
       padding-left: 20px;
     }
     .instructions li { margin-bottom: 6px; }
-    .instructions strong { color: var(--gray-700); }
+    .instructions strong { color: var(--fg); }
+    .instructions a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .instructions a:hover { color: var(--primary-dark); }
 
-    /* Loading */
+    /* ===== LOADING ===== */
     .loading {
-      color: var(--gray-500);
+      color: var(--fg-muted);
       font-size: 15px;
       padding: 20px 0;
     }
     .loading .spinner {
       display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--gray-200);
-      border-top-color: var(--brand-600);
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       vertical-align: -4px;
       margin-right: 8px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     .error-msg {
-      color: var(--error-500);
+      color: var(--error);
       font-size: 14px;
     }
 
-    /* Links */
+    /* ===== RETRY BUTTON ===== */
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      border: 2px solid hsla(152, 32%, 42%, 0.2);
+      background: transparent;
+      color: var(--primary);
+      transition: all 0.2s ease;
+      margin-top: 12px;
+    }
+    .retry-btn:hover {
+      border-color: hsla(152, 32%, 42%, 0.4);
+      background: hsla(152, 25%, 85%, 0.4);
+    }
+
+    /* ===== BACK LINK ===== */
     .back-link {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       margin-top: 24px;
-      color: var(--gray-400);
+      padding: 10px 24px;
+      border-radius: 100px;
+      color: var(--fg);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
-      transition: color 0.15s ease;
+      border: 2px solid hsla(152, 32%, 42%, 0.2);
+      transition: all 0.2s ease;
     }
-    .back-link:hover { color: var(--gray-600); }
+    .back-link:hover {
+      border-color: hsla(152, 32%, 42%, 0.4);
+      background: hsla(152, 25%, 85%, 0.4);
+      transform: scale(1.05);
+    }
     .back-link svg { width: 16px; height: 16px; }
 
-    @media (max-width: 560px) {
-      .page { padding: 32px 16px; }
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      body { padding: 16px; }
+      .page { padding: 0; }
       .card { padding: 24px 20px; }
-      h1 { font-size: 26px; }
+      h1 { font-size: 28px; }
+      .license-email { font-size: 15px; }
+      .activate-btn { padding: 14px 28px; font-size: 15px; width: 100%; justify-content: center; }
+      .copy-btn { width: 100%; justify-content: center; }
+      .hero-blob-1 { width: 220px; height: 220px; }
+      .hero-blob-2 { width: 260px; height: 260px; }
+      .instructions { padding: 16px; }
+      .instructions ol { padding-left: 16px; }
     }
   </style>
 </head>
 <body>
 
-<div class="bg-glow"></div>
+<!-- Floating blobs -->
+<div class="hero-blob-1 blob"></div>
+<div class="hero-blob-2 blob"></div>
+<div class="hero-blob-3"></div>
 
 <div class="page">
-  <a href="index.html" class="logo">
+  <a href="index.html" class="logo reveal">
     <div class="logo-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
     </div>
-    VoxGen
+    <span class="logo-text">VoxGen</span>
   </a>
 
-  <div class="success-badge">
+  <div class="success-badge reveal">
     <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
     Payment successful
   </div>
 
-  <h1>Thank you for <span class="accent">VoxGen Pro</span></h1>
-  <p class="subtitle">Your license is ready to activate.</p>
+  <h1 class="reveal stagger-1">Thank you for <span class="gradient-text">VoxGen Pro</span></h1>
+  <p class="subtitle reveal stagger-2">Your license is ready to activate.</p>
 
-  <div class="card">
+  <div class="card reveal stagger-3">
     <div id="content">
       <div class="loading">
         <span class="spinner"></span> Retrieving your license...
@@ -377,13 +422,31 @@
     </div>
   </div>
 
-  <a href="index.html" class="back-link">
+  <a href="index.html" class="back-link reveal stagger-4">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     Back to VoxGen
   </a>
 </div>
 
 <script>
+  // Scroll reveal
+  (function() {
+    var reveals = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      reveals.forEach(function(el) { observer.observe(el); });
+    } else {
+      reveals.forEach(function(el) { el.classList.add('visible'); });
+    }
+  })();
+
   var sessionId = null;
 
   async function fetchLicense() {
@@ -412,7 +475,7 @@
               '<div class="license-email" id="activation-email">' + escapeHtml(data.email) + '</div>' +
               '<div class="plan-info">Plan: ' + escapeHtml(data.plan) + (data.expiresAt ? ' &bull; Expires: ' + new Date(data.expiresAt).toLocaleDateString() : ' &bull; Never expires') + '</div>' +
             '</div>' +
-            '<div class="activate-status" id="activate-status" style="display:block;color:var(--success-700)">Opening VoxGen...</div>' +
+            '<div class="activate-status" id="activate-status" style="display:block;color:var(--success)">Opening VoxGen...</div>' +
             '<a href="' + deepLink + '" class="activate-btn" id="activate-btn" onclick="onActivateClick()">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>' +
               'Activate in VoxGen' +
@@ -425,29 +488,37 @@
             '</div>' +
             '<div class="instructions" style="margin-top:16px">' +
               '<h3>Don\'t have VoxGen installed?</h3>' +
-              '<p style="font-size:14px;color:var(--gray-500);margin-bottom:12px">' +
-                '<a href="download.html" style="color:var(--brand-600);font-weight:600;text-decoration:none">Download VoxGen</a> first, then come back to activate.' +
+              '<p style="font-size:14px;color:var(--fg-muted);margin-bottom:12px">' +
+                '<a href="download.html">Download VoxGen</a> first, then come back to activate.' +
               '</p>' +
               '<h3 style="margin-top:12px">Manual activation:</h3>' +
               '<ol>' +
                 '<li>Open <strong>VoxGen</strong> on your computer</li>' +
-                '<li>Click <strong>Settings</strong> in the sidebar</li>' +
-                '<li>Scroll to <strong>Account</strong> and enter: <strong>' + escapeHtml(data.email) + '</strong></li>' +
+                '<li>Go to <strong>Settings</strong> &rarr; <strong>Account</strong></li>' +
+                '<li>Enter your email: <strong>' + escapeHtml(data.email) + '</strong></li>' +
                 '<li>Click <strong>Activate</strong></li>' +
               '</ol>' +
             '</div>';
 
-          // Auto-attempt deep link redirect (like Zoom/Slack/VS Code)
+          // Auto-attempt deep link redirect
+          // Use an iframe trick for more reliable protocol handling
+          var iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = deepLink;
+          document.body.appendChild(iframe);
+          setTimeout(function() { document.body.removeChild(iframe); }, 500);
+
+          // Also try window.location as fallback
           setTimeout(function() {
             window.location.href = deepLink;
-          }, 800);
+          }, 600);
 
           // After 3s, if still on this page, show fallback message
           setTimeout(function() {
             var status = document.getElementById('activate-status');
             if (status) {
-              status.innerHTML = 'If VoxGen didn\'t open automatically, click <strong>Activate in VoxGen</strong> above or copy your email below.';
-              status.style.color = 'var(--gray-500)';
+              status.innerHTML = 'If VoxGen didn\'t open, <strong>copy your email</strong> and paste it in Settings &rarr; Account.';
+              status.style.color = 'var(--fg-muted)';
             }
           }, 3000);
           return;
@@ -498,7 +569,6 @@
       setTimeout(function() { btn.textContent = 'Copy Email'; }, 2000);
     }
 
-    // Try modern clipboard API first, then fallback
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(email).then(onSuccess).catch(function() {
         fallbackCopy(email, onSuccess);
@@ -525,10 +595,10 @@
     if (status) {
       status.style.display = 'block';
       status.textContent = 'Opening VoxGen...';
-      status.style.color = 'var(--success-700)';
+      status.style.color = 'var(--success)';
       setTimeout(function() {
-        status.innerHTML = 'If VoxGen didn\'t open, <strong>copy your email</strong> and paste it in Settings &rarr; Account. Or <a href="download.html" style="color:var(--brand-600);font-weight:600">download VoxGen</a> first.';
-        status.style.color = 'var(--gray-500)';
+        status.innerHTML = 'If VoxGen didn\'t open, <strong>copy your email</strong> and paste it in Settings &rarr; Account. Or <a href="download.html" style="color:var(--primary);font-weight:600">download VoxGen</a> first.';
+        status.style.color = 'var(--fg-muted)';
       }, 2500);
     }
   }
