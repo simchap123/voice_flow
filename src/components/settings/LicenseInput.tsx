@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { AlertCircle, ExternalLink } from 'lucide-react'
 import type { LicenseStatus } from '@/types/settings'
 
 interface LicenseInfo {
@@ -61,7 +62,7 @@ export function LicenseInput() {
         setInputEmail('')
         await loadLicenseInfo()
       } else {
-        setError(result.error || 'No active license found for this email')
+        setError(result.error || 'No active license for this email')
       }
     } catch {
       setError('Failed to validate. Check your internet connection.')
@@ -259,39 +260,104 @@ export function LicenseInput() {
         </div>
       )}
 
-      {/* Error message with buy link when no license found */}
-      {error && (
-        <div className="text-xs">
-          <p className="text-red-400">{error}</p>
-          {error.includes('No') && error.includes('license') && (
-            <p className="text-muted-foreground mt-1">
-              Don't have a license?{' '}
+      {/* Contextual error cards */}
+      {error === 'No license found for this email' && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3 space-y-2">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-3.5 w-3.5 text-red-400 mt-0.5 shrink-0" />
+            <p className="text-xs text-red-400 font-medium">No license found for this email</p>
+          </div>
+          <div className="text-[11px] text-muted-foreground space-y-1.5 ml-[22px]">
+            <p>Purchased with a different email? Check the confirmation email from Stripe for the address you used at checkout.</p>
+            <p>
+              <a
+                href="https://voxgenflow.vercel.app/account.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+              >
+                Check on website
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {error === 'No active license for this email' && (
+        <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3 space-y-2">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-3.5 w-3.5 text-yellow-400 mt-0.5 shrink-0" />
+            <p className="text-xs text-yellow-400 font-medium">No active license for this email</p>
+          </div>
+          <div className="text-[11px] text-muted-foreground space-y-1.5 ml-[22px]">
+            <p>Your account was found but has no active plan. This may be from a cancelled subscription or incomplete payment.</p>
+            <p>
               <a
                 href="https://voxgenflow.vercel.app/#pricing"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline font-medium"
               >
-                Buy one now
+                Renew or upgrade your plan
               </a>{' '}
-              — use this email at checkout.
+              to reactivate.
             </p>
-          )}
+          </div>
         </div>
       )}
 
-      {/* Buy link when no active paid license */}
+      {error && error.includes('expired') && error !== 'No active license for this email' && error !== 'No license found for this email' && (
+        <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3 space-y-2">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-3.5 w-3.5 text-yellow-400 mt-0.5 shrink-0" />
+            <p className="text-xs text-yellow-400 font-medium">License expired</p>
+          </div>
+          <div className="text-[11px] text-muted-foreground ml-[22px]">
+            <p>
+              Your license has expired.{' '}
+              <a
+                href="https://voxgenflow.vercel.app/#pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
+                Renew your plan
+              </a>{' '}
+              to continue with managed API keys.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {error && error !== 'No license found for this email' && error !== 'No active license for this email' && !error.includes('expired') && (
+        <div className="flex items-center gap-1.5 text-xs text-red-400">
+          <AlertCircle className="h-3 w-3 shrink-0" />
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Help links when no active paid license */}
       {!isActive && !trialExpired && (
         <p className="text-xs text-muted-foreground">
+          Already purchased?{' '}
+          <a
+            href="https://voxgenflow.vercel.app/account.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Check your license on our website
+          </a>
+          .{' '}
           <a
             href="https://voxgenflow.vercel.app/#pricing"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"
           >
-            Buy a license
-          </a>{' '}
-          to keep managed API keys after your trial ends.
+            View plans
+          </a>
         </p>
       )}
     </div>

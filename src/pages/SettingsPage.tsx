@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/useToast'
 import type { STTProviderType } from '@/lib/stt/types'
 
-// ── DEV TOOLS — REMOVE BEFORE PUBLIC RELEASE ──
+// ── DEV TOOLS — Only visible to admin (spentelnik@gmail.com) ──
 function DevTools() {
   const { settings, updateSetting } = useSettings()
   const [trialDaysLeft, setTrialDaysLeft] = useState(30)
@@ -159,6 +159,7 @@ export function SettingsPage() {
   const [showKeyDialog, setShowKeyDialog] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'available' | 'downloaded' | 'uptodate'>('idle')
   const [updateVersion, setUpdateVersion] = useState('')
+  const [userEmail, setUserEmail] = useState('')
 
   useEffect(() => {
     async function init() {
@@ -166,6 +167,8 @@ export function SettingsPage() {
         setHasOpenAIKey(await window.electronAPI.hasApiKey('openai'))
         setHasGroqKey(await window.electronAPI.hasApiKey('groq'))
         setAppVersion(await window.electronAPI.getAppVersion())
+        const licenseInfo = await window.electronAPI.getLicenseInfo()
+        setUserEmail(licenseInfo?.userEmail || '')
       }
     }
     init()
@@ -532,8 +535,8 @@ export function SettingsPage() {
               <LicenseInput />
             </div>
 
-            {/* Developer Tools — REMOVE BEFORE PUBLIC RELEASE */}
-            <DevTools />
+            {/* Developer Tools — admin only */}
+            {userEmail === 'spentelnik@gmail.com' && <DevTools />}
 
           </div>
         )}
