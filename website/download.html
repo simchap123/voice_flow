@@ -6,64 +6,37 @@
   <title>VoxGen - Get Started</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      /* Brand sage green */
-      --brand-50: #eef3ee;
-      --brand-100: #dce7dc;
-      --brand-200: #b9cfb9;
-      --brand-300: #8fb48f;
-      --brand-500: #4f8250;
-      --brand-600: #3d7044;
-      --brand-700: #2f5a34;
-      --brand-800: #244828;
-      --brand-900: #1a361e;
+      --bg: hsl(40, 33%, 96%);
+      --bg-card: hsl(40, 30%, 98%);
+      --fg: hsl(220, 20%, 16%);
+      --fg-muted: hsl(220, 10%, 46%);
+      --primary: hsl(152, 32%, 42%);
+      --primary-fg: hsl(40, 33%, 96%);
+      --primary-dark: hsl(152, 32%, 28%);
+      --accent: hsl(152, 25%, 85%);
+      --accent-fg: hsl(152, 32%, 28%);
+      --border: hsl(40, 18%, 88%);
+      --muted: hsl(40, 15%, 92%);
+      --cream: hsl(40, 33%, 96%);
+      --sage-light: hsl(152, 25%, 85%);
 
-      /* Warm grays */
-      --gray-25: #fdfcfb;
-      --gray-50: #f8f5f1;
-      --gray-100: #f0ebe4;
-      --gray-200: #e4ded5;
-      --gray-300: #cdc5b9;
-      --gray-400: #a39c91;
-      --gray-500: #7a756c;
-      --gray-600: #5e5a53;
-      --gray-700: #45423c;
-      --gray-800: #2d2b27;
-      --gray-900: #1c1b18;
-
-      /* Success */
-      --success-50: #ecfdf3;
-      --success-100: #dcfae6;
-      --success-500: #17b26a;
-      --success-600: #079455;
-      --success-700: #067647;
-
-      /* Error */
-      --error-500: #f04438;
-
-      --shadow-xs: 0 1px 2px rgba(28, 27, 24, 0.04);
-      --shadow-sm: 0 1px 2px rgba(28, 27, 24, 0.05), 0 1px 3px rgba(28, 27, 24, 0.08);
-      --shadow-md: 0 2px 4px -2px rgba(28, 27, 24, 0.05), 0 4px 8px -2px rgba(28, 27, 24, 0.08);
-      --shadow-lg: 0 4px 6px -2px rgba(28, 27, 24, 0.02), 0 12px 16px -4px rgba(28, 27, 24, 0.06);
-      --shadow-xl: 0 8px 16px -4px rgba(28, 27, 24, 0.04), 0 20px 36px -8px rgba(28, 27, 24, 0.1);
-
-      --radius-md: 8px;
-      --radius-lg: 12px;
-      --radius-xl: 16px;
-      --radius-2xl: 20px;
-      --radius-full: 9999px;
+      /* Success — kept for download badge */
+      --success-bg: hsl(149, 80%, 95%);
+      --success: hsl(152, 69%, 31%);
+      --success-border: hsl(152, 69%, 40%);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--gray-50);
-      color: var(--gray-900);
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
       line-height: 1.6;
       overflow-x: hidden;
       min-height: 100vh;
@@ -74,72 +47,132 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ===== AMBIENT BACKGROUND ===== */
-    .bg-glow {
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+    /* ===== BLOBS ===== */
+    .blob { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+
+    .hero-blob-1 {
       position: fixed;
-      inset: 0;
-      z-index: -1;
-      overflow: hidden;
+      top: -60px;
+      left: -80px;
+      width: 340px;
+      height: 340px;
+      background: hsla(152, 25%, 85%, 0.4);
+      filter: blur(48px);
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      animation: float-slow 8s ease-in-out infinite;
       pointer-events: none;
+      z-index: -1;
     }
-    .bg-glow::before {
-      content: '';
-      position: absolute;
-      width: 700px;
-      height: 700px;
-      top: -250px;
+    .hero-blob-2 {
+      position: fixed;
+      bottom: -60px;
+      right: -80px;
+      width: 400px;
+      height: 400px;
+      background: hsla(152, 25%, 85%, 0.3);
+      filter: blur(48px);
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      animation: float 6s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .hero-blob-3 {
+      position: fixed;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(61, 112, 68, 0.08) 0%, transparent 70%);
-      animation: float 10s ease-in-out infinite;
-    }
-    .bg-glow::after {
-      content: '';
-      position: absolute;
+      transform: translate(-50%, -50%);
       width: 500px;
       height: 500px;
-      bottom: -200px;
-      right: -100px;
-      background: radial-gradient(circle, rgba(61, 112, 68, 0.05) 0%, transparent 70%);
-      animation: float 12s ease-in-out infinite reverse;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(20px); }
+      background: hsla(152, 25%, 85%, 0.15);
+      border-radius: 50%;
+      filter: blur(48px);
+      animation: pulse-soft 4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
     }
 
-    /* ===== REVEAL ANIMATIONS ===== */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .stagger-1 { transition-delay: 0.08s; }
-    .stagger-2 { transition-delay: 0.16s; }
-    .stagger-3 { transition-delay: 0.24s; }
-    .stagger-4 { transition-delay: 0.32s; }
+    /* ===== ANIMATIONS ===== */
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    @keyframes float-slow { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-30px) rotate(5deg); } }
+    @keyframes pulse-soft { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
 
     @keyframes checkBounce {
       0%   { transform: scale(0); }
       50%  { transform: scale(1.15); }
       100% { transform: scale(1); }
     }
-    @keyframes shimmer {
-      0%   { background-position: -200% center; }
-      100% { background-position: 200% center; }
-    }
-    @keyframes pulse-soft {
-      0%, 100% { opacity: 1; }
-      50%      { opacity: 0.6; }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
-    /* ===== PAGE CONTAINER ===== */
+    /* ===== REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+    .stagger-4 { transition-delay: 0.4s; }
+    .stagger-5 { transition-delay: 0.5s; }
+
+    /* ===== GLASS ===== */
+    .glass {
+      background: hsla(40, 30%, 98%, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid hsla(40, 18%, 88%, 0.5);
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 100px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-fg);
+      box-shadow: 0 4px 14px hsla(152, 32%, 42%, 0.25);
+    }
+    .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 20px hsla(152, 32%, 42%, 0.35); }
+    .btn-outline {
+      background: transparent;
+      color: var(--fg);
+      border: 2px solid hsla(152, 32%, 42%, 0.2);
+    }
+    .btn-outline:hover { border-color: hsla(152, 32%, 42%, 0.4); background: hsla(152, 25%, 85%, 0.4); transform: scale(1.05); }
+    .btn-sm { padding: 8px 20px; font-size: 13px; }
+
+    /* ===== GRADIENT TEXT ===== */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark), hsl(40, 33%, 50%));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ===== PAGE ===== */
     .page {
-      max-width: 520px;
+      max-width: 640px;
       width: 100%;
       padding: 48px 24px;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     /* ===== LOGO ===== */
@@ -147,10 +180,8 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-weight: 700;
-      font-size: 18px;
       text-decoration: none;
-      color: var(--gray-900);
+      color: var(--fg);
       margin-bottom: 48px;
       transition: transform 0.2s ease;
     }
@@ -158,8 +189,8 @@
     .logo-icon {
       width: 38px;
       height: 38px;
-      background: var(--brand-700);
-      border-radius: var(--radius-lg);
+      background: var(--primary);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -167,7 +198,12 @@
     }
     .logo:hover .logo-icon {
       transform: scale(1.06) rotate(-3deg);
-      box-shadow: 0 4px 14px rgba(47, 90, 52, 0.25);
+      box-shadow: 0 4px 14px hsla(152, 32%, 42%, 0.25);
+    }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
     }
 
     /* ===== DOWNLOAD BADGE ===== */
@@ -175,13 +211,13 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 18px;
-      background: var(--success-50);
-      border: 1.5px solid var(--success-500);
-      border-radius: var(--radius-full);
+      padding: 8px 20px;
+      background: var(--success-bg);
+      border: 1.5px solid var(--success-border);
+      border-radius: 100px;
       font-size: 14px;
       font-weight: 600;
-      color: var(--success-700);
+      color: var(--success);
       margin-bottom: 28px;
     }
     .download-badge svg { width: 16px; height: 16px; }
@@ -189,196 +225,290 @@
       animation: checkBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
     }
 
-    /* ===== HEADINGS ===== */
+    /* ===== HEADING ===== */
     h1 {
-      font-size: 30px;
+      font-size: 36px;
       font-weight: 700;
-      line-height: 1.25;
+      line-height: 1.15;
       letter-spacing: -0.02em;
-      margin-bottom: 10px;
-      color: var(--gray-900);
-    }
-    h1 .accent {
-      color: var(--brand-600);
+      margin-bottom: 12px;
+      color: var(--fg);
     }
     .subtitle {
       font-size: 16px;
-      color: var(--gray-500);
+      color: var(--fg-muted);
       margin-bottom: 40px;
+      line-height: 1.7;
     }
 
-    /* ===== CARD ===== */
+    /* ===== APP PREVIEW ===== */
+    .app-preview {
+      margin-bottom: 36px;
+    }
+    .preview-mockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      border-radius: 100px;
+      background: hsla(40, 30%, 98%, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid hsla(40, 18%, 88%, 0.5);
+      box-shadow: 0 8px 32px hsla(152, 32%, 42%, 0.08), 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .preview-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--primary);
+      border-radius: 50%;
+      position: relative;
+    }
+    .preview-dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid hsla(152, 32%, 42%, 0.3);
+      animation: ping-slow 2s ease-in-out infinite;
+    }
+    @keyframes ping-slow {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.3); opacity: 0; }
+    }
+    .preview-waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 24px;
+    }
+    .preview-waveform span {
+      width: 3px;
+      border-radius: 3px;
+      background: var(--primary);
+      animation: waveform-bar 1.2s ease-in-out infinite;
+    }
+    .preview-waveform span:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .preview-waveform span:nth-child(2) { height: 16px; animation-delay: 0.15s; }
+    .preview-waveform span:nth-child(3) { height: 24px; animation-delay: 0.3s; }
+    .preview-waveform span:nth-child(4) { height: 14px; animation-delay: 0.45s; }
+    .preview-waveform span:nth-child(5) { height: 20px; animation-delay: 0.6s; }
+    .preview-waveform span:nth-child(6) { height: 10px; animation-delay: 0.75s; }
+    @keyframes waveform-bar {
+      0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+    .preview-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--fg);
+      letter-spacing: -0.01em;
+    }
+    .preview-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 16px;
+      background: var(--primary);
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* ===== GLASS CARD ===== */
     .card {
-      background: white;
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-2xl);
-      padding: 32px;
-      box-shadow: var(--shadow-sm);
+      background: hsla(40, 30%, 98%, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid hsla(40, 18%, 88%, 0.5);
+      border-radius: 20px;
+      padding: 36px;
       text-align: left;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02);
       transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .card:hover {
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03);
       transform: translateY(-2px);
     }
 
-    /* ===== STEPS ===== */
+    /* ===== TIMELINE STEPS ===== */
     .steps {
       display: flex;
       flex-direction: column;
       gap: 0;
-      margin-bottom: 32px;
+      position: relative;
     }
+
+    /* Vertical connecting line */
+    .steps::before {
+      content: '';
+      position: absolute;
+      left: 21px;
+      top: 46px;
+      bottom: 26px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), hsla(152, 25%, 85%, 0.2));
+      border-radius: 1px;
+    }
+
     .step {
       display: flex;
-      gap: 16px;
+      gap: 18px;
       padding: 20px 0;
-      border-bottom: 1px solid var(--gray-100);
       align-items: flex-start;
-      transition: background 0.15s ease;
-      border-radius: var(--radius-md);
+      position: relative;
     }
     .step:first-child { padding-top: 4px; }
-    .step:last-child { border-bottom: none; padding-bottom: 4px; }
+    .step:last-child { padding-bottom: 4px; }
 
     .step-icon {
       flex-shrink: 0;
       width: 42px;
       height: 42px;
-      background: var(--brand-50);
-      border: 1px solid var(--brand-200);
-      border-radius: var(--radius-lg);
+      background: var(--bg);
+      border: 2px solid var(--accent);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--brand-600);
+      color: var(--primary);
       font-weight: 700;
       font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 0 0 4px var(--brand-50);
+      position: relative;
+      z-index: 2;
     }
     .step:hover .step-icon {
-      background: var(--brand-100);
-      transform: scale(1.06);
-      box-shadow: 0 0 0 6px var(--brand-50);
+      background: var(--accent);
+      border-color: var(--primary);
+      transform: scale(1.08);
+      box-shadow: 0 0 0 4px hsla(152, 25%, 85%, 0.3);
     }
 
     .step-content { flex: 1; padding-top: 2px; }
     .step-content h3 {
+      font-family: 'DM Sans', sans-serif;
       font-size: 15px;
       font-weight: 600;
-      color: var(--gray-900);
+      color: var(--fg);
       margin-bottom: 4px;
     }
     .step-content p {
       font-size: 14px;
-      color: var(--gray-500);
-      line-height: 1.5;
+      color: var(--fg-muted);
+      line-height: 1.6;
     }
     .step-content strong {
-      color: var(--gray-700);
+      color: var(--fg);
       font-weight: 600;
     }
     .step-content kbd {
       display: inline-block;
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
+      background: var(--muted);
+      border: 1px solid var(--border);
       padding: 1px 8px;
-      border-radius: var(--radius-md);
+      border-radius: 6px;
       font-size: 12px;
       font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
       font-weight: 600;
-      color: var(--brand-700);
-      box-shadow: 0 1px 0 var(--gray-200);
+      color: var(--primary-dark);
+      box-shadow: 0 1px 0 var(--border);
       transition: all 0.15s ease;
     }
     .step-content kbd:hover {
-      background: var(--brand-50);
-      border-color: var(--brand-200);
+      background: var(--accent);
+      border-color: var(--primary);
       transform: translateY(-1px);
       box-shadow: 0 2px 4px rgba(0,0,0,0.04);
     }
 
-    /* ===== LINKS ===== */
+    /* ===== FOOTER LINKS ===== */
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
     .retry-link {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 100px;
       font-size: 14px;
-      color: var(--brand-600);
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--primary-fg);
+      background: var(--primary);
       text-decoration: none;
-      font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
+      border: none;
+      box-shadow: 0 4px 14px hsla(152, 32%, 42%, 0.25);
     }
-    .retry-link:hover { color: var(--brand-700); transform: translateY(-1px); }
+    .retry-link:hover { transform: scale(1.05); box-shadow: 0 6px 20px hsla(152, 32%, 42%, 0.35); }
     .retry-link svg { width: 16px; height: 16px; }
 
     .back-link {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      padding: 10px 24px;
+      border-radius: 100px;
       font-size: 14px;
-      color: var(--gray-400);
+      color: var(--fg);
       text-decoration: none;
       font-weight: 500;
-      transition: color 0.15s ease;
+      border: 2px solid hsla(152, 32%, 42%, 0.2);
+      transition: all 0.2s ease;
     }
-    .back-link:hover { color: var(--gray-600); }
+    .back-link:hover { border-color: hsla(152, 32%, 42%, 0.4); background: hsla(152, 25%, 85%, 0.4); transform: scale(1.05); }
     .back-link svg { width: 16px; height: 16px; }
 
-    .footer-links {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      margin-top: 28px;
-    }
-
-    /* Windows badge */
+    /* ===== PLATFORM BADGE ===== */
     .platform-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-size: 12px;
       font-weight: 500;
-      color: var(--gray-400);
-      margin-bottom: 32px;
+      color: var(--fg-muted);
+      margin-top: 20px;
+      opacity: 0.7;
     }
     .platform-badge svg { width: 14px; height: 14px; }
 
-    /* Spinner for loading */
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
     /* ===== RESPONSIVE ===== */
-    @media (max-width: 560px) {
+    @media (max-width: 640px) {
       .page { padding: 32px 16px; }
-      .gate-card { padding: 28px 20px; }
-      .card { padding: 24px 20px; }
-      h1 { font-size: 26px; }
+      .card { padding: 28px 20px; }
+      h1 { font-size: 30px; }
+      .footer-links { flex-direction: column; gap: 12px; }
+      .retry-link, .back-link { width: 100%; justify-content: center; }
+      .hero-blob-1 { width: 220px; height: 220px; }
+      .hero-blob-2 { width: 260px; height: 260px; }
+      .preview-mockup { padding: 12px 18px; gap: 10px; }
+      .preview-text { font-size: 13px; }
     }
   </style>
 </head>
 <body>
 
-<div class="bg-glow"></div>
+<!-- Floating blobs matching main site -->
+<div class="hero-blob-1 blob"></div>
+<div class="hero-blob-2 blob"></div>
+<div class="hero-blob-3"></div>
 
 <div class="page">
   <a href="index.html" class="logo reveal">
     <div class="logo-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
     </div>
-    VoxGen
+    <span class="logo-text">VoxGen</span>
   </a>
 
   <!-- =============================== -->
@@ -390,8 +520,19 @@
       Your download has started
     </div>
 
-    <h1 class="reveal stagger-1">Get started in <span class="accent">3 steps</span></h1>
-    <p class="subtitle reveal stagger-2">Up and running in under a minute. No email or account needed.</p>
+    <h1 class="reveal stagger-1">Get started with <span class="gradient-text">VoxGen</span></h1>
+    <p class="subtitle reveal stagger-2">Up and running in 3 steps. No email or account needed.</p>
+
+    <!-- App preview mockup -->
+    <div class="app-preview reveal stagger-2">
+      <div class="preview-mockup">
+        <div class="preview-dot"></div>
+        <div class="preview-waveform">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span class="preview-text">Listening<span class="preview-cursor"></span></span>
+      </div>
+    </div>
 
     <div class="card reveal stagger-3">
       <div class="steps">
@@ -430,6 +571,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         Back to home
       </a>
+    </div>
+
+    <div class="platform-badge reveal stagger-5">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.548l7.066-.966.003 6.818-7.061.04L3 5.548zm7.063 6.629l.007 6.826L3 18.032l-.002-5.862 7.065.007zm.856-7.7L21 3v8.387l-10.081.073V4.477zm10.084 7.907L21.001 21l-10.082-1.384-.015-7.138 10.099.006z"/></svg>
+      Windows 10/11
     </div>
   </div>
 
