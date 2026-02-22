@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.14.2',
+    date: '2026-02-22',
+    highlights: [
+      'Redesigned download page — matches main site with glass effects, blobs, and animated overlay preview',
+      'Redesigned payment success page — same design system, better mobile layout, improved deep link redirect',
+      'DevTools admin gate now updates in real-time when switching accounts',
+    ],
+  },
+  {
     version: '2.14.1',
     date: '2026-02-22',
     highlights: [
