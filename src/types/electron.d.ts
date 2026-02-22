@@ -22,7 +22,10 @@ export interface ElectronAPI {
   validateByEmail: (email: string) => Promise<{ valid: boolean; plan?: string; error?: string; trialDaysLeft?: number }>
   getLicenseInfo: () => Promise<any>
   clearLicense: () => Promise<void>
+  openCustomerPortal: (email: string) => Promise<{ success: boolean; error?: string }>
+  openExternal: (url: string) => Promise<void>
   onTrialExpired: (callback: () => void) => () => void
+  onDeepLinkActivated: (callback: (data: { email: string; valid: boolean; plan?: string; expiresAt?: string | null }) => void) => () => void
   // Overlay prompt picker (US-305)
   expandForPrompts?: (count: number) => void
   shrinkToIdle?: () => void

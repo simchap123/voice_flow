@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.14.3',
+    date: '2026-02-22',
+    highlights: [
+      'In-app plan picker — choose and purchase a plan without leaving the app',
+      'Auto-detects license after Stripe payment via background polling',
+      'Plan picker shown in both Settings and onboarding when no license found',
+    ],
+  },
+  {
     version: '2.14.2',
     date: '2026-02-22',
     highlights: [

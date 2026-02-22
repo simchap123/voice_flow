@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, ExternalLink } from 'lucide-react'
 import type { LicenseStatus } from '@/types/settings'
+import { PlanPicker } from './plan-picker'
 
 interface LicenseInfo {
   licenseKey: string
@@ -21,6 +22,8 @@ export function LicenseInput() {
   const [portalLoading, setPortalLoading] = useState(false)
   const [error, setError] = useState('')
   const [trialDaysLeft, setTrialDaysLeft] = useState(30)
+  const [showPlanPicker, setShowPlanPicker] = useState(false)
+  const [planPickerEmail, setPlanPickerEmail] = useState('')
 
   useEffect(() => {
     loadLicenseInfo()
@@ -62,7 +65,13 @@ export function LicenseInput() {
         setInputEmail('')
         await loadLicenseInfo()
       } else {
-        setError(result.error || 'No active license for this email')
+        const errMsg = result.error || 'No active license for this email'
+        setError(errMsg)
+        // Auto-switch to plan picker on "no license found"
+        if (errMsg === 'No license found for this email') {
+          setPlanPickerEmail(email)
+          setShowPlanPicker(true)
+        }
       }
     } catch {
       setError('Failed to validate. Check your internet connection.')
@@ -101,6 +110,27 @@ export function LicenseInput() {
   const hasEmail = !!licenseInfo?.userEmail
   const isDeviceTrial = hasEmail && licenseInfo?.userEmail?.endsWith('@device.voxgen.app')
   const isPaidPlan = isActive && licenseInfo?.licensePlan && licenseInfo.licensePlan !== 'Trial'
+
+  // Plan picker view
+  if (showPlanPicker) {
+    return (
+      <div className="space-y-3">
+        <PlanPicker
+          email={planPickerEmail}
+          onBack={() => {
+            setShowPlanPicker(false)
+            setError('')
+          }}
+          onActivated={async () => {
+            setShowPlanPicker(false)
+            setInputEmail('')
+            setError('')
+            await loadLicenseInfo()
+          }}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">

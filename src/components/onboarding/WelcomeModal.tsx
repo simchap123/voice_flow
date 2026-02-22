@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PlanPicker } from '@/components/settings/plan-picker'
 
 interface WelcomeModalProps {
   onComplete: () => void
@@ -12,6 +13,7 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
   const [checking, setChecking] = useState(false)
   const [error, setError] = useState('')
   const [activated, setActivated] = useState(false)
+  const [showPlanPicker, setShowPlanPicker] = useState(false)
 
   async function handleActivate() {
     const trimmed = email.trim()
@@ -26,7 +28,11 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
         setActivated(true)
         setTimeout(() => setStep(2), 800)
       } else {
-        setError(result.error || 'No active license or trial found for this email.')
+        const errMsg = result.error || 'No active license or trial found for this email.'
+        setError(errMsg)
+        if (errMsg === 'No license found for this email') {
+          setShowPlanPicker(true)
+        }
       }
     } catch {
       setError('Connection failed. Check your internet and try again.')
@@ -94,62 +100,87 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
           {/* Step 1: Activate Trial */}
           {step === 1 && (
             <div className="space-y-6">
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold tracking-tight">Activate your free trial</h2>
-                <p className="text-[13px] text-muted-foreground/70">
-                  Enter your email to start a 30-day free trial. No credit card required.
-                </p>
-              </div>
-
-              {activated ? (
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 text-center">
-                  <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary/10">
-                    <CheckIcon />
+              {showPlanPicker ? (
+                <>
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold tracking-tight">Choose a plan</h2>
+                    <p className="text-[13px] text-muted-foreground/70">
+                      No license found for <span className="font-medium text-foreground">{email}</span>. Pick a plan to get started.
+                    </p>
                   </div>
-                  <p className="text-[13px] font-medium text-primary">Trial activated!</p>
-                </div>
+                  <PlanPicker
+                    email={email.trim().toLowerCase()}
+                    onBack={() => {
+                      setShowPlanPicker(false)
+                      setError('')
+                    }}
+                    onActivated={() => {
+                      setShowPlanPicker(false)
+                      setActivated(true)
+                      setTimeout(() => setStep(2), 800)
+                    }}
+                  />
+                </>
               ) : (
                 <>
                   <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Input
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => { setEmail(e.target.value); setError('') }}
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleActivate() }}
-                        className="text-[13px] rounded-xl"
-                        autoFocus
-                      />
-                      <Button
-                        onClick={handleActivate}
-                        disabled={!email.trim() || !email.includes('@') || checking}
-                        className="shrink-0 rounded-xl"
-                      >
-                        {checking ? 'Checking...' : 'Activate'}
-                      </Button>
-                    </div>
-                    {error && <p className="text-[11px] text-red-400">{error}</p>}
+                    <h2 className="text-xl font-semibold tracking-tight">Activate your free trial</h2>
+                    <p className="text-[13px] text-muted-foreground/70">
+                      Enter your email to start a 30-day free trial. No credit card required.
+                    </p>
                   </div>
 
-                  <p className="text-[11px] text-muted-foreground/50">
-                    Already have a license? Enter the email you used to purchase.
-                  </p>
-                </>
-              )}
+                  {activated ? (
+                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 text-center">
+                      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                        <CheckIcon />
+                      </div>
+                      <p className="text-[13px] font-medium text-primary">Trial activated!</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Input
+                            type="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={(e) => { setEmail(e.target.value); setError('') }}
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleActivate() }}
+                            className="text-[13px] rounded-xl"
+                            autoFocus
+                          />
+                          <Button
+                            onClick={handleActivate}
+                            disabled={!email.trim() || !email.includes('@') || checking}
+                            className="shrink-0 rounded-xl"
+                          >
+                            {checking ? 'Checking...' : 'Activate'}
+                          </Button>
+                        </div>
+                        {error && <p className="text-[11px] text-red-400">{error}</p>}
+                      </div>
 
-              {!activated && (
-                <div className="flex items-center justify-between pt-1">
-                  <button
-                    onClick={() => setStep(2)}
-                    className="text-[11px] text-muted-foreground/50 hover:text-foreground transition-colors"
-                  >
-                    Skip for now
-                  </button>
-                  <p className="text-[11px] text-muted-foreground/50">
-                    or use your own API key in Settings
-                  </p>
-                </div>
+                      <p className="text-[11px] text-muted-foreground/50">
+                        Already have a license? Enter the email you used to purchase.
+                      </p>
+                    </>
+                  )}
+
+                  {!activated && (
+                    <div className="flex items-center justify-between pt-1">
+                      <button
+                        onClick={() => setStep(2)}
+                        className="text-[11px] text-muted-foreground/50 hover:text-foreground transition-colors"
+                      >
+                        Skip for now
+                      </button>
+                      <p className="text-[11px] text-muted-foreground/50">
+                        or use your own API key in Settings
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
