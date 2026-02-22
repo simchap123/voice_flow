@@ -335,122 +335,6 @@
       margin-top: 28px;
     }
 
-    /* ===== EMAIL GATE ===== */
-    .gate-card {
-      background: white;
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-2xl);
-      padding: 40px 32px;
-      box-shadow: var(--shadow-md);
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-    .gate-card:hover {
-      box-shadow: var(--shadow-xl);
-      transform: translateY(-2px);
-    }
-
-    .gate-icon {
-      width: 56px;
-      height: 56px;
-      background: var(--brand-50);
-      border: 1px solid var(--brand-200);
-      border-radius: var(--radius-xl);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      color: var(--brand-600);
-      box-shadow: 0 0 0 6px var(--brand-50);
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .gate-card:hover .gate-icon {
-      transform: scale(1.06);
-      box-shadow: 0 0 0 8px var(--brand-50);
-    }
-    .gate-icon svg { width: 26px; height: 26px; }
-
-    .gate-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--gray-900);
-      margin-bottom: 6px;
-    }
-    .gate-subtitle {
-      font-size: 15px;
-      color: var(--gray-500);
-      margin-bottom: 28px;
-    }
-
-    .gate-input {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--gray-200);
-      background: white;
-      color: var(--gray-900);
-      font-size: 15px;
-      font-family: inherit;
-      outline: none;
-      box-shadow: var(--shadow-xs);
-      transition: all 0.2s ease;
-    }
-    .gate-input::placeholder { color: var(--gray-400); }
-    .gate-input:focus {
-      border-color: var(--brand-300);
-      box-shadow: 0 0 0 4px var(--brand-50), var(--shadow-xs);
-    }
-    .gate-input:hover { border-color: var(--gray-300); }
-
-    .gate-error {
-      color: var(--error-500);
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 8px;
-      display: none;
-    }
-
-    .gate-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      padding: 12px 24px;
-      border-radius: var(--radius-lg);
-      font-size: 15px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      border: none;
-      background: var(--brand-600);
-      color: white;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      margin-top: 14px;
-    }
-    .gate-btn:hover {
-      background: var(--brand-700);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-    .gate-btn:active { transform: translateY(0); box-shadow: var(--shadow-xs); }
-    .gate-btn:disabled {
-      background: var(--gray-200);
-      color: var(--gray-400);
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-    .gate-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-    .gate-terms {
-      font-size: 12px;
-      color: var(--gray-400);
-      margin-top: 14px;
-    }
-    .gate-terms a { color: var(--brand-600); text-decoration: none; }
-    .gate-terms a:hover { text-decoration: underline; }
-
     /* Windows badge */
     .platform-badge {
       display: inline-flex;
@@ -498,45 +382,16 @@
   </a>
 
   <!-- =============================== -->
-  <!-- EMAIL GATE                      -->
+  <!-- DOWNLOAD CONTENT                -->
   <!-- =============================== -->
-  <div id="email-gate" style="display:none;">
-    <div class="gate-card reveal">
-      <div class="gate-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-      </div>
-      <div class="gate-title">Download <span class="accent">VoxGen</span></div>
-      <p class="gate-subtitle">Free AI dictation for Windows. Enter your email to get started.</p>
-      <div>
-        <input type="email" id="gate-email" placeholder="you@email.com" class="gate-input" autocomplete="email" />
-        <div id="gate-error" class="gate-error"></div>
-      </div>
-      <button id="gate-btn" class="gate-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-        Download Free
-      </button>
-      <p class="gate-terms">Windows 10+ required. No credit card needed.</p>
-    </div>
-
-    <div class="footer-links reveal stagger-2">
-      <a href="index.html" class="back-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        Back to home
-      </a>
-    </div>
-  </div>
-
-  <!-- =============================== -->
-  <!-- DOWNLOAD CONTENT (post-email)   -->
-  <!-- =============================== -->
-  <div id="download-content" style="display:none;">
+  <div id="download-content">
     <div class="download-badge reveal">
       <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
       Your download has started
     </div>
 
-    <h1 class="reveal stagger-1">Get started in <span class="accent">4 steps</span></h1>
-    <p class="subtitle reveal stagger-2">Up and running in under a minute.</p>
+    <h1 class="reveal stagger-1">Get started in <span class="accent">3 steps</span></h1>
+    <p class="subtitle reveal stagger-2">Up and running in under a minute. No email or account needed.</p>
 
     <div class="card reveal stagger-3">
       <div class="steps">
@@ -559,16 +414,8 @@
         <div class="step">
           <div class="step-icon">3</div>
           <div class="step-content">
-            <h3>Enter your email in the app</h3>
-            <p>Go to <strong>Settings</strong> &rarr; <strong>Account</strong> and enter <strong id="user-email-display"></strong> to activate your free trial.</p>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-icon">4</div>
-          <div class="step-content">
             <h3>Start dictating</h3>
-            <p>Hold <kbd>Alt</kbd> from any app to dictate. Release to stop and auto-paste.</p>
+            <p>Hold <kbd>Alt</kbd> from any app to dictate. Release to stop and auto-paste. Your 30-day free trial starts automatically.</p>
           </div>
         </div>
       </div>
@@ -667,84 +514,8 @@
     }
   }
 
-  async function captureLead(email) {
-    try {
-      await fetch('/api/capture-lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, path: 'free-download-page' }),
-      });
-    } catch (e) { /* don't block */ }
-  }
-
-  // Check for email param
-  var params = new URLSearchParams(window.location.search);
-  var email = params.get('email');
-
-  if (email && email.includes('@')) {
-    document.getElementById('download-content').style.display = 'block';
-    var emailDisplay = document.getElementById('user-email-display');
-    if (emailDisplay) emailDisplay.textContent = email;
-    startAutoDownload();
-  } else {
-    document.getElementById('email-gate').style.display = 'block';
-  }
-
-  // Gate form handler
-  var gateBtn = document.getElementById('gate-btn');
-  var gateEmail = document.getElementById('gate-email');
-  var gateError = document.getElementById('gate-error');
-
-  gateBtn.addEventListener('click', async function() {
-    var val = gateEmail.value.trim();
-    if (!val || !val.includes('@')) {
-      gateError.textContent = 'Please enter a valid email address.';
-      gateError.style.display = 'block';
-      gateEmail.style.borderColor = 'var(--error-500)';
-      gateEmail.style.boxShadow = '0 0 0 4px rgba(240, 68, 56, 0.08)';
-      return;
-    }
-    gateError.style.display = 'none';
-    gateEmail.style.borderColor = '';
-    gateEmail.style.boxShadow = '';
-
-    // Loading state
-    this.disabled = true;
-    this.innerHTML = '<div class="spinner"></div> Starting download...';
-
-    await captureLead(val);
-
-    // Transition
-    var gate = document.getElementById('email-gate');
-    gate.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    gate.style.opacity = '0';
-    gate.style.transform = 'translateY(-10px)';
-
-    setTimeout(function() {
-      gate.style.display = 'none';
-      var content = document.getElementById('download-content');
-      content.style.display = 'block';
-
-      // Re-trigger reveals
-      content.querySelectorAll('.reveal').forEach(function(el) {
-        el.classList.remove('visible');
-        setTimeout(function() { el.classList.add('visible'); }, 50);
-      });
-
-      startAutoDownload();
-    }, 300);
-  });
-
-  gateEmail.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') gateBtn.click();
-  });
-
-  // Reset error state on input
-  gateEmail.addEventListener('input', function() {
-    gateError.style.display = 'none';
-    this.style.borderColor = '';
-    this.style.boxShadow = '';
-  });
+  // Auto-start download immediately — no email gate needed
+  startAutoDownload();
 </script>
 
 </body>

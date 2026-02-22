@@ -1314,16 +1314,12 @@ stuff like that</div>
   <div class="container">
     <div class="get-started-box glass reveal">
       <h2>Get VoxGen</h2>
-      <p>Download for free. You'll activate your trial inside the app.</p>
-      <div class="gs-email-wrap">
-        <input type="email" id="gs-email" placeholder="your@email.com" />
-        <div class="gs-error" id="gs-error"></div>
-      </div>
+      <p>Download for free. 30-day trial starts automatically — no email needed.</p>
       <div class="gs-buttons">
-        <button class="btn btn-primary" id="gs-free-btn">
+        <a href="download.html" class="btn btn-primary" id="gs-free-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
           Download Free
-        </button>
+        </a>
         <button class="btn btn-outline" id="gs-pro-btn">
           Go Pro
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1509,9 +1505,6 @@ stuff like that</div>
   }
 
   // --- Element refs ---
-  var gsEmail = document.getElementById('gs-email');
-  var gsError = document.getElementById('gs-error');
-  var gsFreeBtn = document.getElementById('gs-free-btn');
   var gsProBtn = document.getElementById('gs-pro-btn');
   var selectedPlan = null;
   var checkoutOverlay = document.getElementById('checkout-overlay');
@@ -1520,41 +1513,8 @@ stuff like that</div>
   var checkoutSubmit = document.getElementById('checkout-submit');
   var checkoutCancel = document.getElementById('checkout-cancel');
 
-  function getEmail() {
-    var email = gsEmail.value.trim();
-    if (!email || !email.includes('@')) {
-      gsError.textContent = 'Please enter a valid email address.';
-      gsError.style.display = 'block';
-      return null;
-    }
-    gsError.style.display = 'none';
-    return email;
-  }
-
-  async function captureLead(email, path) {
-    try { await fetch('/api/capture-lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, path: path }) }); } catch (e) {}
-  }
-
-  gsFreeBtn.addEventListener('click', async function() {
-    var email = getEmail();
-    if (!email) return;
-    gsFreeBtn.disabled = true;
-    gsFreeBtn.textContent = 'Starting download...';
-    await captureLead(email, 'free');
-    // Redirect to download.html — it handles the actual download
-    window.location.href = 'download.html?email=' + encodeURIComponent(email);
-  });
-
-  gsProBtn.addEventListener('click', async function() {
-    var email = getEmail();
-    if (!email) return;
-    gsProBtn.disabled = true;
-    gsProBtn.textContent = 'Opening plans...';
-    await captureLead(email, 'pro');
-    checkoutEmail.value = email;
+  gsProBtn.addEventListener('click', function() {
     checkoutOverlay.classList.add('active');
-    gsProBtn.disabled = false;
-    gsProBtn.innerHTML = 'Go Pro <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>';
   });
 
   gsEmail.addEventListener('keydown', function(e) { if (e.key === 'Enter') gsFreeBtn.click(); });

@@ -1,10 +1,11 @@
-import { net } from 'electron'
+import { net, BrowserWindow } from 'electron'
 import {
   getSetting,
   setSetting,
   saveLicenseResult,
   getTrialInfo,
   getLicenseInfo,
+  getDeviceId,
   type LicenseStatus,
 } from './store'
 
@@ -17,6 +18,7 @@ export interface LicenseValidationResult {
   planSlug?: string
   expiresAt?: string | null
   trialDaysLeft?: number
+  trialEmail?: string
   error?: string
 }
 
@@ -111,10 +113,72 @@ export async function validateLicenseKey(key: string): Promise<LicenseValidation
   }
 }
 
+// Device-based trial: register device with server to get managed API access
+export async function registerDeviceTrial(deviceId: string): Promise<LicenseValidationResult> {
+  try {
+    const response = await netFetch(`${API_BASE}/api/validate-license`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId }),
+    })
+
+    const data = JSON.parse(response) as LicenseValidationResult
+
+    if (data.valid && data.trialEmail) {
+      // Store the generated trial email so managed mode works
+      setSetting('userEmail', data.trialEmail)
+      saveLicenseResult({
+        licenseKey: data.trialEmail,
+        status: 'active',
+        plan: data.plan || 'Trial',
+        expiresAt: data.expiresAt || '',
+      })
+      // Broadcast to all renderer windows so managed mode activates
+      for (const win of BrowserWindow.getAllWindows()) {
+        if (!win.isDestroyed()) {
+          win.webContents.send('setting-changed', 'userEmail', data.trialEmail)
+        }
+      }
+      console.log('[VoxGen] Device trial registered, email:', data.trialEmail, 'days left:', data.trialDaysLeft)
+    } else if (data.valid === false && data.trialDaysLeft === 0) {
+      // Trial expired on server
+      saveLicenseResult({
+        licenseKey: data.trialEmail || '',
+        status: 'expired',
+        plan: 'Trial',
+        expiresAt: '',
+      })
+      console.log('[VoxGen] Device trial expired')
+    }
+
+    return data
+  } catch (err: any) {
+    console.error('[VoxGen] Device trial registration failed:', err.message)
+    // Offline — fall back to local trial check
+    return { valid: !getTrialInfo().isExpired, plan: 'Trial', trialDaysLeft: getTrialInfo().daysLeft }
+  }
+}
+
 export async function checkLicenseOnStartup(): Promise<void> {
-  // Try email-based validation first
+  // Try email-based validation first (paid users or already-registered device trials)
   const email = getSetting('userEmail')
   if (email) {
+    // If this is a device trial email, re-validate by device instead
+    if (email.endsWith('@device.voxgen.app')) {
+      const deviceId = getDeviceId()
+      if (deviceId && deviceId !== 'unknown') {
+        const lastCheck = getSetting('lastLicenseCheck')
+        const elapsed = Date.now() - lastCheck
+        if (elapsed < REVALIDATION_INTERVAL_MS) {
+          console.log('[VoxGen] Device trial check skipped (cached)')
+          return
+        }
+        console.log('[VoxGen] Revalidating device trial on startup...')
+        await registerDeviceTrial(deviceId)
+        return
+      }
+    }
+
     const lastCheck = getSetting('lastLicenseCheck')
     const elapsed = Date.now() - lastCheck
     if (elapsed < REVALIDATION_INTERVAL_MS) {
@@ -124,6 +188,17 @@ export async function checkLicenseOnStartup(): Promise<void> {
     console.log('[VoxGen] Revalidating license by email on startup...')
     await validateByEmail(email)
     return
+  }
+
+  // No email set — auto-register device trial for managed mode
+  const deviceId = getDeviceId()
+  if (deviceId && deviceId !== 'unknown') {
+    const trial = getTrialInfo()
+    if (!trial.isExpired) {
+      console.log('[VoxGen] No email set — registering device trial for managed mode...')
+      await registerDeviceTrial(deviceId)
+      return
+    }
   }
 
   // Fallback to legacy key-based validation

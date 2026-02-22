@@ -98,6 +98,7 @@ export function LicenseInput() {
   const isExpired = status === 'expired'
   const trialExpired = trialDaysLeft <= 0
   const hasEmail = !!licenseInfo?.userEmail
+  const isDeviceTrial = hasEmail && licenseInfo?.userEmail?.endsWith('@device.voxgen.app')
   const isPaidPlan = isActive && licenseInfo?.licensePlan && licenseInfo.licensePlan !== 'Trial'
 
   return (
@@ -121,13 +122,14 @@ export function LicenseInput() {
                   className="text-primary hover:underline"
                 >
                   buy a license
-                </a>.
+                </a>{' '}
+                to continue with managed API keys.
               </p>
             </div>
           ) : (
             <div className="text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Free trial (own API key)</span>
+                <span className="text-muted-foreground">30-day free trial</span>
                 <span className="font-medium">{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left</span>
               </div>
               <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
@@ -152,7 +154,7 @@ export function LicenseInput() {
                 </span>
                 <span className="text-sm font-medium">{licenseInfo?.licensePlan || 'Pro'}</span>
               </div>
-              {licenseInfo?.userEmail && (
+              {licenseInfo?.userEmail && !isDeviceTrial && (
                 <p className="text-xs text-muted-foreground mt-1">{licenseInfo.userEmail}</p>
               )}
               {/* Trial — show days remaining + progress bar */}
@@ -185,7 +187,7 @@ export function LicenseInput() {
               )}
             </div>
             <div className="flex items-center gap-1">
-              {licenseInfo?.licenseExpiresAt && (
+              {licenseInfo?.licenseExpiresAt && !isDeviceTrial && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -196,16 +198,18 @@ export function LicenseInput() {
                   {portalLoading ? 'Opening...' : 'Manage Subscription'}
                 </Button>
               )}
-              <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-xs text-muted-foreground">
-                Sign Out
-              </Button>
+              {!isDeviceTrial && (
+                <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-xs text-muted-foreground">
+                  Sign Out
+                </Button>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Expired license display */}
-      {isExpired && hasEmail && (
+      {/* Expired license display (paid users only, not device trials) */}
+      {isExpired && hasEmail && !isDeviceTrial && (
         <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3">
           <div className="flex items-center justify-between">
             <div>
@@ -230,12 +234,12 @@ export function LicenseInput() {
         </div>
       )}
 
-      {/* Email input (when no active license) */}
-      {!isActive && (
+      {/* Email input — shown when no active license OR when on device trial (to upgrade) */}
+      {(!isActive || isDeviceTrial) && (
         <div className="flex gap-2">
           <Input
             type="email"
-            placeholder="Enter purchase email"
+            placeholder={isDeviceTrial ? 'Enter purchase email to upgrade' : 'Enter purchase email'}
             value={inputEmail}
             onChange={(e) => {
               setInputEmail(e.target.value)
@@ -260,8 +264,8 @@ export function LicenseInput() {
         <p className="text-xs text-red-400">{error}</p>
       )}
 
-      {/* Buy link when no license and not showing trial expired (which already has the link) */}
-      {!isActive && !trialExpired && !hasEmail && (
+      {/* Buy link when no active paid license */}
+      {!isActive && !trialExpired && (
         <p className="text-xs text-muted-foreground">
           <a
             href="https://voxgenflow.vercel.app/#pricing"
@@ -271,7 +275,7 @@ export function LicenseInput() {
           >
             Buy a license
           </a>{' '}
-          for managed API keys — no setup needed.
+          to keep managed API keys after your trial ends.
         </p>
       )}
     </div>

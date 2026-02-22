@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.14.0',
+    date: '2026-02-22',
+    highlights: [
+      'Zero-friction trial — download and start dictating immediately, no email or account needed',
+      '30-day free trial with managed API keys (Groq Whisper) — just press Alt and speak',
+      'Removed email gate from download page and website — direct download',
+      'After trial: enter your purchase email to activate a license, or bring your own API key',
+    ],
+  },
+  {
     version: '2.13.4',
     date: '2026-02-22',
     highlights: [
