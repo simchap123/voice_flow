@@ -85,7 +85,7 @@ export function LicenseInput() {
     }
   }
 
-  async function handleRemove() {
+  async function handleSignOut() {
     if (!window.electronAPI) return
     await window.electronAPI.clearLicense()
     setInputEmail('')
@@ -98,6 +98,7 @@ export function LicenseInput() {
   const isExpired = status === 'expired'
   const trialExpired = trialDaysLeft <= 0
   const hasEmail = !!licenseInfo?.userEmail
+  const isPaidPlan = isActive && licenseInfo?.licensePlan && licenseInfo.licensePlan !== 'Trial'
 
   return (
     <div className="space-y-3">
@@ -112,7 +113,7 @@ export function LicenseInput() {
             <div className="text-sm">
               <span className="text-red-400 font-medium">Trial expired</span>
               <p className="text-xs text-muted-foreground mt-1">
-                Enter the email you used to purchase a license, or{' '}
+                Enter the email you used to purchase, or{' '}
                 <a
                   href="https://voxgenflow.vercel.app/#pricing"
                   target="_blank"
@@ -126,7 +127,7 @@ export function LicenseInput() {
           ) : (
             <div className="text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Free trial</span>
+                <span className="text-muted-foreground">Free trial (own API key)</span>
                 <span className="font-medium">{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left</span>
               </div>
               <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
@@ -195,8 +196,8 @@ export function LicenseInput() {
                   {portalLoading ? 'Opening...' : 'Manage Subscription'}
                 </Button>
               )}
-              <Button variant="ghost" size="sm" onClick={handleRemove} className="text-xs text-muted-foreground">
-                Remove
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-xs text-muted-foreground">
+                Sign Out
               </Button>
             </div>
           </div>
@@ -222,8 +223,8 @@ export function LicenseInput() {
                 </a>
               </p>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleRemove} className="text-xs text-muted-foreground">
-              Remove
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-xs text-muted-foreground">
+              Sign Out
             </Button>
           </div>
         </div>
@@ -234,7 +235,7 @@ export function LicenseInput() {
         <div className="flex gap-2">
           <Input
             type="email"
-            placeholder="Enter your email"
+            placeholder="Enter purchase email"
             value={inputEmail}
             onChange={(e) => {
               setInputEmail(e.target.value)
@@ -270,7 +271,7 @@ export function LicenseInput() {
           >
             Buy a license
           </a>{' '}
-          to support development and unlock all features.
+          for managed API keys — no setup needed.
         </p>
       )}
     </div>

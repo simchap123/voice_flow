@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.13.4',
+    date: '2026-02-22',
+    highlights: [
+      'Fixed trial security — entering a random email no longer grants free managed mode',
+      'Trial is now local-only (30 days, bring your own API key). Purchase a license for managed API keys.',
+      'Live audio waveform in recording overlay',
+      'Settings always visible in sidebar',
+    ],
+  },
+  {
     version: '2.13.3',
     date: '2026-02-22',
     highlights: [

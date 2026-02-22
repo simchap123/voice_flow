@@ -2,8 +2,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { supabase } from './lib/supabase'
 import { isValidEmail } from './lib/validate-email'
 
-const TRIAL_DAYS = 30
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -33,26 +31,10 @@ async function validateByEmail(email: string, res: VercelResponse) {
       .single()
 
     if (!user) {
-      // New user — create row and start trial immediately
-      const now = new Date().toISOString()
-      const { error: createErr } = await supabase
-        .from('users')
-        .upsert(
-          { email, trial_started_at: now },
-          { onConflict: 'email', ignoreDuplicates: false }
-        )
-
-      if (createErr) {
-        console.error('[validate-license] Failed to upsert user:', createErr.message)
-        return res.status(500).json({ error: 'Failed to create user' })
-      }
-
+      // No user found — don't auto-create. User must purchase first.
       return res.status(200).json({
-        valid: true,
-        plan: 'Trial',
-        planSlug: 'trial',
-        trialDaysLeft: TRIAL_DAYS,
-        expiresAt: null,
+        valid: false,
+        error: 'No license found for this email',
       })
     }
 
@@ -97,47 +79,10 @@ async function validateByEmail(email: string, res: VercelResponse) {
       })
     }
 
-    // No active license — handle trial
-    const trialStartedAt = user.trial_started_at
-      ? new Date(user.trial_started_at)
-      : null
-
-    if (!trialStartedAt) {
-      // Existing user without trial — start trial now
-      await supabase
-        .from('users')
-        .update({ trial_started_at: new Date().toISOString() })
-        .eq('id', user.id)
-
-      return res.status(200).json({
-        valid: true,
-        plan: 'Trial',
-        planSlug: 'trial',
-        trialDaysLeft: TRIAL_DAYS,
-        expiresAt: null,
-      })
-    }
-
-    const elapsed = Date.now() - trialStartedAt.getTime()
-    const daysUsed = elapsed / (1000 * 60 * 60 * 24)
-    const daysLeft = Math.max(0, Math.ceil(TRIAL_DAYS - daysUsed))
-
-    if (daysLeft <= 0) {
-      return res.status(200).json({
-        valid: false,
-        plan: 'Trial',
-        planSlug: 'trial',
-        trialDaysLeft: 0,
-        error: 'Trial expired',
-      })
-    }
-
+    // User exists but has no active license
     return res.status(200).json({
-      valid: true,
-      plan: 'Trial',
-      planSlug: 'trial',
-      trialDaysLeft: daysLeft,
-      expiresAt: null,
+      valid: false,
+      error: 'No active license for this email',
     })
   } catch (err: any) {
     console.error('[validate-license] Email validation error:', err.message)

@@ -427,8 +427,8 @@
               '<h3>Manual activation:</h3>' +
               '<ol>' +
                 '<li>Open <strong>VoxGen</strong> on your computer</li>' +
-                '<li>Click your <strong>avatar</strong> (top-right) &rarr; <strong>Account</strong></li>' +
-                '<li>Enter your email: <strong>' + escapeHtml(data.email) + '</strong></li>' +
+                '<li>Click <strong>Settings</strong> in the sidebar</li>' +
+                '<li>Scroll to <strong>Account</strong> and enter: <strong>' + escapeHtml(data.email) + '</strong></li>' +
                 '<li>Click <strong>Activate</strong></li>' +
               '</ol>' +
             '</div>';
@@ -506,9 +506,12 @@
     var status = document.getElementById('activate-status');
     if (status) {
       status.style.display = 'block';
+      status.textContent = 'Opening VoxGen...';
+      // After a short delay, show fallback instructions since deep links may not work on all systems
       setTimeout(function() {
-        status.textContent = 'VoxGen should open and activate automatically. If not, use manual activation below.';
-      }, 3000);
+        status.innerHTML = 'If VoxGen didn\'t open, <strong>copy your email</strong> and paste it in Settings &rarr; Account.';
+        status.style.color = 'var(--gray-500)';
+      }, 2500);
     }
   }
 
