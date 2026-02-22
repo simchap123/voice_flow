@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { toast } from '@/hooks/useToast'
-import { Cloud } from 'lucide-react'
+import { Cloud, Check, Wifi } from 'lucide-react'
 import type { STTProviderType } from '@/lib/stt/types'
 import type { CleanupProviderType, OutputLength } from '@/lib/cleanup/types'
 
@@ -16,15 +16,15 @@ const OUTPUT_LENGTHS: { value: OutputLength; label: string; description: string 
   { value: 'detailed', label: 'Detailed', description: 'Thorough with examples' },
 ]
 
-const STT_PROVIDERS: { value: STTProviderType; label: string; description: string; disabled?: boolean }[] = [
-  { value: 'openai', label: 'OpenAI Whisper', description: 'High accuracy, $0.006/min' },
-  { value: 'groq', label: 'Groq Whisper', description: 'Fast & cheap, $0.04/hr' },
-  { value: 'local', label: 'Local (Free, Offline)', description: 'Free, offline, private' },
+const STT_PROVIDERS: { value: STTProviderType; label: string; description: string; keyPrefix?: string; keyPlaceholder?: string }[] = [
+  { value: 'openai', label: 'OpenAI Whisper', description: 'High accuracy, $0.006/min', keyPrefix: 'sk-', keyPlaceholder: 'sk-...' },
+  { value: 'groq', label: 'Groq Whisper', description: 'Fast & cheap, $0.04/hr', keyPrefix: 'gsk_', keyPlaceholder: 'gsk_...' },
+  { value: 'local', label: 'Local (Free, Offline)', description: 'Free, offline, private — no API key needed' },
 ]
 
-const CLEANUP_PROVIDERS: { value: CleanupProviderType; label: string; description: string }[] = [
-  { value: 'openai', label: 'OpenAI GPT-4o-mini', description: 'Best quality cleanup' },
-  { value: 'groq', label: 'Groq Llama', description: 'Fast & cheap cleanup' },
+const CLEANUP_PROVIDERS: { value: CleanupProviderType; label: string; description: string; keyPrefix?: string; keyPlaceholder?: string }[] = [
+  { value: 'openai', label: 'OpenAI GPT-4o-mini', description: 'Best quality cleanup', keyPrefix: 'sk-', keyPlaceholder: 'sk-...' },
+  { value: 'groq', label: 'Groq Llama', description: 'Fast & cheap cleanup', keyPrefix: 'gsk_', keyPlaceholder: 'gsk_...' },
 ]
 
 export function ProvidersSection() {
@@ -41,6 +41,12 @@ export function ProvidersSection() {
     }
     init()
   }, [])
+
+  const hasKeyFor = (provider: string) => {
+    if (provider === 'openai') return hasOpenAIKey
+    if (provider === 'groq') return hasGroqKey
+    return false
+  }
 
   const handleSaveKey = async (key: string, provider: string) => {
     const result = await saveApiKey(key, provider)
@@ -62,8 +68,7 @@ export function ProvidersSection() {
     toast({ title: 'API key deleted', description: `${provider} key removed from secure storage`, variant: 'success' })
   }
 
-  const needsOpenAI = settings.sttProvider === 'openai' || settings.cleanupProvider === 'openai'
-  const needsGroq = settings.sttProvider === 'groq' || settings.cleanupProvider === 'groq'
+  const isCloudProvider = (v: string) => v === 'openai' || v === 'groq'
 
   return (
     <div className="space-y-6">
@@ -80,8 +85,8 @@ export function ProvidersSection() {
             <div>
               <p className="text-sm font-medium">Using VoxGen Cloud</p>
               <p className="text-xs text-muted-foreground">
-                Your trial includes managed API access — no API keys needed.
-                Add your own keys below to use your preferred provider instead.
+                Your plan includes managed API access — no API keys needed.
+                You can still add your own keys below to use a specific provider.
               </p>
             </div>
           </CardContent>
@@ -94,36 +99,83 @@ export function ProvidersSection() {
           <CardTitle className="text-base">Speech Recognition</CardTitle>
           <CardDescription>
             {isManagedMode
-              ? 'Using Groq Whisper via VoxGen Cloud. Add your own key to choose a provider.'
+              ? 'Using Groq Whisper via VoxGen Cloud. Select a provider and add your own key to switch.'
               : 'Choose how your voice is transcribed to text'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid gap-2">
-            {STT_PROVIDERS.map((p) => (
-              <label
-                key={p.value}
-                className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
-                  settings.sttProvider === p.value
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-muted-foreground/30'
-                } ${p.disabled || isManagedMode ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name="sttProvider"
-                  value={p.value}
-                  checked={settings.sttProvider === p.value}
-                  onChange={() => { if (!p.disabled && !isManagedMode) updateSetting('sttProvider', p.value) }}
-                  disabled={p.disabled || isManagedMode}
-                  className="accent-primary"
-                />
-                <div>
-                  <div className="text-sm font-medium">{p.label}</div>
-                  <div className="text-xs text-muted-foreground">{p.description}</div>
+            {STT_PROVIDERS.map((p) => {
+              const isSelected = settings.sttProvider === p.value
+              const isCloud = isCloudProvider(p.value)
+              const hasKey = hasKeyFor(p.value)
+              // Show inline key input when: selected + cloud + no key yet + not managed
+              // Also show when: selected + cloud + has key (for replace/delete)
+              const showInlineKey = isSelected && isCloud && !isManagedMode
+
+              return (
+                <div key={p.value}>
+                  <label
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-all ${
+                      isSelected
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-muted-foreground/30'
+                    } ${showInlineKey ? 'rounded-b-none border-b-0' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="sttProvider"
+                      value={p.value}
+                      checked={isSelected}
+                      onChange={() => updateSetting('sttProvider', p.value)}
+                      className="accent-primary"
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{p.label}</div>
+                      <div className="text-xs text-muted-foreground">{p.description}</div>
+                    </div>
+                    {isCloud && hasKey && (
+                      <span className="flex items-center gap-1 text-xs text-green-500">
+                        <Check className="h-3 w-3" />
+                        Key set
+                      </span>
+                    )}
+                    {isSelected && isCloud && isManagedMode && (
+                      <span className="flex items-center gap-1 text-xs text-primary">
+                        <Wifi className="h-3 w-3" />
+                        Cloud
+                      </span>
+                    )}
+                  </label>
+                  {/* Inline API key input — expands directly under the selected cloud provider */}
+                  {showInlineKey && (
+                    <div className="rounded-b-lg border border-primary bg-primary/[0.02] p-3 animate-in slide-in-from-top-1 duration-200">
+                      <ProviderApiKeyInput
+                        provider={p.value}
+                        label={`${p.label.split(' ')[0]} API Key`}
+                        placeholder={p.keyPlaceholder ?? ''}
+                        hasKey={hasKey}
+                        onSave={handleSaveKey}
+                        onDelete={handleDeleteKey}
+                      />
+                    </div>
+                  )}
+                  {/* Managed mode note — shown when managed user selects a cloud provider */}
+                  {isSelected && isCloud && isManagedMode && (
+                    <div className="rounded-b-lg border border-primary/30 bg-primary/[0.03] px-3 py-2 text-xs text-muted-foreground -mt-px">
+                      <Wifi className="inline h-3 w-3 mr-1 text-primary" />
+                      Using VoxGen Cloud — no API key needed. Add your own key to override:
+                      <button
+                        onClick={() => {/* Expand key input by switching off managed for display */}}
+                        className="ml-1 text-primary hover:underline font-medium"
+                      >
+                        Enter key
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </label>
-            ))}
+              )
+            })}
           </div>
           {settings.sttProvider === 'local' && (
             <LocalModelManager
@@ -148,65 +200,60 @@ export function ProvidersSection() {
             />
           </div>
         </CardHeader>
-        {settings.cleanupEnabled && !isManagedMode && (
+        {settings.cleanupEnabled && (
           <CardContent>
             <div className="grid gap-2">
-              {CLEANUP_PROVIDERS.map((p) => (
-                <label
-                  key={p.value}
-                  className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors ${
-                    settings.cleanupProvider === p.value
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-muted-foreground/30'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="cleanupProvider"
-                    value={p.value}
-                    checked={settings.cleanupProvider === p.value}
-                    onChange={() => updateSetting('cleanupProvider', p.value)}
-                    className="accent-primary"
-                  />
-                  <div>
-                    <div className="text-sm font-medium">{p.label}</div>
-                    <div className="text-xs text-muted-foreground">{p.description}</div>
+              {CLEANUP_PROVIDERS.map((p) => {
+                const isSelected = settings.cleanupProvider === p.value
+                const hasKey = hasKeyFor(p.value)
+                const showInlineKey = isSelected && !isManagedMode
+
+                return (
+                  <div key={p.value}>
+                    <label
+                      className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-all ${
+                        isSelected
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-muted-foreground/30'
+                      } ${showInlineKey ? 'rounded-b-none border-b-0' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="cleanupProvider"
+                        value={p.value}
+                        checked={isSelected}
+                        onChange={() => updateSetting('cleanupProvider', p.value)}
+                        className="accent-primary"
+                      />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">{p.label}</div>
+                        <div className="text-xs text-muted-foreground">{p.description}</div>
+                      </div>
+                      {hasKey && (
+                        <span className="flex items-center gap-1 text-xs text-green-500">
+                          <Check className="h-3 w-3" />
+                          Key set
+                        </span>
+                      )}
+                    </label>
+                    {showInlineKey && (
+                      <div className="rounded-b-lg border border-primary bg-primary/[0.02] p-3 animate-in slide-in-from-top-1 duration-200">
+                        <ProviderApiKeyInput
+                          provider={p.value}
+                          label={`${p.label.split(' ')[0]} API Key`}
+                          placeholder={p.keyPlaceholder ?? ''}
+                          hasKey={hasKey}
+                          onSave={handleSaveKey}
+                          onDelete={handleDeleteKey}
+                        />
+                      </div>
+                    )}
                   </div>
-                </label>
-              ))}
+                )
+              })}
             </div>
           </CardContent>
         )}
-      </Card>
-
-      {/* API Keys — always show so users can enter BYOK to override managed mode */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base">API Keys</CardTitle>
-          <CardDescription>
-            {isManagedMode
-              ? 'Optional — add your own keys to use your preferred provider and bypass VoxGen Cloud'
-              : 'Your keys are encrypted on-device'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ProviderApiKeyInput
-            provider="openai"
-            label="OpenAI API Key"
-            placeholder="sk-..."
-            hasKey={hasOpenAIKey}
-            onSave={handleSaveKey}
-            onDelete={handleDeleteKey}
-          />
-          <ProviderApiKeyInput
-            provider="groq"
-            label="Groq API Key"
-            placeholder="gsk_..."
-            hasKey={hasGroqKey}
-            onSave={handleSaveKey}
-            onDelete={handleDeleteKey}
-          />
-        </CardContent>
       </Card>
 
       {/* Advanced */}
