@@ -147,11 +147,21 @@ export class LocalWhisperProvider implements STTProvider {
 
   private async decodeAudioToFloat32(blob: Blob): Promise<Float32Array> {
     const arrayBuffer = await blob.arrayBuffer()
-    const audioCtx = new OfflineAudioContext(1, 1, 16000)
+    if (arrayBuffer.byteLength === 0) {
+      throw new Error('Recording is empty — no audio data captured.')
+    }
+
+    // Decode compressed audio (WebM/Opus) to raw PCM
+    const audioCtx = new OfflineAudioContext(1, 16000, 16000)
     const decoded = await audioCtx.decodeAudioData(arrayBuffer)
 
+    if (decoded.duration === 0 || decoded.length === 0) {
+      throw new Error('Recording is empty — no audio data captured.')
+    }
+
     // Resample to 16kHz mono
-    const offlineCtx = new OfflineAudioContext(1, Math.ceil(decoded.duration * 16000), 16000)
+    const targetLength = Math.max(1, Math.ceil(decoded.duration * 16000))
+    const offlineCtx = new OfflineAudioContext(1, targetLength, 16000)
     const source = offlineCtx.createBufferSource()
     source.buffer = decoded
     source.connect(offlineCtx.destination)
