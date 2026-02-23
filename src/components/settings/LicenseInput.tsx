@@ -24,6 +24,7 @@ export function LicenseInput() {
   const [trialDaysLeft, setTrialDaysLeft] = useState(30)
   const [showPlanPicker, setShowPlanPicker] = useState(false)
   const [planPickerEmail, setPlanPickerEmail] = useState('')
+  const [showActivateForm, setShowActivateForm] = useState(false)
 
   useEffect(() => {
     loadLicenseInfo()
@@ -258,30 +259,46 @@ export function LicenseInput() {
         </div>
       )}
 
-      {/* Email input — shown when no active license OR when on device trial (to upgrade) */}
-      {(!isActive || isDeviceTrial) && (
-        <div className="flex gap-2">
-          <Input
-            type="email"
-            placeholder={isDeviceTrial ? 'Enter purchase email to upgrade' : 'Enter purchase email'}
-            value={inputEmail}
-            onChange={(e) => {
-              setInputEmail(e.target.value)
-              setError('')
-            }}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleActivate() }}
-            className="text-sm"
-          />
-          <Button
-            onClick={handleActivate}
-            disabled={!inputEmail.trim() || !inputEmail.includes('@') || checking}
-            size="sm"
-            className="shrink-0"
-          >
-            {checking ? 'Checking...' : 'Activate'}
-          </Button>
-        </div>
-      )}
+      {/* Email input — collapsed during active trial, expanded when expired or user clicks */}
+      {(!isActive || isDeviceTrial) && (() => {
+        const shouldCollapse = !trialExpired && !showActivateForm
+        if (shouldCollapse) {
+          return (
+            <p className="text-xs text-muted-foreground">
+              Already purchased?{' '}
+              <button
+                onClick={() => setShowActivateForm(true)}
+                className="text-primary hover:underline font-medium"
+              >
+                Activate license
+              </button>
+            </p>
+          )
+        }
+        return (
+          <div className="flex gap-2">
+            <Input
+              type="email"
+              placeholder={isDeviceTrial ? 'Enter purchase email to upgrade' : 'Enter purchase email'}
+              value={inputEmail}
+              onChange={(e) => {
+                setInputEmail(e.target.value)
+                setError('')
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleActivate() }}
+              className="text-sm"
+            />
+            <Button
+              onClick={handleActivate}
+              disabled={!inputEmail.trim() || !inputEmail.includes('@') || checking}
+              size="sm"
+              className="shrink-0"
+            >
+              {checking ? 'Checking...' : 'Activate'}
+            </Button>
+          </div>
+        )
+      })()}
 
       {/* Contextual error cards */}
       {error === 'No license found for this email' && (

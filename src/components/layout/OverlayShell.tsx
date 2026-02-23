@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { X, Lock } from 'lucide-react'
+import { X, Lock, Download } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
 import { useSnippets } from '@/hooks/useSnippets'
 import { useCustomPrompts } from '@/hooks/useCustomPrompts'
+import { useModelDownload } from '@/hooks/useModelDownload'
 import { PREDEFINED_PROMPTS } from '@/lib/cleanup/predefined-prompts'
 import type { PowerMode } from '@/types/power-mode'
 
@@ -72,6 +73,7 @@ export function OverlayShell() {
   const { settings, hasApiKey, isManagedMode, isLoaded, updateSetting } = useSettings()
   const { snippets } = useSnippets()
   const { userPrompts } = useCustomPrompts()
+  const { isDownloading: modelDownloading, progress: modelProgress } = useModelDownload(settings.sttProvider)
 
   // Load power modes once
   useEffect(() => {
@@ -256,6 +258,20 @@ export function OverlayShell() {
           >
             <X className="h-2.5 w-2.5 text-white/30 hover:text-white/50" />
           </button>
+        </div>
+      </div>
+    )
+  }
+
+  // --- MODEL DOWNLOADING: translucent pill with progress (click-through) ---
+  if (modelDownloading && !isRecording) {
+    return (
+      <div className="flex h-full w-full items-end justify-center pb-2">
+        <div className="flex h-7 items-center gap-1.5 rounded-full bg-white/[0.06] border border-white/[0.06] px-2.5 opacity-40">
+          <Download className="h-2.5 w-2.5 text-white/60 animate-pulse" />
+          <span className="text-[10px] font-medium text-white/50">
+            {modelProgress > 0 ? `${modelProgress}%` : 'Loading…'}
+          </span>
         </div>
       </div>
     )

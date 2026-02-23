@@ -9,6 +9,7 @@ import { Mic, Zap, User, Sparkles, Bell, Key, X, RefreshCw, Check, Download, Bug
 import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/useToast'
 import type { STTProviderType } from '@/lib/stt/types'
+import { useModelDownload } from '@/hooks/useModelDownload'
 
 const ADMIN_EMAIL = 'spentelnik@gmail.com'
 
@@ -226,6 +227,7 @@ export function SettingsPage() {
 
   const currentSTT = settings.sttProvider || 'groq'
   const currentKeyExists = currentSTT === 'openai' ? hasOpenAIKey : currentSTT === 'groq' ? hasGroqKey : false
+  const { isDownloading: modelDownloading, progress: modelProgress, isReady: modelReady, startDownload } = useModelDownload(currentSTT)
 
   return (
     <ScrollArea className="h-full">
@@ -371,6 +373,41 @@ export function SettingsPage() {
                       >
                         <Key className="w-3 h-3" />
                         Add API key
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Local model status — inline row */}
+              {currentSTT === 'local' && (
+                <div className="flex items-center gap-5 mt-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Model</div>
+                  </div>
+                  <div className="flex-1 flex items-center gap-2">
+                    {modelDownloading ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="h-1.5 flex-1 max-w-[120px] overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full rounded-full bg-primary transition-all duration-300"
+                            style={{ width: `${modelProgress}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] text-muted-foreground/60 font-medium">{modelProgress}%</span>
+                      </div>
+                    ) : modelReady ? (
+                      <span className="flex items-center gap-1.5 text-[11px] text-green-600 font-medium">
+                        <Check className="w-3 h-3" />
+                        Model ready
+                      </span>
+                    ) : (
+                      <button
+                        onClick={startDownload}
+                        className="flex items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                      >
+                        <Download className="w-3 h-3" />
+                        Download model
                       </button>
                     )}
                   </div>

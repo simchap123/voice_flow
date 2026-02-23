@@ -241,6 +241,10 @@ export function canUseApp(): boolean {
   const status = getSetting('licenseStatus') as LicenseStatus
   if (status === 'active') return true
 
+  // Local STT is free forever — no trial/license needed
+  const sttProvider = getSetting('sttProvider')
+  if (sttProvider === 'local') return true
+
   // Otherwise check trial (local fallback for offline scenarios)
   const trial = getTrialInfo()
   return !trial.isExpired
