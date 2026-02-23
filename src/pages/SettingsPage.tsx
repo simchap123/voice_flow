@@ -146,7 +146,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'account', label: 'Account' },
 ]
 
-const STT_OPTIONS: { value: STTProviderType; label: string; disabled?: boolean }[] = [
+const STT_OPTIONS_BASE: { value: STTProviderType; label: string }[] = [
   { value: 'groq', label: 'Groq' },
   { value: 'openai', label: 'OpenAI' },
   { value: 'local', label: 'Local' },
@@ -227,6 +227,12 @@ export function SettingsPage() {
 
   const currentSTT = settings.sttProvider || 'groq'
   const currentKeyExists = currentSTT === 'openai' ? hasOpenAIKey : currentSTT === 'groq' ? hasGroqKey : false
+
+  // OpenAI requires own key — disable if no key
+  const STT_OPTIONS = STT_OPTIONS_BASE.map(opt => ({
+    ...opt,
+    disabled: opt.value === 'openai' && !hasOpenAIKey,
+  }))
   const { isDownloading: modelDownloading, progress: modelProgress, isReady: modelReady, startDownload } = useModelDownload(currentSTT)
 
   return (
@@ -327,7 +333,7 @@ export function SettingsPage() {
                           updateSetting('sttProvider', opt.value)
                           toast({ title: `Switched to ${opt.label}`, variant: 'success' })
                         }}
-                        title={opt.disabled ? 'Coming soon' : undefined}
+                        title={opt.disabled ? 'Requires API key' : undefined}
                         className={`flex-1 rounded-[5px] px-3 py-1.5 text-[11px] font-medium transition-all duration-150 ${
                           opt.disabled
                             ? 'text-muted-foreground/30 cursor-not-allowed'
@@ -336,18 +342,18 @@ export function SettingsPage() {
                               : 'text-muted-foreground/60 hover:text-foreground border border-transparent cursor-pointer'
                         }`}
                       >
-                        {opt.label}{opt.disabled ? ' (soon)' : ''}
+                        {opt.label}
                       </button>
                     ))}
                   </div>
-                  {isManagedMode && (
-                    <p className="mt-1.5 text-[10px] text-muted-foreground/40">Using VoxGen Cloud — add your own key below to use a preferred provider</p>
+                  {isManagedMode && currentSTT === 'groq' && (
+                    <p className="mt-1.5 text-[10px] text-muted-foreground/40">Using VoxGen Cloud — add your own Groq key below to use your own account</p>
                   )}
                 </div>
               </div>
 
               {/* API Key — compact row with popup */}
-              {currentSTT !== 'local' && !isManagedMode && (
+              {currentSTT !== 'local' && (
                 <div className="flex items-center gap-5 mt-3">
                   <div className="w-[160px] shrink-0">
                     <div className="text-[13px] font-medium text-muted-foreground">API Key</div>

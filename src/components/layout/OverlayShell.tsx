@@ -112,11 +112,13 @@ export function OverlayShell() {
     return () => document.removeEventListener('click', handler)
   }, [showPromptPicker])
 
-  // When in managed mode, route through proxy providers
-  const effectiveSttProvider = isManagedMode ? 'managed' : settings.sttProvider
-  const effectiveCleanupProvider = isManagedMode
-    ? (settings.cleanupEnabled ? 'managed' : 'none')
-    : settings.cleanupProvider
+  // Local always uses local; managed proxy only for Groq (server-side key)
+  const effectiveSttProvider = settings.sttProvider === 'local'
+    ? 'local'
+    : (isManagedMode ? 'managed' : settings.sttProvider)
+  const effectiveCleanupProvider = settings.sttProvider === 'local'
+    ? (settings.cleanupEnabled ? settings.cleanupProvider : 'none')
+    : (isManagedMode ? (settings.cleanupEnabled ? 'managed' : 'none') : settings.cleanupProvider)
 
   const recording = useRecordingState({
     language: settings.language,

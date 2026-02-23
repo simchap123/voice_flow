@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.2',
+    date: '2026-02-23',
+    highlights: [
+      'Local STT always uses on-device Whisper — never routed through cloud proxy',
+      'OpenAI option disabled when no API key (requires own key)',
+      'Managed cloud proxy only applies to Groq, with clearer hint text',
+      'API key input now visible in managed mode so users can add their own key',
+    ],
+  },
+  {
     version: '2.15.1',
     date: '2026-02-23',
     highlights: [
