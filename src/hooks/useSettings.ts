@@ -150,7 +150,8 @@ export function useSettingsProvider(): SettingsContextValue {
       }
 
       if (loadedSettings.sttProvider === 'local') {
-        const { getLocalWhisperProvider } = await import('@/lib/stt/provider-factory')
+        const { getSTTProvider, getLocalWhisperProvider } = await import('@/lib/stt/provider-factory')
+        getSTTProvider('local') // Ensure singleton is created before getLocalWhisperProvider
         const localProvider = getLocalWhisperProvider()
         localProvider?.setModelSize(loadedSettings.localModelSize)
         // Pre-load model in background so first dictation is instant
@@ -167,20 +168,42 @@ export function useSettingsProvider(): SettingsContextValue {
   // Listen for settings changed in other windows (e.g. main window changes, overlay picks up)
   useEffect(() => {
     const cleanup = window.electronAPI?.onSettingChanged?.((key: string, value: any) => {
-      setSettings(prev => ({ ...prev, [key]: value }))
+      setSettings(prev => {
+        const next = { ...prev, [key]: value }
 
-      // If userEmail changed, re-check managed mode
-      if (key === 'userEmail') {
-        if (value) {
-          initManagedProviders(value)
-          setIsManagedMode(true)
-          setHasApiKey(true)
-        } else {
-          // Email cleared (license:clear) — disable managed mode
-          setIsManagedMode(false)
-          setHasApiKey(false)
+        // Recalculate hasApiKey when sttProvider changes from another window
+        if (key === 'sttProvider') {
+          if (value === 'local') {
+            setHasApiKey(true)
+          } else if (window.electronAPI) {
+            window.electronAPI.hasApiKey(value as string).then(has => {
+              // Only update if still on this provider
+              setSettings(curr => {
+                if (curr.sttProvider === value) setHasApiKey(has)
+                return curr
+              })
+            })
+          }
         }
-      }
+
+        // If userEmail changed, re-check managed mode
+        if (key === 'userEmail') {
+          if (value) {
+            initManagedProviders(value)
+            setIsManagedMode(true)
+            setHasApiKey(true)
+          } else {
+            // Email cleared (license:clear) — disable managed mode
+            setIsManagedMode(false)
+            // Only clear hasApiKey if not using local (local needs no key)
+            if (next.sttProvider !== 'local') {
+              setHasApiKey(false)
+            }
+          }
+        }
+
+        return next
+      })
     })
     return () => cleanup?.()
   }, [])

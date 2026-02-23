@@ -156,7 +156,8 @@ export function OverlayShell() {
   // Listen for hotkey commands from main process
   useElectronBridge({
     onStart: (data) => {
-      if (!hasApiKey) {
+      // Local STT never needs an API key — skip the check entirely
+      if (settings.sttProvider !== 'local' && !hasApiKey) {
         const provider = settings.sttProvider || 'groq'
         const providerLabel = provider === 'openai' ? 'OpenAI' : provider === 'groq' ? 'Groq' : provider
         setOverlayError(`No ${providerLabel} key — add one or switch to Local`)

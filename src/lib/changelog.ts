@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.4',
+    date: '2026-02-23',
+    highlights: [
+      'Fixed: Local STT now works reliably — model preload no longer silently fails',
+      'Local recording always starts regardless of API key or email state',
+      'Switching to Local from another window correctly updates overlay',
+      'Clearing email no longer breaks local-only recording',
+    ],
+  },
+  {
     version: '2.15.3',
     date: '2026-02-23',
     highlights: [
