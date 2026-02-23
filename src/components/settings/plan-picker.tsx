@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Check, Crown, Loader2, Zap } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { ArrowLeft, Crown, Loader2, Mail, Zap } from 'lucide-react'
 
 interface PlanPickerProps {
-  email: string
+  email?: string
   onBack: () => void
   onActivated: () => void
 }
@@ -40,13 +41,16 @@ const PLANS = [
 
 type PlanId = 'monthly' | 'yearly' | 'lifetime'
 
-export function PlanPicker({ email, onBack, onActivated }: PlanPickerProps) {
+export function PlanPicker({ email: initialEmail, onBack, onActivated }: PlanPickerProps) {
+  const [email, setEmail] = useState(initialEmail || '')
   const [loading, setLoading] = useState<PlanId | null>(null)
   const [waitingForPayment, setWaitingForPayment] = useState(false)
   const [error, setError] = useState('')
+  const [emailError, setEmailError] = useState('')
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [timedOut, setTimedOut] = useState(false)
+  const emailInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     return () => {
@@ -55,15 +59,28 @@ export function PlanPicker({ email, onBack, onActivated }: PlanPickerProps) {
     }
   }, [])
 
+  function isValidEmail(e: string) {
+    return e.includes('@') && e.includes('.') && e.length >= 5
+  }
+
   async function handlePickPlan(plan: PlanId) {
+    const trimmed = email.trim().toLowerCase()
+
+    if (!trimmed || !isValidEmail(trimmed)) {
+      setEmailError('Enter your email to continue')
+      emailInputRef.current?.focus()
+      return
+    }
+
     setLoading(plan)
     setError('')
+    setEmailError('')
 
     try {
       const res = await fetch('https://voxgenflow.vercel.app/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, email }),
+        body: JSON.stringify({ plan, email: trimmed }),
       })
 
       const data = await res.json()
@@ -80,18 +97,18 @@ export function PlanPicker({ email, onBack, onActivated }: PlanPickerProps) {
       setWaitingForPayment(true)
 
       // Start polling for license
-      startPolling()
+      startPolling(trimmed)
     } catch {
       setError('Connection failed. Check your internet.')
       setLoading(null)
     }
   }
 
-  function startPolling() {
+  function startPolling(pollEmail: string) {
     // Poll every 5 seconds
     pollRef.current = setInterval(async () => {
       try {
-        const result = await window.electronAPI?.validateByEmail(email)
+        const result = await window.electronAPI?.validateByEmail(pollEmail)
         if (result?.valid) {
           stopPolling()
           onActivated()
@@ -163,15 +180,34 @@ export function PlanPicker({ email, onBack, onActivated }: PlanPickerProps) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-3 w-3" />
-          Back
-        </button>
-        <p className="text-[11px] text-muted-foreground truncate ml-2">{email}</p>
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-3 w-3" />
+        Back
+      </button>
+
+      {/* Email input — right in the plan picker */}
+      <div className="space-y-1">
+        <div className="relative">
+          <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            ref={emailInputRef}
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              setEmailError('')
+              setError('')
+            }}
+            className={`text-sm pl-8 ${emailError ? 'border-red-500/50 focus-visible:ring-red-500/30' : ''}`}
+          />
+        </div>
+        {emailError && (
+          <p className="text-[11px] text-red-400">{emailError}</p>
+        )}
       </div>
 
       <div className="space-y-2">

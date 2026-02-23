@@ -7,6 +7,13 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.2',
+    date: '2026-02-23',
+    highlights: [
+      'Cleaner purchase flow: email input moved into the plan picker — no need to enter email before viewing plans',
+    ],
+  },
+  {
     version: '2.16.1',
     date: '2026-02-23',
     highlights: [
