@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Loader2, X, Lock } from 'lucide-react'
+import { X, Lock } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
@@ -179,13 +179,12 @@ export function OverlayShell() {
   }, [recording.error])
 
   const isRecording = recording.state === 'RECORDING'
-  const isProcessing = recording.state === 'PROCESSING_STT' || recording.state === 'PROCESSING_CLEANUP' || recording.state === 'INJECTING'
 
   // Live audio level for waveform visualization
   const audioLevel = useAudioLevel(isRecording)
   const activeError = recording.error || overlayError
   const hasError = !!activeError
-  const isIdle = !isRecording && !isProcessing && !hasError && !trialExpired
+  const isIdle = !isRecording && !hasError && !trialExpired
 
   // Toggle click-through: idle = clicks pass through, active = interactive
   useEffect(() => {
@@ -257,18 +256,6 @@ export function OverlayShell() {
           >
             <X className="h-2.5 w-2.5 text-white/30 hover:text-white/50" />
           </button>
-        </div>
-      </div>
-    )
-  }
-
-  // --- PROCESSING STATE: single spinner pill ---
-  if (isProcessing) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="flex h-11 items-center gap-2.5 rounded-full bg-black/95 border border-white/[0.08] shadow-2xl shadow-black/50 px-5 backdrop-blur-xl">
-          <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />
-          <span className="text-xs font-medium text-white/60">Processing...</span>
         </div>
       </div>
     )

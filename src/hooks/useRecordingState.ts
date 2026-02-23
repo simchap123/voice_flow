@@ -190,8 +190,10 @@ export function useRecordingState(options: {
         : await whisper.transcribe(audioBlob, language)
       setRawText(raw)
 
-      // Cleanup phase — now runs through the multi-stage pipeline
-      setState('PROCESSING_CLEANUP')
+      // Cleanup phase — only show state if cleanup is actually enabled with a real provider
+      if (cleanupEnabled && cleanupProvider !== 'none') {
+        setState('PROCESSING_CLEANUP')
+      }
 
       // Build Phase 2 context from captures at recording start
       const context: PipelineOptions['context'] = {}

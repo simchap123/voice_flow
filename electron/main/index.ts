@@ -13,12 +13,10 @@ import { trackAppLaunch, setupErrorReporting } from './event-tracker'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Register voxgen:// deep link protocol (for auto-activation after purchase)
-if (process.defaultApp) {
-  // Dev mode: register with path to electron executable
-  if (process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient('voxgen', process.execPath, [path.resolve(process.argv[1])])
-  }
-} else {
+// Only register in production — NSIS installer handles primary registration.
+// In dev mode, skip to avoid overwriting the production registration with electron.exe
+// (which causes Chrome to show "Open Electron?" instead of "Open VoxGen?").
+if (!process.defaultApp) {
   app.setAsDefaultProtocolClient('voxgen')
 }
 

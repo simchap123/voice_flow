@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.0',
+    date: '2026-02-22',
+    highlights: [
+      'Local-first default — new installs use on-device Whisper for instant, private transcription',
+      'Whisper model pre-loads on startup so first dictation is near-instant',
+      'Removed "Processing..." overlay pill — overlay returns to idle immediately after recording',
+      'Cleanup disabled by default — raw local transcription with zero latency',
+      'Updated onboarding to emphasize local/private processing',
+    ],
+  },
+  {
     version: '2.14.4',
     date: '2026-02-22',
     highlights: [

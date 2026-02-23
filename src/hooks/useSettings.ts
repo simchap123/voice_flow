@@ -151,7 +151,12 @@ export function useSettingsProvider(): SettingsContextValue {
 
       if (loadedSettings.sttProvider === 'local') {
         const { getLocalWhisperProvider } = await import('@/lib/stt/provider-factory')
-        getLocalWhisperProvider()?.setModelSize(loadedSettings.localModelSize)
+        const localProvider = getLocalWhisperProvider()
+        localProvider?.setModelSize(loadedSettings.localModelSize)
+        // Pre-load model in background so first dictation is instant
+        localProvider?.loadModel().catch((err: any) => {
+          console.warn('[VoxGen] Background model preload failed:', err?.message)
+        })
       }
 
       setIsLoaded(true)

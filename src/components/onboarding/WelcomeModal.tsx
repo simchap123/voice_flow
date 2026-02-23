@@ -100,25 +100,25 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
                 </div>
                 <h2 className="text-xl font-semibold tracking-tight">Welcome to VoxGen</h2>
                 <p className="text-[13px] text-muted-foreground/70">
-                  AI dictation that works everywhere. Press a hotkey, speak, and polished text appears.
+                  AI dictation that works everywhere. Transcribes locally on your device — private, free, no API keys needed.
                 </p>
               </div>
 
               <div className="space-y-3">
                 <Feature
                   icon={<MicIcon />}
-                  title="System-wide dictation"
-                  desc="Works in any app — Slack, Word, VS Code, Gmail"
+                  title="Local & private"
+                  desc="Transcribes on-device — no cloud, no API keys, instant results"
                 />
                 <Feature
                   icon={<SparklesIcon />}
-                  title="AI-powered cleanup"
-                  desc="Removes filler words, fixes grammar, formats text"
+                  title="Works everywhere"
+                  desc="Dictate into any app — Slack, Word, VS Code, Gmail"
                 />
                 <Feature
                   icon={<ZapIcon />}
-                  title="Content generation"
-                  desc="Say 'write me an email about...' for full AI generation"
+                  title="Cloud upgrade available"
+                  desc="Switch to cloud STT in Settings for higher accuracy"
                 />
               </div>
 
@@ -318,12 +318,12 @@ export function WelcomeModal({ onComplete }: WelcomeModalProps) {
                 <HowToStep
                   num={2}
                   title="Speak naturally"
-                  desc="VoxGen records and transcribes in real time"
+                  desc="VoxGen transcribes locally on your device"
                 />
                 <HowToStep
                   num={3}
                   title="Release to paste"
-                  desc="Clean, polished text appears where your cursor was"
+                  desc="Transcribed text appears where your cursor was"
                 />
               </div>
 

@@ -17,8 +17,8 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 const DIST = process.env.DIST ?? path.join(__dirname, '../../dist')
 const preloadPath = path.join(__dirname, '../preload/index.cjs')
 
-// Overlay constants — compact floating pill
-const OVERLAY_WIDTH = 320
+// Overlay constants — minimal floating pill
+const OVERLAY_WIDTH = 200
 const OVERLAY_HEIGHT = 56
 
 export function createMainWindow(): BrowserWindow {

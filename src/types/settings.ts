@@ -65,11 +65,11 @@ export const defaultSettings: AppSettings = {
   language: 'en',
   audioInputDeviceId: 'default',
 
-  sttProvider: 'openai',
+  sttProvider: 'local',
   localModelSize: 'base',
 
   cleanupProvider: 'openai',
-  cleanupEnabled: true,
+  cleanupEnabled: false,
   codeMode: false,
 
   outputLength: 'medium',
