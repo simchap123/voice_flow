@@ -112,13 +112,14 @@ export function OverlayShell() {
     return () => document.removeEventListener('click', handler)
   }, [showPromptPicker])
 
-  // Local always uses local; managed proxy only for Groq (server-side key)
+  // Local STT always uses local; managed proxy only for cloud STT (Groq)
   const effectiveSttProvider = settings.sttProvider === 'local'
     ? 'local'
     : (isManagedMode ? 'managed' : settings.sttProvider)
-  const effectiveCleanupProvider = settings.sttProvider === 'local'
-    ? (settings.cleanupEnabled ? settings.cleanupProvider : 'none')
-    : (isManagedMode ? (settings.cleanupEnabled ? 'managed' : 'none') : settings.cleanupProvider)
+  // Cleanup can use managed proxy regardless of STT provider (local STT + cloud cleanup is valid)
+  const effectiveCleanupProvider = settings.cleanupEnabled
+    ? (isManagedMode ? 'managed' : settings.cleanupProvider)
+    : 'none'
 
   const recording = useRecordingState({
     language: settings.language,

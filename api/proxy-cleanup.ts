@@ -88,12 +88,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Proxy not configured' })
   }
 
-  const { email, action, text, mode, outputLength } = req.body as {
+  const { email, action, text, mode, outputLength, customPrompt } = req.body as {
     email?: string
     action?: string
     text?: string
     mode?: string
     outputLength?: string
+    customPrompt?: string
   }
 
   if (!email || !action || !text) {
@@ -106,7 +107,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Validate action is a known value (prevent parameter tampering)
-  const validActions = Object.keys(PROMPTS).concat('generateWithTemplate')
+  const validActions = Object.keys(PROMPTS).concat('generateWithTemplate', 'cleanupWithPrompt')
   if (!validActions.includes(action)) {
     return res.status(400).json({ error: `Unknown action: ${action}` })
   }
@@ -127,7 +128,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let temperature: number
     let maxTokens: number
 
-    if (action === 'generateWithTemplate') {
+    if (action === 'cleanupWithPrompt' && customPrompt) {
+      // Custom prompt from user — use it as the system prompt directly
+      // Limit prompt size to prevent abuse (max 2KB)
+      systemPrompt = customPrompt.slice(0, 2048)
+      temperature = 0.3
+      maxTokens = 2048
+    } else if (action === 'generateWithTemplate') {
       const modePrompt = MODE_PROMPTS[mode || 'general'] || MODE_PROMPTS.general
       const lengthInfo = LENGTH_INSTRUCTIONS[outputLength || 'medium'] || LENGTH_INSTRUCTIONS.medium
       systemPrompt = `${modePrompt}\n\nLength guideline: ${lengthInfo.instruction}`

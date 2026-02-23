@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.5',
+    date: '2026-02-23',
+    highlights: [
+      'Custom prompts now work — your active prompt is used as the AI system instruction',
+      'AI Prompt mode works with Local STT — cleanup uses cloud API while transcription stays local',
+      'Dictation cleanup respects active prompt (e.g. "Dictator" prompt cleans your way)',
+      'Managed cloud cleanup available for all STT providers, not just Groq',
+    ],
+  },
+  {
     version: '2.15.4',
     date: '2026-02-23',
     highlights: [

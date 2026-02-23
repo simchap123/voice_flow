@@ -149,8 +149,16 @@ export async function runCleanupPipeline(
       contextPrefix += `[Known terms: ${context.customVocabulary.join(', ')}]\n`
     }
 
-    if (codeMode) {
-      let instructions = contextPrefix ? contextPrefix + '\n' + text : text
+    const userMsg = contextPrefix ? contextPrefix + '\n' + text : text
+
+    if (customPromptInstructions && provider.cleanupWithPrompt) {
+      // Custom prompt active — use it as the system prompt
+      const sysPrompt = useSystemInstructions
+        ? buildCleanupPrompt(customPromptInstructions)
+        : customPromptInstructions
+      text = await provider.cleanupWithPrompt(sysPrompt, userMsg)
+    } else if (codeMode) {
+      let instructions = userMsg
       if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
       text = await provider.generateWithTemplate('code', instructions, outputLength)
     } else if (trigger.detected && trigger.triggerType) {
@@ -158,7 +166,7 @@ export async function runCleanupPipeline(
       if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
       text = await provider.generateWithTemplate(trigger.triggerType, instructions, outputLength)
     } else {
-      let instructions = contextPrefix ? contextPrefix + '\n' + text : text
+      let instructions = userMsg
       if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
       text = await provider.generateWithTemplate('general', instructions, outputLength)
     }
@@ -169,9 +177,17 @@ export async function runCleanupPipeline(
     if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
     text = await provider.generateWithTemplate(trigger.triggerType, instructions, outputLength)
   } else if (cleanupEnabled && cleanupProvider !== 'none' && text.trim()) {
-    // Normal dictation cleanup — simple v1 prompt, no context injection, fast
+    // Normal dictation cleanup
     stages.push('ai-cleanup')
-    text = await provider.cleanup(text)
+    if (customPromptInstructions && provider.cleanupWithPrompt) {
+      // Custom prompt active — use it instead of the default cleanup prompt
+      const sysPrompt = useSystemInstructions
+        ? buildCleanupPrompt(customPromptInstructions)
+        : customPromptInstructions
+      text = await provider.cleanupWithPrompt(sysPrompt, text)
+    } else {
+      text = await provider.cleanup(text)
+    }
   }
 
   // ── Stage 7: Output filter (always on) ──

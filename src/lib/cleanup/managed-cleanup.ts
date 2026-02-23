@@ -49,6 +49,11 @@ export class ManagedCleanupProvider implements CleanupProvider {
     return this.proxyRequest('cleanup', rawText)
   }
 
+  async cleanupWithPrompt(systemPrompt: string, userMessage: string): Promise<string> {
+    if (!userMessage.trim()) return userMessage
+    return this.proxyRequest('cleanupWithPrompt', userMessage, { customPrompt: systemPrompt })
+  }
+
   async generate(instructions: string): Promise<string> {
     if (!instructions.trim()) return instructions
     return this.proxyRequest('generate', instructions)
