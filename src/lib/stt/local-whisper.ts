@@ -39,15 +39,39 @@ export class LocalWhisperProvider implements STTProvider {
 
     const float32 = await this.decodeAudioToFloat32(audio)
 
-    const result = await this.pipe(float32, {
-      language: language === 'auto' ? undefined : language,
-      task: 'transcribe',
-    })
-
-    if (Array.isArray(result)) {
-      return result.map((r) => r.text).join(' ')
+    // Guard: need at least ~0.1s of audio (1600 samples at 16kHz)
+    if (float32.length < 1600) {
+      throw new Error('Recording too short — speak for at least a second.')
     }
-    return result.text
+
+    // Guard: check if audio is essentially silence (RMS below threshold)
+    let sumSquares = 0
+    for (let i = 0; i < float32.length; i++) {
+      sumSquares += float32[i] * float32[i]
+    }
+    const rms = Math.sqrt(sumSquares / float32.length)
+    if (rms < 0.001) {
+      throw new Error('No speech detected — microphone may be muted or too quiet.')
+    }
+
+    try {
+      const result = await this.pipe(float32, {
+        language: language === 'auto' ? undefined : language,
+        task: 'transcribe',
+      })
+
+      if (Array.isArray(result)) {
+        return result.map((r) => r.text).join(' ')
+      }
+      return result.text
+    } catch (err: any) {
+      // transformers.js throws "token_ids must be a non-empty array" when model
+      // generates zero tokens (very short/quiet audio that passed our guards)
+      if (err.message?.includes('token_ids') || err.message?.includes('non-empty array')) {
+        throw new Error('Could not transcribe — try speaking louder or longer.')
+      }
+      throw err
+    }
   }
 
   async isAvailable(): Promise<boolean> {

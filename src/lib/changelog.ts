@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.8',
+    date: '2026-02-23',
+    highlights: [
+      'Fixed: Local STT no longer crashes with "token_ids must be a non-empty array" on short or silent recordings',
+      'Audio validation — recordings too short (<0.1s) or silent are caught early with clear error messages',
+      'Graceful fallback if Whisper produces zero tokens — friendly message instead of cryptic error',
+    ],
+  },
+  {
     version: '2.15.7',
     date: '2026-02-23',
     highlights: [
