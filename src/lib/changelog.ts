@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.1',
+    date: '2026-02-23',
+    highlights: [
+      'Fixed: Cleanup AI no longer treats dictated text as instructions — hardened all prompts against prompt injection',
+      'Server-side managed mode cleanup also hardened with same anti-injection language',
+    ],
+  },
+  {
     version: '2.16.0',
     date: '2026-02-23',
     highlights: [
