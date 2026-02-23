@@ -27,13 +27,12 @@ export const SettingsContext = createContext<SettingsContextValue>({
   isLoaded: false,
 })
 
-// Initialize providers with their stored API keys
-async function initProvidersWithKeys(sttType: STTProviderType, cleanupType: CleanupProviderType, isElectron: boolean) {
-  const providersToInit = new Set<string>()
-  if (sttType !== 'local' && sttType !== 'managed') providersToInit.add(sttType)
-  if (cleanupType !== 'none' && cleanupType !== 'managed') providersToInit.add(cleanupType)
+// Initialize ALL providers that have stored API keys (not just the active one)
+// This ensures switching providers later works without re-initialization
+async function initProvidersWithKeys(_sttType: STTProviderType, _cleanupType: CleanupProviderType, isElectron: boolean) {
+  const allProviders = ['openai', 'groq']
 
-  for (const provider of providersToInit) {
+  for (const provider of allProviders) {
     let apiKey: string | null = null
 
     if (isElectron) {
@@ -177,17 +176,19 @@ export function useSettingsProvider(): SettingsContextValue {
       setSettings(prev => {
         const next = { ...prev, [key]: value }
 
-        // Recalculate hasApiKey when sttProvider changes from another window
+        // When sttProvider changes from another window, re-initialize the new provider
         if (key === 'sttProvider') {
-          if (value === 'local') {
+          const newProvider = value as STTProviderType
+          if (newProvider === 'local') {
             setHasApiKey(true)
           } else if (window.electronAPI) {
-            window.electronAPI.hasApiKey(value as string).then(has => {
-              // Only update if still on this provider
-              setSettings(curr => {
-                if (curr.sttProvider === value) setHasApiKey(has)
-                return curr
-              })
+            window.electronAPI.getApiKey(newProvider).then(apiKey => {
+              if (apiKey) {
+                try { initSTTProvider(newProvider, apiKey) } catch {}
+                setHasApiKey(true)
+              } else {
+                setHasApiKey(false)
+              }
             })
           }
         }
@@ -224,14 +225,44 @@ export function useSettingsProvider(): SettingsContextValue {
     })
     window.electronAPI?.setSetting(key, value)
 
-    // Recalculate hasApiKey when STT provider changes
+    // When STT provider changes, re-initialize the new provider with its stored API key
     if (key === 'sttProvider') {
-      if (value === 'local') {
+      const newProvider = value as STTProviderType
+      if (newProvider === 'local') {
         setHasApiKey(true)
+        // Ensure local model is loaded
+        import('@/lib/stt/provider-factory').then(({ getSTTProvider, getLocalWhisperProvider }) => {
+          getSTTProvider('local')
+          const localProvider = getLocalWhisperProvider()
+          if (localProvider && !localProvider.isModelLoaded() && !localProvider.isModelLoading()) {
+            localProvider.loadModel().catch(() => {})
+          }
+        })
       } else if (isManagedMode) {
         setHasApiKey(true)
       } else if (window.electronAPI) {
-        window.electronAPI.hasApiKey(value as string).then(has => setHasApiKey(has))
+        // Re-initialize the provider with its stored API key
+        window.electronAPI.getApiKey(newProvider).then(apiKey => {
+          if (apiKey) {
+            try { initSTTProvider(newProvider, apiKey) } catch {}
+            try { initCleanupProvider(newProvider as unknown as CleanupProviderType, apiKey) } catch {}
+            setHasApiKey(true)
+          } else {
+            setHasApiKey(false)
+          }
+        })
+      }
+    }
+
+    // When cleanup provider changes, re-initialize it with its stored API key
+    if (key === 'cleanupProvider') {
+      const newProvider = value as CleanupProviderType
+      if (newProvider !== 'none' && newProvider !== 'managed' && window.electronAPI && !isManagedMode) {
+        window.electronAPI.getApiKey(newProvider).then(apiKey => {
+          if (apiKey) {
+            try { initCleanupProvider(newProvider, apiKey) } catch {}
+          }
+        })
       }
     }
   }, [isManagedMode])

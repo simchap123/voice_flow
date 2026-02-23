@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.9',
+    date: '2026-02-23',
+    highlights: [
+      'Fixed: Switching STT providers now works reliably — Groq/OpenAI no longer broken after using Local',
+      'All stored API keys are initialized at startup, not just the active provider',
+      'Provider re-initialization on switch ensures the new provider is ready immediately',
+    ],
+  },
+  {
     version: '2.15.8',
     date: '2026-02-23',
     highlights: [
