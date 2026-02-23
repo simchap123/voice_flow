@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.3',
+    date: '2026-02-23',
+    highlights: [
+      'Fixed: switching to Local no longer shows "No key" error',
+      'Trial expired overlay now offers "Use Local" button for free forever mode',
+      'All error messages suggest Local as a free alternative',
+      'Clicking grayed-out OpenAI opens key dialog to add a key and enable it',
+    ],
+  },
+  {
     version: '2.15.2',
     date: '2026-02-23',
     highlights: [

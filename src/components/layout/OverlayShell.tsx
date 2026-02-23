@@ -157,9 +157,9 @@ export function OverlayShell() {
   useElectronBridge({
     onStart: (data) => {
       if (!hasApiKey) {
-        const provider = settings.sttProvider || 'OpenAI'
+        const provider = settings.sttProvider || 'groq'
         const providerLabel = provider === 'openai' ? 'OpenAI' : provider === 'groq' ? 'Groq' : provider
-        setOverlayError(`No ${providerLabel} key — add one in Settings`)
+        setOverlayError(`No ${providerLabel} key — add one or switch to Local`)
         return
       }
       recording.startRecording(settings.audioInputDeviceId, data?.mode)
@@ -303,6 +303,16 @@ export function OverlayShell() {
             <button
               onClick={() => {
                 setTrialExpired(false)
+                updateSetting('sttProvider', 'local')
+                window.electronAPI?.hideOverlay()
+              }}
+              className="flex-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] px-2 py-1 text-[10px] font-medium text-white/70 transition-colors"
+            >
+              Use Local
+            </button>
+            <button
+              onClick={() => {
+                setTrialExpired(false)
                 window.electronAPI?.showMainWindow()
               }}
               className="flex-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] px-2 py-1 text-[10px] font-medium text-white/70 transition-colors"
@@ -329,10 +339,12 @@ export function OverlayShell() {
   if (hasError) {
     // Friendly short messages for common errors
     let displayError = activeError || 'Something went wrong'
-    if (displayError.toLowerCase().includes('not configured') || displayError.toLowerCase().includes('api key')) {
-      displayError = 'No API key — click to open Settings'
+    if (displayError.toLowerCase().includes('not configured') || displayError.toLowerCase().includes('api key') || displayError.toLowerCase().includes('switch to local')) {
+      displayError = 'Add API key or switch to Local in Settings'
+    } else if (displayError.toLowerCase().includes('email') || displayError.toLowerCase().includes('trial')) {
+      displayError = 'Add email or switch to Local in Settings'
     } else if (displayError.toLowerCase().includes('network') || displayError.toLowerCase().includes('fetch')) {
-      displayError = 'Network error — check connection'
+      displayError = 'Network error — try Local mode (offline)'
     } else if (displayError.toLowerCase().includes('microphone') || displayError.toLowerCase().includes('permission')) {
       displayError = 'Mic permission denied'
     } else if (displayError.length > 40) {

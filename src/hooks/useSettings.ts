@@ -194,7 +194,18 @@ export function useSettingsProvider(): SettingsContextValue {
       return next
     })
     window.electronAPI?.setSetting(key, value)
-  }, [])
+
+    // Recalculate hasApiKey when STT provider changes
+    if (key === 'sttProvider') {
+      if (value === 'local') {
+        setHasApiKey(true)
+      } else if (isManagedMode) {
+        setHasApiKey(true)
+      } else if (window.electronAPI) {
+        window.electronAPI.hasApiKey(value as string).then(has => setHasApiKey(has))
+      }
+    }
+  }, [isManagedMode])
 
   const saveApiKey = useCallback(async (key: string, provider: string = 'openai'): Promise<{ success: boolean; error?: string }> => {
     // Validate key format based on provider

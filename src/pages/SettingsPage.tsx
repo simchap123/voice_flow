@@ -159,6 +159,7 @@ export function SettingsPage() {
   const [hasGroqKey, setHasGroqKey] = useState(false)
   const [appVersion, setAppVersion] = useState('')
   const [showKeyDialog, setShowKeyDialog] = useState(false)
+  const [keyDialogProvider, setKeyDialogProvider] = useState<STTProviderType | null>(null)
   const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'available' | 'downloaded' | 'uptodate'>('idle')
   const [updateVersion, setUpdateVersion] = useState('')
   const [userEmail, setUserEmail] = useState('')
@@ -329,14 +330,19 @@ export function SettingsPage() {
                       <button
                         key={opt.value}
                         onClick={() => {
-                          if (opt.disabled) return
+                          if (opt.disabled) {
+                            // Open key dialog for the disabled provider so user can add a key
+                            setKeyDialogProvider(opt.value)
+                            setShowKeyDialog(true)
+                            return
+                          }
                           updateSetting('sttProvider', opt.value)
                           toast({ title: `Switched to ${opt.label}`, variant: 'success' })
                         }}
-                        title={opt.disabled ? 'Requires API key' : undefined}
+                        title={opt.disabled ? 'Add API key to enable' : undefined}
                         className={`flex-1 rounded-[5px] px-3 py-1.5 text-[11px] font-medium transition-all duration-150 ${
                           opt.disabled
-                            ? 'text-muted-foreground/30 cursor-not-allowed'
+                            ? 'text-muted-foreground/30 cursor-pointer hover:text-muted-foreground/50'
                             : currentSTT === opt.value
                               ? 'bg-card shadow-sm text-foreground border border-border/40 cursor-pointer'
                               : 'text-muted-foreground/60 hover:text-foreground border border-transparent cursor-pointer'
@@ -366,7 +372,7 @@ export function SettingsPage() {
                           Key configured
                         </span>
                         <button
-                          onClick={() => setShowKeyDialog(true)}
+                          onClick={() => { setKeyDialogProvider(currentSTT); setShowKeyDialog(true) }}
                           className="text-[11px] text-muted-foreground/50 hover:text-primary transition-colors underline"
                         >
                           Change
@@ -374,7 +380,7 @@ export function SettingsPage() {
                       </>
                     ) : (
                       <button
-                        onClick={() => setShowKeyDialog(true)}
+                        onClick={() => { setKeyDialogProvider(currentSTT); setShowKeyDialog(true) }}
                         className="flex items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
                       >
                         <Key className="w-3 h-3" />
@@ -593,44 +599,52 @@ export function SettingsPage() {
       </div>
 
       {/* API Key Dialog */}
-      {showKeyDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowKeyDialog(false)} />
-          <div className="relative bg-card border border-border rounded-xl shadow-xl p-5 w-[380px] max-w-[90vw]">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Key className="w-4 h-4 text-primary" />
-                <span className="text-[14px] font-semibold">
-                  {currentSTT === 'openai' ? 'OpenAI' : 'Groq'} API Key
-                </span>
+      {showKeyDialog && (() => {
+        const dialogProvider = keyDialogProvider || currentSTT
+        const dialogLabel = dialogProvider === 'openai' ? 'OpenAI' : 'Groq'
+        const dialogPlaceholder = dialogProvider === 'openai' ? 'sk-...' : 'gsk_...'
+        const dialogHasKey = dialogProvider === 'openai' ? hasOpenAIKey : hasGroqKey
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowKeyDialog(false)} />
+            <div className="relative bg-card border border-border rounded-xl shadow-xl p-5 w-[380px] max-w-[90vw]">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Key className="w-4 h-4 text-primary" />
+                  <span className="text-[14px] font-semibold">
+                    {dialogLabel} API Key
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowKeyDialog(false)}
+                  className="flex items-center justify-center w-6 h-6 rounded-full hover:bg-muted transition-colors"
+                >
+                  <X className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
               </div>
-              <button
-                onClick={() => setShowKeyDialog(false)}
-                className="flex items-center justify-center w-6 h-6 rounded-full hover:bg-muted transition-colors"
-              >
-                <X className="w-3.5 h-3.5 text-muted-foreground" />
-              </button>
-            </div>
-            <ProviderApiKeyInput
-              provider={currentSTT}
-              label={currentSTT === 'openai' ? 'OpenAI' : 'Groq'}
-              placeholder={currentSTT === 'openai' ? 'sk-...' : 'gsk_...'}
-              hasKey={currentSTT === 'openai' ? hasOpenAIKey : hasGroqKey}
-              onSave={async (key, provider) => {
-                const result = await handleSaveKey(key, provider)
-                if (result.success) {
+              <ProviderApiKeyInput
+                provider={dialogProvider}
+                label={dialogLabel}
+                placeholder={dialogPlaceholder}
+                hasKey={dialogHasKey}
+                onSave={async (key, provider) => {
+                  const result = await handleSaveKey(key, provider)
+                  if (result.success) {
+                    // After adding a key, switch to that provider and enable it
+                    updateSetting('sttProvider', dialogProvider)
+                    setTimeout(() => setShowKeyDialog(false), 1000)
+                  }
+                  return result
+                }}
+                onDelete={async (provider) => {
+                  await handleDeleteKey(provider)
                   setTimeout(() => setShowKeyDialog(false), 1000)
-                }
-                return result
-              }}
-              onDelete={async (provider) => {
-                await handleDeleteKey(provider)
-                setTimeout(() => setShowKeyDialog(false), 1000)
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </ScrollArea>
   )
 }

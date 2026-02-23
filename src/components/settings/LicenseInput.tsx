@@ -141,14 +141,14 @@ export function LicenseInput() {
             <div className="text-sm">
               <span className="text-red-400 font-medium">Trial expired</span>
               <p className="text-xs text-muted-foreground mt-1">
-                Enter the email you used to purchase, or{' '}
+                Switch to <strong>Local</strong> in Settings for free forever, enter your purchase email below, or{' '}
                 <button
                   onClick={() => { setPlanPickerEmail(inputEmail.trim().toLowerCase()); setShowPlanPicker(true) }}
                   className="text-primary hover:underline"
                 >
                   buy a license
                 </button>{' '}
-                to continue with managed API keys.
+                for cloud API access.
               </p>
             </div>
           ) : (
