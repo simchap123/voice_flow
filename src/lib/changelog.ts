@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.6',
+    date: '2026-02-23',
+    highlights: [
+      'Fixed: Local STT with cloud cleanup now works end-to-end (managed mode was not activating for cleanup)',
+      'Local + cleanup enabled correctly routes through managed cloud proxy when no own API key',
+      'Managed mode check now considers cleanup provider, not just STT provider',
+    ],
+  },
+  {
     version: '2.15.5',
     date: '2026-02-23',
     highlights: [

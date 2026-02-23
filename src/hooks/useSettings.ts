@@ -60,7 +60,7 @@ function initManagedProviders(email: string) {
 }
 
 // Check if managed mode should be active:
-// User has email + (trial active or licensed) + no own API key for selected provider
+// User has email + (trial active or licensed) + no own API key for the provider they need
 async function checkManagedMode(
   settings: AppSettings,
   isElectron: boolean,
@@ -74,14 +74,20 @@ async function checkManagedMode(
 
   if (!email) return { managed: false, email: '' }
 
-  // Check if user has their own key for the selected STT provider
-  if (settings.sttProvider === 'local') return { managed: false, email }
+  // For local STT, managed mode is still needed for cloud cleanup
+  // Check cleanup provider instead of STT provider
+  const providerToCheck = settings.sttProvider === 'local'
+    ? (settings.cleanupEnabled ? settings.cleanupProvider : 'none')
+    : settings.sttProvider
+
+  // If no cloud provider needed (local STT with cleanup disabled, or provider is 'none')
+  if (!providerToCheck || providerToCheck === 'none' || providerToCheck === 'local') return { managed: false, email }
 
   let hasOwnKey = false
   if (isElectron) {
-    hasOwnKey = await window.electronAPI!.hasApiKey(settings.sttProvider)
+    hasOwnKey = await window.electronAPI!.hasApiKey(providerToCheck)
   } else {
-    hasOwnKey = !!localStorage.getItem(`${LS_API_KEY_PREFIX}-${settings.sttProvider}`)
+    hasOwnKey = !!localStorage.getItem(`${LS_API_KEY_PREFIX}-${providerToCheck}`)
   }
 
   // If user has their own key, no need for managed mode
