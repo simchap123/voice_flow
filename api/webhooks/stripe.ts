@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import Stripe from 'stripe'
 import { supabase } from '../lib/supabase'
+import { isValidEmail } from '../lib/validate-email'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!.trim())
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!.trim()
@@ -93,6 +94,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   const email = rawEmail.trim().toLowerCase()
+
+  if (!isValidEmail(email)) {
+    console.warn(`[webhook] Invalid email from Stripe checkout ${session.id}: "${email}" — processing anyway since payment completed`)
+  }
 
   const licenseTypeSlug = PLAN_TO_LICENSE_TYPE[plan]
   if (!licenseTypeSlug) {

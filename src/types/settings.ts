@@ -57,7 +57,7 @@ export interface AppSettings {
 }
 
 export const defaultSettings: AppSettings = {
-  holdHotkey: 'Alt',
+  holdHotkey: 'RightAlt',
   toggleHotkey: 'Alt+Left',
   toggleTriggerMethod: 'single',
   promptHotkey: 'Control+Shift+Tab',

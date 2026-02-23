@@ -7,8 +7,23 @@ interface HotkeyRecorderProps {
   allowClear?: boolean
 }
 
-// Map standalone modifier keys
-const MODIFIER_MAP: Record<string, string> = {
+// Map standalone modifier keys (by e.key)
+const MODIFIER_KEYS = new Set(['Alt', 'Control', 'Shift', 'Meta'])
+
+// Map e.code to side-specific modifier names
+const CODE_TO_MODIFIER: Record<string, string> = {
+  'AltLeft': 'LeftAlt',
+  'AltRight': 'RightAlt',
+  'ControlLeft': 'LeftControl',
+  'ControlRight': 'RightControl',
+  'ShiftLeft': 'LeftShift',
+  'ShiftRight': 'RightShift',
+  'MetaLeft': 'Super',
+  'MetaRight': 'Super',
+}
+
+// Fallback: generic modifier name (when code doesn't distinguish side)
+const KEY_TO_MODIFIER: Record<string, string> = {
   'Alt': 'Alt',
   'Control': 'Control',
   'Shift': 'Shift',
@@ -17,9 +32,19 @@ const MODIFIER_MAP: Record<string, string> = {
 
 const isWindows = navigator.userAgent.includes('Windows')
 
+// Display-friendly names
+const DISPLAY_NAMES: Record<string, string> = {
+  'RightAlt': 'Right Alt',
+  'LeftAlt': 'Left Alt',
+  'RightControl': 'Right Ctrl',
+  'LeftControl': 'Left Ctrl',
+  'RightShift': 'Right Shift',
+  'LeftShift': 'Left Shift',
+  'Super': isWindows ? 'Windows' : 'Super',
+}
+
 function displayHotkey(hotkey: string): string {
-  if (!isWindows) return hotkey
-  return hotkey.replace(/\bSuper\b/g, 'Windows')
+  return DISPLAY_NAMES[hotkey] || hotkey
 }
 
 // Map browser key event to Electron accelerator format
@@ -31,7 +56,7 @@ function keyEventToAccelerator(e: KeyboardEvent): string | null {
   if (e.metaKey) parts.push('Super')
 
   const key = e.key
-  if (key in MODIFIER_MAP) return null
+  if (MODIFIER_KEYS.has(key)) return null
 
   const keyMap: Record<string, string> = {
     ' ': 'Space', 'ArrowUp': 'Up', 'ArrowDown': 'Down',
@@ -96,9 +121,13 @@ export function HotkeyRecorder({
     }
 
     const key = e.key
-    if (key in MODIFIER_MAP) {
-      heldModifiersRef.current.add(MODIFIER_MAP[key])
-      setPendingKeys(getHeldModifiersDisplay(heldModifiersRef.current) + '+...')
+    if (MODIFIER_KEYS.has(key)) {
+      // Use e.code to distinguish left vs right (e.g., "AltLeft" vs "AltRight")
+      const modName = CODE_TO_MODIFIER[e.nativeEvent.code] || KEY_TO_MODIFIER[key] || key
+      heldModifiersRef.current.add(modName)
+      setPendingKeys(
+        Array.from(heldModifiersRef.current).map(m => displayHotkey(m)).join('+') + '+...'
+      )
       return
     }
 
@@ -111,8 +140,8 @@ export function HotkeyRecorder({
 
   const handleKeyUp = (e: React.KeyboardEvent) => {
     const key = e.key
-    if (key in MODIFIER_MAP) {
-      const modName = MODIFIER_MAP[key]
+    if (MODIFIER_KEYS.has(key)) {
+      const modName = CODE_TO_MODIFIER[e.nativeEvent.code] || KEY_TO_MODIFIER[key] || key
       if (!hadNonModifierRef.current && heldModifiersRef.current.has(modName)) {
         finishRecording(modName)
         return

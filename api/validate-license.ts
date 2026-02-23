@@ -17,7 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // 1. Email-based validation (for paid licenses only)
   if (email && typeof email === 'string' && isValidEmail(email)) {
-    return validateByEmail(email.trim().toLowerCase(), res)
+    return validateByEmail(email.trim().toLowerCase(), res, deviceId?.trim())
   }
 
   // 2. Device-based trial (no email needed, must be UUID format)
@@ -167,7 +167,7 @@ async function validateByDevice(deviceId: string, res: VercelResponse) {
   }
 }
 
-async function validateByEmail(email: string, res: VercelResponse) {
+async function validateByEmail(email: string, res: VercelResponse, deviceId?: string) {
   try {
     // Find user by email
     const { data: user } = await supabase
@@ -215,6 +215,18 @@ async function validateByEmail(email: string, res: VercelResponse) {
             error: 'License expired',
           })
         }
+      }
+
+      // Link device to paid account if deviceId provided (merges orphaned trial user)
+      if (deviceId) {
+        await supabase.from('users').update({ device_id: deviceId }).eq('id', user.id)
+        // Clean up orphaned device trial user (if different from paid user)
+        await supabase
+          .from('users')
+          .delete()
+          .eq('device_id', deviceId)
+          .like('email', 'trial_%@device.voxgen.app')
+          .neq('id', user.id)
       }
 
       return res.status(200).json({

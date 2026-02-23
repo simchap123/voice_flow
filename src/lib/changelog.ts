@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.14.4',
+    date: '2026-02-22',
+    highlights: [
+      'Honest onboarding — "Your free trial is active" replaces misleading "Activate your free trial"',
+      'All plan/license links now open in-app instead of external website',
+      'Stricter email validation — rejects malformed addresses like user.@example.com',
+      'Device trial linked to paid account on email activation (no more orphaned records)',
+      'Stripe coupon/promo code support during checkout',
+    ],
+  },
+  {
     version: '2.14.3',
     date: '2026-02-22',
     highlights: [

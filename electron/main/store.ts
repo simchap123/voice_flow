@@ -49,10 +49,10 @@ export interface AppSettings {
 }
 
 const defaults: AppSettings = {
-  holdHotkey: 'Alt',
-  toggleHotkey: '',
+  holdHotkey: 'RightAlt',
+  toggleHotkey: 'Control+Space',
   toggleTriggerMethod: 'single',
-  promptHotkey: '',
+  promptHotkey: 'Control+Shift+Space',
   promptTriggerMethod: 'single',
   language: 'en',
   theme: 'dark',
@@ -205,6 +205,13 @@ export function initStore() {
       store.delete('hotkeyMode')
       console.log(`[VoxGen] Migrated hotkey "${oldHotkey}" (mode: ${oldMode}) to new format`)
     }
+    // Migrate holdHotkey from 'Alt' (both) to 'RightAlt' (right only) — v2.14.4+
+    const currentHoldHotkey = store.get('holdHotkey') as string | undefined
+    if (currentHoldHotkey === 'Alt') {
+      store.set('holdHotkey', 'RightAlt')
+      console.log('[VoxGen] Migrated holdHotkey from Alt to RightAlt')
+    }
+
     // Initialize trial on first launch
     const trialStarted = store.get('trialStartedAt', 0) as number
     if (!trialStarted) {

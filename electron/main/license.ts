@@ -27,10 +27,14 @@ export interface LicenseValidationResult {
 
 export async function validateByEmail(email: string): Promise<LicenseValidationResult> {
   try {
+    const deviceId = getDeviceId()
     const response = await netFetch(`${API_BASE}/api/validate-license`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        deviceId: deviceId !== 'unknown' ? deviceId : undefined,
+      }),
     })
 
     const data = JSON.parse(response)

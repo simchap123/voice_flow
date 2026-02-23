@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Mic, Loader2, X, Lock, Square } from 'lucide-react'
+import { Loader2, X, Lock } from 'lucide-react'
 import { useRecordingState } from '@/hooks/useRecordingState'
 import { useElectronBridge } from '@/hooks/useElectronBridge'
 import { useSettings } from '@/hooks/useSettings'
@@ -62,31 +62,9 @@ function useAudioLevel(isRecording: boolean) {
   return level
 }
 
-/** Waveform bars reacting to audio level */
-function AudioWaveform({ level }: { level: number }) {
-  const bars = [0.4, 0.7, 1.0, 0.65, 0.35]
-  return (
-    <div className="flex items-center gap-[2.5px] h-4">
-      {bars.map((weight, i) => {
-        const barHeight = 3 + Math.max(level * weight * 13, Math.sin(Date.now() / 400 + i) * 1.5 + 1.5)
-        return (
-          <div
-            key={i}
-            className="w-[2.5px] rounded-full transition-all duration-75"
-            style={{
-              height: `${barHeight}px`,
-              background: `linear-gradient(to top, rgba(239,68,68,0.9), rgba(251,146,60,${0.4 + level * 0.6}))`,
-            }}
-          />
-        )
-      })}
-    </div>
-  )
-}
-
 export function OverlayShell() {
   const [trialExpired, setTrialExpired] = useState(false)
-  const [holdHotkeyLabel, setHoldHotkeyLabel] = useState('Alt')
+  const [holdHotkeyLabel, setHoldHotkeyLabel] = useState('Right Alt')
   const [overlayError, setOverlayError] = useState<string | null>(null)
   const [showPromptPicker, setShowPromptPicker] = useState(false)
   const [powerModes, setPowerModes] = useState<PowerMode[]>([])
@@ -109,9 +87,14 @@ export function OverlayShell() {
   }, [])
 
   // Track the hold hotkey label for display
+  const HOTKEY_DISPLAY: Record<string, string> = {
+    RightAlt: 'Right Alt', LeftAlt: 'Left Alt',
+    RightControl: 'Right Ctrl', LeftControl: 'Left Ctrl',
+    RightShift: 'Right Shift', LeftShift: 'Left Shift',
+  }
   useEffect(() => {
     if (settings.holdHotkey) {
-      setHoldHotkeyLabel(settings.holdHotkey)
+      setHoldHotkeyLabel(HOTKEY_DISPLAY[settings.holdHotkey] || settings.holdHotkey)
     }
   }, [settings.holdHotkey])
 
@@ -234,60 +217,33 @@ export function OverlayShell() {
     closePicker()
   }
 
-  // Format duration as m:ss
-  const formatDuration = (secs: number) => {
-    const m = Math.floor(secs / 60)
-    const s = secs % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
-
-  // --- RECORDING STATE: glassmorphic pill with live waveform ---
+  // --- RECORDING STATE: minimal translucent waveform pill ---
   if (isRecording) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <div className="flex h-12 items-center gap-3 rounded-full bg-black/90 border border-white/[0.06] shadow-2xl shadow-black/60 px-4 backdrop-blur-2xl">
-          {/* Glow ring behind mic icon */}
-          <div className="relative flex items-center justify-center">
-            <div
-              className="absolute rounded-full bg-red-500/30 blur-sm transition-all duration-150"
-              style={{
-                width: `${22 + audioLevel * 14}px`,
-                height: `${22 + audioLevel * 14}px`,
-                opacity: 0.4 + audioLevel * 0.5,
-              }}
-            />
-            <div className="relative flex h-7 w-7 items-center justify-center rounded-full bg-red-500/20">
-              <Mic className="h-3.5 w-3.5 text-red-400" />
-            </div>
-          </div>
-
-          {/* Live waveform bars */}
-          <AudioWaveform level={audioLevel} />
-
-          {/* Duration */}
-          <span className="text-[11px] font-mono font-medium text-white/50 tabular-nums min-w-[2.2rem]">
-            {formatDuration(recording.duration)}
-          </span>
-
-          {/* Power mode badge */}
-          {recording.matchedMode && (
-            <span className="text-[10px] text-white/40 max-w-[60px] truncate">
-              {recording.matchedMode.emoji}
-            </span>
-          )}
-
-          <div className="w-px h-5 bg-white/[0.06]" />
-
-          {/* Stop */}
+        <div className="flex h-10 items-center gap-2 rounded-full bg-white/10 border border-white/[0.08] shadow-lg backdrop-blur-md px-3">
+          {/* Clickable waveform — stops recording */}
           <button
             onClick={() => {
               window.electronAPI?.notifyRecordingStopped()
               recording.stopRecording()
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.08] hover:bg-white/[0.15] active:scale-95 transition-all"
-            title="Stop recording"
+            className="flex items-center gap-[3px] h-5 cursor-pointer active:scale-95 transition-transform"
+            title="Click to stop recording"
           >
-            <Square className="h-2.5 w-2.5 text-white/70 fill-white/70" />
+            {[0.4, 0.65, 1.0, 0.8, 0.5, 0.7, 0.35].map((weight, i) => {
+              const barHeight = 4 + Math.max(audioLevel * weight * 16, Math.sin(Date.now() / 400 + i) * 2 + 2)
+              return (
+                <div
+                  key={i}
+                  className="w-[3px] rounded-full transition-all duration-75"
+                  style={{
+                    height: `${barHeight}px`,
+                    background: `linear-gradient(to top, rgba(239,68,68,0.85), rgba(251,146,60,${0.35 + audioLevel * 0.65}))`,
+                  }}
+                />
+              )
+            })}
           </button>
 
           {/* Cancel */}
@@ -296,10 +252,10 @@ export function OverlayShell() {
               window.electronAPI?.notifyRecordingCancelled()
               recording.cancelRecording()
             }}
-            className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/[0.08] active:scale-95 transition-all"
+            className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-white/[0.1] active:scale-95 transition-all ml-0.5"
             title="Cancel recording"
           >
-            <X className="h-3 w-3 text-white/30 hover:text-white/50" />
+            <X className="h-2.5 w-2.5 text-white/30 hover:text-white/50" />
           </button>
         </div>
       </div>

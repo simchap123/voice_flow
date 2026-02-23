@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, ExternalLink } from 'lucide-react'
+import { AlertCircle, ArrowUpRight } from 'lucide-react'
 import type { LicenseStatus } from '@/types/settings'
 import { PlanPicker } from './plan-picker'
 
@@ -67,11 +67,6 @@ export function LicenseInput() {
       } else {
         const errMsg = result.error || 'No active license for this email'
         setError(errMsg)
-        // Auto-switch to plan picker on "no license found"
-        if (errMsg === 'No license found for this email') {
-          setPlanPickerEmail(email)
-          setShowPlanPicker(true)
-        }
       }
     } catch {
       setError('Failed to validate. Check your internet connection.')
@@ -146,14 +141,12 @@ export function LicenseInput() {
               <span className="text-red-400 font-medium">Trial expired</span>
               <p className="text-xs text-muted-foreground mt-1">
                 Enter the email you used to purchase, or{' '}
-                <a
-                  href="https://voxgenflow.vercel.app/#pricing"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => { setPlanPickerEmail(inputEmail.trim().toLowerCase()); setShowPlanPicker(true) }}
                   className="text-primary hover:underline"
                 >
                   buy a license
-                </a>{' '}
+                </button>{' '}
                 to continue with managed API keys.
               </p>
             </div>
@@ -202,8 +195,10 @@ export function LicenseInput() {
                   </div>
                   <p className="text-xs text-muted-foreground/60">
                     After trial,{' '}
-                    <a href="https://voxgenflow.vercel.app/#pricing" target="_blank" rel="noopener noreferrer"
-                      className="text-primary hover:underline">upgrade to Pro</a>{' '}
+                    <button
+                      onClick={() => { setPlanPickerEmail(''); setShowPlanPicker(true) }}
+                      className="text-primary hover:underline"
+                    >upgrade to Pro</button>{' '}
                     or continue with your own API key.
                   </p>
                 </div>
@@ -226,7 +221,7 @@ export function LicenseInput() {
                   disabled={portalLoading}
                   className="text-xs"
                 >
-                  {portalLoading ? 'Opening...' : 'Manage Subscription'}
+                  {portalLoading ? 'Opening...' : <><span>Manage Subscription</span><ArrowUpRight className="h-3 w-3 ml-1 inline" /></>}
                 </Button>
               )}
               {!isDeviceTrial && (
@@ -248,14 +243,12 @@ export function LicenseInput() {
                 Expired
               </span>
               <p className="text-xs text-muted-foreground mt-1">
-                <a
-                  href="https://voxgenflow.vercel.app/#pricing"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => { setPlanPickerEmail(licenseInfo?.userEmail || ''); setShowPlanPicker(true) }}
                   className="text-primary hover:underline"
                 >
                   Renew your license
-                </a>
+                </button>
               </p>
             </div>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-xs text-muted-foreground">
@@ -299,17 +292,15 @@ export function LicenseInput() {
           </div>
           <div className="text-[11px] text-muted-foreground space-y-1.5 ml-[22px]">
             <p>Purchased with a different email? Check the confirmation email from Stripe for the address you used at checkout.</p>
-            <p>
-              <a
-                href="https://voxgenflow.vercel.app/account.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-              >
-                Check on website
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            </p>
+            {!trialExpired && (
+              <p className="text-muted-foreground/60">Your trial is still active — continue using VoxGen, or view plans to upgrade.</p>
+            )}
+            <button
+              onClick={() => { setPlanPickerEmail(inputEmail.trim().toLowerCase()); setShowPlanPicker(true) }}
+              className="text-primary hover:underline font-medium text-[11px]"
+            >
+              View plans
+            </button>
           </div>
         </div>
       )}
@@ -323,14 +314,12 @@ export function LicenseInput() {
           <div className="text-[11px] text-muted-foreground space-y-1.5 ml-[22px]">
             <p>Your account was found but has no active plan. This may be from a cancelled subscription or incomplete payment.</p>
             <p>
-              <a
-                href="https://voxgenflow.vercel.app/#pricing"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => { setPlanPickerEmail(inputEmail.trim().toLowerCase()); setShowPlanPicker(true) }}
                 className="text-primary hover:underline font-medium"
               >
                 Renew or upgrade your plan
-              </a>{' '}
+              </button>{' '}
               to reactivate.
             </p>
           </div>
@@ -346,14 +335,12 @@ export function LicenseInput() {
           <div className="text-[11px] text-muted-foreground ml-[22px]">
             <p>
               Your license has expired.{' '}
-              <a
-                href="https://voxgenflow.vercel.app/#pricing"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => { setPlanPickerEmail(inputEmail.trim().toLowerCase()); setShowPlanPicker(true) }}
                 className="text-primary hover:underline font-medium"
               >
                 Renew your plan
-              </a>{' '}
+              </button>{' '}
               to continue with managed API keys.
             </p>
           </div>
@@ -370,24 +357,12 @@ export function LicenseInput() {
       {/* Help links when no active paid license */}
       {!isActive && !trialExpired && (
         <p className="text-xs text-muted-foreground">
-          Already purchased?{' '}
-          <a
-            href="https://voxgenflow.vercel.app/account.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            Check your license on our website
-          </a>
-          .{' '}
-          <a
-            href="https://voxgenflow.vercel.app/#pricing"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => { setPlanPickerEmail(inputEmail.trim().toLowerCase()); setShowPlanPicker(true) }}
             className="text-primary hover:underline"
           >
             View plans
-          </a>
+          </button>
         </p>
       )}
     </div>

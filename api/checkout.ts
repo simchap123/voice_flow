@@ -37,6 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       customer_email: email,
       line_items: [{ price: priceConfig.priceId, quantity: 1 }],
       metadata: { plan },
+      allow_promotion_codes: true,
       success_url: `${appUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/#pricing`,
     })

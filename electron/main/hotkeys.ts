@@ -60,8 +60,14 @@ export function setIsProcessing(value: boolean) {
 // Map modifier names to uiohook key codes
 const MODIFIER_KEYCODES: Record<string, number[]> = {
   'Alt': [UiohookKey.Alt, UiohookKey.AltRight],
+  'LeftAlt': [UiohookKey.Alt],
+  'RightAlt': [UiohookKey.AltRight],
   'Control': [UiohookKey.Ctrl, UiohookKey.CtrlRight],
+  'LeftControl': [UiohookKey.Ctrl],
+  'RightControl': [UiohookKey.CtrlRight],
   'Shift': [UiohookKey.Shift, UiohookKey.ShiftRight],
+  'LeftShift': [UiohookKey.Shift],
+  'RightShift': [UiohookKey.ShiftRight],
   'Super': [UiohookKey.Meta, UiohookKey.MetaRight],
   'Meta': [UiohookKey.Meta, UiohookKey.MetaRight],
 }
@@ -150,7 +156,7 @@ function registerHoldModifier(hotkey: string): { success: boolean; error?: strin
           if (holdModifierDown && !comboCancelled) {
             handleHotkeyAction('hold', 'start')
             // Prevent Alt from activating menus in Outlook and other ribbon apps
-            if (hotkey === 'Alt') suppressAltMenu()
+            if (hotkey === 'Alt' || hotkey === 'LeftAlt' || hotkey === 'RightAlt') suppressAltMenu()
           }
         }, HOLD_THRESHOLD_MS)
       }
@@ -260,7 +266,7 @@ function registerDoubleTapModifier(hotkey: string, mode: 'toggle' | 'prompt' = '
         doubleTapLastKeyupTime = 0 // Reset to avoid triple-tap re-trigger
         if (!isRecording && !isProcessing) {
           handleHotkeyAction(mode, 'start')
-          if (hotkey === 'Alt') suppressAltMenu()
+          if (hotkey === 'Alt' || hotkey === 'LeftAlt' || hotkey === 'RightAlt') suppressAltMenu()
         } else if (isRecording) {
           handleHotkeyAction(mode, 'stop')
         }
@@ -298,7 +304,7 @@ function cleanupUiohook() {
 
 export function registerHotkeys(): { success: boolean; error?: string } {
   const store = getStore()
-  const holdHotkey = store?.get('holdHotkey', 'Alt') as string ?? 'Alt'
+  const holdHotkey = store?.get('holdHotkey', 'RightAlt') as string ?? 'RightAlt'
   const toggleHotkey = store?.get('toggleHotkey', '') as string ?? ''
   const toggleTriggerMethod = store?.get('toggleTriggerMethod', 'single') as string ?? 'single'
   const promptHotkey = store?.get('promptHotkey', '') as string ?? ''
