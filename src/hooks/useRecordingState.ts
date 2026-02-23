@@ -152,7 +152,8 @@ export function useRecordingState(options: {
 
     try {
       const audioBlob = await recorder.stopRecording()
-      if (!audioBlob) {
+      if (!audioBlob || audioBlob.size === 0) {
+        setError('No audio captured — check your microphone.')
         setState('IDLE')
         return
       }
@@ -192,7 +193,7 @@ export function useRecordingState(options: {
       setRawText(raw)
 
       // Cleanup phase — only show state if cleanup is actually enabled with a real provider
-      if (cleanupEnabled && cleanupProvider !== 'none') {
+      if (cleanupEnabled && effectiveCleanup !== 'none') {
         setState('PROCESSING_CLEANUP')
       }
 

@@ -7,6 +7,18 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.0',
+    date: '2026-02-23',
+    highlights: [
+      'Local STT overhaul: concurrent model load fixed — pressing hotkey while model downloads now waits instead of crashing',
+      'Fixed: model load errors now show clear messages instead of "Failed to load local Whisper model"',
+      'Fixed: empty Whisper output ("") now shows helpful error instead of injecting nothing',
+      'Fixed: empty audio blobs caught early with "check your microphone" message',
+      'Fixed: cleanup state indicator uses effective provider (respects power mode overrides)',
+      'Provider switching fully reliable — all stored API keys initialized at startup',
+    ],
+  },
+  {
     version: '2.15.9',
     date: '2026-02-23',
     highlights: [

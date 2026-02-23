@@ -27,17 +27,29 @@ export class LocalWhisperProvider implements STTProvider {
   private modelSize: ModelSize = 'base'
   private loadedModelSize: ModelSize | null = null
   private loading = false
+  private loadingPromise: Promise<void> | null = null
+  private lastLoadError: string | null = null
   private progressListeners: Set<ProgressCallback> = new Set()
 
   async transcribe(audio: Blob, language: string): Promise<string> {
+    // Wait for any in-progress model load (including background preload)
+    if (this.loadingPromise) {
+      await this.loadingPromise
+    }
+
     if (!this.pipe) {
       await this.loadModel()
     }
     if (!this.pipe) {
-      throw new Error('Failed to load local Whisper model.')
+      throw new Error(this.lastLoadError || 'Failed to load local Whisper model.')
     }
 
-    const float32 = await this.decodeAudioToFloat32(audio)
+    let float32: Float32Array
+    try {
+      float32 = await this.decodeAudioToFloat32(audio)
+    } catch (err: any) {
+      throw new Error(`Audio decode failed: ${err.message || 'Unknown error'}`)
+    }
 
     // Guard: need at least ~0.1s of audio (1600 samples at 16kHz)
     if (float32.length < 1600) {
@@ -60,10 +72,16 @@ export class LocalWhisperProvider implements STTProvider {
         task: 'transcribe',
       })
 
-      if (Array.isArray(result)) {
-        return result.map((r) => r.text).join(' ')
+      const text = Array.isArray(result)
+        ? result.map((r) => r.text).join(' ')
+        : result.text
+
+      // Whisper can return empty string for unintelligible audio
+      if (!text || !text.trim()) {
+        throw new Error('No speech detected — try speaking more clearly.')
       }
-      return result.text
+
+      return text
     } catch (err: any) {
       // transformers.js throws "token_ids must be a non-empty array" when model
       // generates zero tokens (very short/quiet audio that passed our guards)
@@ -79,10 +97,25 @@ export class LocalWhisperProvider implements STTProvider {
   }
 
   async loadModel(): Promise<void> {
-    if (this.loading) return
+    // If already loading, wait for that to finish instead of returning early
+    if (this.loadingPromise) {
+      return this.loadingPromise
+    }
     if (this.pipe && this.loadedModelSize === this.modelSize) return
 
+    this.loadingPromise = this._doLoadModel()
+    try {
+      await this.loadingPromise
+    } finally {
+      this.loadingPromise = null
+    }
+  }
+
+  private async _doLoadModel(): Promise<void> {
+    if (this.loading) return
     this.loading = true
+    this.lastLoadError = null
+
     try {
       // Dispose old pipeline if switching models
       if (this.pipe) {
@@ -93,7 +126,7 @@ export class LocalWhisperProvider implements STTProvider {
 
       const modelId = MODEL_IDS[this.modelSize]
       const useWebGPU = await this.checkWebGPUSupport()
-      console.log(`[VoxGen] Local Whisper using ${useWebGPU ? 'WebGPU' : 'WASM'} backend`)
+      console.log(`[VoxGen] Local Whisper loading ${modelId} with ${useWebGPU ? 'WebGPU' : 'WASM'} backend`)
 
       this.pipe = await pipeline('automatic-speech-recognition', modelId, {
         dtype: useWebGPU
@@ -107,6 +140,14 @@ export class LocalWhisperProvider implements STTProvider {
         },
       })
       this.loadedModelSize = this.modelSize
+      console.log(`[VoxGen] Local Whisper model loaded successfully`)
+    } catch (err: any) {
+      const msg = err.message || 'Unknown error'
+      this.lastLoadError = `Model load failed: ${msg}`
+      console.error(`[VoxGen] Local Whisper model load failed:`, msg)
+      // Don't re-throw so callers get a clear error from lastLoadError
+      // but DO re-throw so loadModel() callers know it failed
+      throw new Error(this.lastLoadError)
     } finally {
       this.loading = false
     }
@@ -133,6 +174,10 @@ export class LocalWhisperProvider implements STTProvider {
 
   isModelLoading(): boolean {
     return this.loading
+  }
+
+  getLastError(): string | null {
+    return this.lastLoadError
   }
 
   private async checkWebGPUSupport(): Promise<boolean> {
