@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.1',
+    date: '2026-02-23',
+    highlights: [
+      'Local STT is free forever — no trial or license needed when using on-device Whisper',
+      'Model download progress shown in overlay and settings when Whisper model is loading',
+      'Account tab: email input collapsed behind "Already purchased?" during active trial',
+    ],
+  },
+  {
     version: '2.15.0',
     date: '2026-02-22',
     highlights: [
