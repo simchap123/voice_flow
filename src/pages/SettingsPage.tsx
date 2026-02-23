@@ -148,7 +148,7 @@ const TABS: { id: Tab; label: string }[] = [
 const STT_OPTIONS: { value: STTProviderType; label: string; disabled?: boolean }[] = [
   { value: 'groq', label: 'Groq' },
   { value: 'openai', label: 'OpenAI' },
-  { value: 'local', label: 'Local', disabled: true },
+  { value: 'local', label: 'Local' },
 ]
 
 export function SettingsPage() {
