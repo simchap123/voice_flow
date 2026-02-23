@@ -68,9 +68,14 @@ export class LocalWhisperProvider implements STTProvider {
       }
 
       const modelId = MODEL_IDS[this.modelSize]
+      const useWebGPU = await this.checkWebGPUSupport()
+      console.log(`[VoxGen] Local Whisper using ${useWebGPU ? 'WebGPU' : 'WASM'} backend`)
+
       this.pipe = await pipeline('automatic-speech-recognition', modelId, {
-        dtype: 'q4',
-        device: 'wasm',
+        dtype: useWebGPU
+          ? { encoder_model: 'fp32', decoder_model_merged: 'q4' }
+          : 'q4',
+        device: useWebGPU ? 'webgpu' : 'wasm',
         progress_callback: (event: ProgressEvent) => {
           for (const cb of this.progressListeners) {
             cb(event)
@@ -104,6 +109,16 @@ export class LocalWhisperProvider implements STTProvider {
 
   isModelLoading(): boolean {
     return this.loading
+  }
+
+  private async checkWebGPUSupport(): Promise<boolean> {
+    try {
+      if (!navigator.gpu) return false
+      const adapter = await navigator.gpu.requestAdapter()
+      return !!adapter
+    } catch {
+      return false
+    }
   }
 
   private async decodeAudioToFloat32(blob: Blob): Promise<Float32Array> {

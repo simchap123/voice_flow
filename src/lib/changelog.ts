@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.15.7',
+    date: '2026-02-23',
+    highlights: [
+      'Fixed: Local STT now works fully offline — if cleanup fails (no network), raw text is injected instead of crashing',
+      'WebGPU acceleration for local Whisper — ~2x faster transcription on supported GPUs (auto-detects, falls back to WASM)',
+      'Network errors during cleanup no longer lose your transcription',
+    ],
+  },
+  {
     version: '2.15.6',
     date: '2026-02-23',
     highlights: [

@@ -3,6 +3,7 @@ import type { RecordingState, TranscriptionResult } from '@/types/transcription'
 import type { STTProviderType } from '@/lib/stt/types'
 import type { CleanupProviderType, GenerationMode, OutputLength } from '@/lib/cleanup/types'
 import { runCleanupPipeline, type PipelineOptions } from '@/lib/cleanup/pipeline'
+import { filterTranscript } from '@/lib/cleanup/transcript-filter'
 import { getPromptById } from '@/lib/cleanup/predefined-prompts'
 import type { CustomPrompt } from '@/types/custom-prompt'
 import type { PowerMode } from '@/types/power-mode'
@@ -229,14 +230,29 @@ export function useRecordingState(options: {
         useSystemInstructions,
       }
 
-      const result = await Promise.race([
-        runCleanupPipeline(raw, pipelineOptions),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('AI cleanup timed out after 30s')), 30000)
-        ),
-      ])
-      let cleaned = result.text
-      const generatedMode = result.detectedMode
+      let cleaned = raw
+      let generatedMode: GenerationMode | null = null
+
+      try {
+        const result = await Promise.race([
+          runCleanupPipeline(raw, pipelineOptions),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('AI cleanup timed out after 30s')), 30000)
+          ),
+        ])
+        cleaned = result.text
+        generatedMode = result.detectedMode ?? null
+      } catch (cleanupErr: any) {
+        const msg = cleanupErr.message?.toLowerCase() ?? ''
+        const isNetworkError = msg.includes('network') || msg.includes('fetch') || msg.includes('failed to fetch') || msg.includes('timed out') || msg.includes('enotfound') || msg.includes('econnrefused')
+        if (isNetworkError) {
+          // Cleanup failed due to network — use raw text with hallucination filter
+          cleaned = filterTranscript(raw)
+          console.warn('[VoxGen] Cleanup failed (network), using raw text:', cleanupErr.message)
+        } else {
+          throw cleanupErr
+        }
+      }
 
       setDetectedMode(generatedMode)
 

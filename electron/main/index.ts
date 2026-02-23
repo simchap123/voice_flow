@@ -59,6 +59,9 @@ if (!gotLock) {
   app.quit()
 }
 
+// Enable WebGPU for faster local Whisper inference (must be before app.whenReady)
+app.commandLine.appendSwitch('enable-unsafe-webgpu')
+
 process.env.DIST_ELECTRON = path.join(__dirname, '..')
 process.env.DIST = path.join(process.env.DIST_ELECTRON, '../dist')
 process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
