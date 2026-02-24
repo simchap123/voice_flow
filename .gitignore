@@ -8,3 +8,13 @@ release/
 .env.local
 
 .vercel
+
+# BMAD artifacts
+_bmad-output/
+_bmad/
+
+# Claude local files
+.claude/commands/
+.claude/settings.local.json
+.claude/ralph-loop.local.md
+.playwright-mcp/
