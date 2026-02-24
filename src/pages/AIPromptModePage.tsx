@@ -4,7 +4,6 @@ import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { PromptsSection } from '@/components/settings/PromptsSection'
 import { toast } from '@/hooks/useToast'
 import type { OutputLength } from '@/lib/cleanup/types'
 
@@ -14,7 +13,11 @@ const OUTPUT_LENGTHS: { value: OutputLength; label: string; description: string 
   { value: 'detailed', label: 'Detailed', description: 'Thorough with examples' },
 ]
 
-export function AIPromptModePage() {
+interface AIPromptModePageProps {
+  onNavigate: (page: string) => void
+}
+
+export function AIPromptModePage({ onNavigate }: AIPromptModePageProps) {
   const { settings, updateSetting } = useSettings()
 
   return (
@@ -22,7 +25,7 @@ export function AIPromptModePage() {
       <div className="page-enter p-6 space-y-3 max-w-[560px]">
         <div className="mb-2">
           <h2 className="text-[16px] font-bold tracking-tight">AI Prompt</h2>
-          <p className="text-[11px] text-muted-foreground/50">Speak instructions, AI generates full content</p>
+          <p className="text-[11px] text-muted-foreground/50">Speak a prompt to generate AI content. Use keyword triggers to activate generation.</p>
         </div>
 
         {/* Hotkey */}
@@ -130,8 +133,15 @@ export function AIPromptModePage() {
           </div>
         </div>
 
-        {/* Prompts */}
-        <PromptsSection />
+        {/* Link to AI Prompts page */}
+        <button
+          type="button"
+          onClick={() => onNavigate('ai-prompts')}
+          aria-label="Manage AI Prompts"
+          className="text-primary text-sm hover:underline transition-colors"
+        >
+          Manage AI Prompts →
+        </button>
       </div>
     </ScrollArea>
   )

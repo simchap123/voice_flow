@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { TitleBar } from '@/components/layout/TitleBar'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { OverlayShell } from '@/components/layout/OverlayShell'
-import { DictationPage } from '@/pages/DictationPage'
 import { HistoryPage } from '@/pages/HistoryPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { DictationModePage } from '@/pages/DictationModePage'
 import { AIPromptModePage } from '@/pages/AIPromptModePage'
+import { AIPromptsPage } from '@/pages/AIPromptsPage'
 import { SettingsContext, useSettingsProvider, useSettings } from '@/hooks/useSettings'
 import { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose } from '@/components/ui/toast'
 import { useToastProvider, toast } from '@/hooks/useToast'
@@ -51,9 +51,10 @@ function MainApp() {
   const renderPage = () => {
     switch (currentPage) {
       case 'history': return <HistoryPage />
-      case 'settings': return <SettingsPage />
+      case 'settings': return <SettingsPage onNavigate={setCurrentPage} />
       case 'dictation': return <DictationModePage />
-      case 'ai-prompt': return <AIPromptModePage />
+      case 'ai-prompt': return <AIPromptModePage onNavigate={setCurrentPage} />
+      case 'ai-prompts': return <AIPromptsPage />
       default: return <HistoryPage />
     }
   }

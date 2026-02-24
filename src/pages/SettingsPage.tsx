@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useSettings } from '@/hooks/useSettings'
-import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
+import { HotkeyBadge } from '@/components/settings/hotkey-badge'
+import { MicrophoneSelect } from '@/components/settings/MicrophoneSelect'
+import { LanguageSelect } from '@/components/settings/LanguageSelect'
 import { ProviderApiKeyInput } from '@/components/settings/ProviderApiKeyInput'
 import { LicenseInput } from '@/components/settings/LicenseInput'
 import { Switch } from '@/components/ui/switch'
@@ -152,7 +154,11 @@ const STT_OPTIONS_BASE: { value: STTProviderType; label: string }[] = [
   { value: 'local', label: 'Local' },
 ]
 
-export function SettingsPage() {
+interface SettingsPageProps {
+  onNavigate: (page: string) => void
+}
+
+export function SettingsPage({ onNavigate }: SettingsPageProps) {
   const { settings, updateSetting, saveApiKey, isManagedMode } = useSettings()
   const [tab, setTab] = useState<Tab>('general')
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false)
@@ -269,7 +275,7 @@ export function SettingsPage() {
             <div className="settings-section-enter py-5 border-b border-border/20" style={{ animationDelay: '0s' }}>
               <div className="mb-4">
                 <div className="text-[14px] font-semibold">Recording</div>
-                <div className="text-[12px] text-muted-foreground/50">Hotkeys and trigger methods</div>
+                <div className="text-[12px] text-muted-foreground/50">Hotkey summary</div>
               </div>
               <div className="space-y-0">
                 <div className="flex items-start gap-5 py-3">
@@ -280,14 +286,28 @@ export function SettingsPage() {
                     </div>
                   </div>
                   <div className="flex-1">
-                    <HotkeyRecorder
-                      value={settings.holdHotkey}
-                      onChange={(v) => {
-                        updateSetting('holdHotkey', v)
-                        toast({ title: 'Hold hotkey updated', variant: 'success' })
-                      }}
-                      placeholder="Set hotkey"
-                      allowClear
+                    <HotkeyBadge
+                      label="Hold to record"
+                      hotkey={settings.holdHotkey}
+                      editPage="dictation"
+                      onNavigate={onNavigate}
+                    />
+                  </div>
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-start gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground flex items-center gap-2">
+                      <Mic className="w-4 h-4 text-muted-foreground/50" />
+                      Toggle Recording
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <HotkeyBadge
+                      label="Toggle Recording"
+                      hotkey={settings.toggleHotkey}
+                      editPage="dictation"
+                      onNavigate={onNavigate}
                     />
                   </div>
                 </div>
@@ -300,22 +320,37 @@ export function SettingsPage() {
                     </div>
                   </div>
                   <div className="flex-1">
-                    <HotkeyRecorder
-                      value={settings.promptHotkey}
-                      onChange={(v) => {
-                        updateSetting('promptHotkey', v)
-                        toast({ title: 'AI Prompt hotkey updated', variant: 'success' })
-                      }}
-                      placeholder="Set hotkey"
-                      allowClear
+                    <HotkeyBadge
+                      label="AI Prompt"
+                      hotkey={settings.promptHotkey}
+                      editPage="ai-prompt"
+                      onNavigate={onNavigate}
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* STT Provider */}
+            {/* Audio Input */}
             <div className="settings-section-enter py-5 border-b border-border/20" style={{ animationDelay: '0.06s' }}>
+              <div className="mb-4">
+                <div className="text-[14px] font-semibold">Audio Input</div>
+                <div className="text-[12px] text-muted-foreground/50">Microphone and language for all recording modes</div>
+              </div>
+              <div className="space-y-3">
+                <MicrophoneSelect
+                  value={settings.audioInputDeviceId}
+                  onChange={(v) => updateSetting('audioInputDeviceId', v)}
+                />
+                <LanguageSelect
+                  value={settings.language}
+                  onChange={(v) => updateSetting('language', v)}
+                />
+              </div>
+            </div>
+
+            {/* STT Provider */}
+            <div className="settings-section-enter py-5 border-b border-border/20" style={{ animationDelay: '0.12s' }}>
               <div className="mb-4">
                 <div className="text-[14px] font-semibold">STT Provider</div>
                 <div className="text-[12px] text-muted-foreground/50">Speech-to-text engine</div>
@@ -487,7 +522,7 @@ export function SettingsPage() {
             </div>
 
             {/* Preferences */}
-            <div className="settings-section-enter py-5" style={{ animationDelay: '0.12s' }}>
+            <div className="settings-section-enter py-5" style={{ animationDelay: '0.18s' }}>
               <div className="mb-4">
                 <div className="text-[14px] font-semibold">Preferences</div>
                 <div className="text-[12px] text-muted-foreground/50">Behavior settings</div>
@@ -621,6 +656,23 @@ export function SettingsPage() {
                     )}
                   </div>
                 </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">What's New</div>
+                    <div className="text-[10px] text-muted-foreground/40">View latest changes</div>
+                  </div>
+                  <div className="flex-1">
+                    <button
+                      type="button"
+                      onClick={() => window.electronAPI?.openExternal('https://voxgenflow.vercel.app/whats-new.html')}
+                      className="flex items-center gap-1.5 text-[11px] text-primary hover:underline transition-colors"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      What's New →
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -631,21 +683,12 @@ export function SettingsPage() {
           <div className="settings-tab-enter">
             {/* License */}
             <div className="settings-section-enter py-5 border-b border-border/20" style={{ animationDelay: '0s' }}>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <div className="text-[14px] font-semibold flex items-center gap-2">
-                    <User className="w-4 h-4 text-primary" />
-                    License
-                  </div>
-                  <div className="text-[12px] text-muted-foreground/50">Manage your subscription</div>
+              <div className="mb-4">
+                <div className="text-[14px] font-semibold flex items-center gap-2">
+                  <User className="w-4 h-4 text-primary" />
+                  License
                 </div>
-                <button
-                  onClick={() => window.electronAPI?.openExternal('https://voxgenflow.vercel.app/whats-new.html')}
-                  className="flex items-center gap-1.5 text-[11px] text-muted-foreground/40 hover:text-primary transition-colors"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  What's New
-                </button>
+                <div className="text-[12px] text-muted-foreground/50">Manage your subscription</div>
               </div>
               <LicenseInput />
             </div>

@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { History, Settings, Mic, MessageSquare, Zap } from 'lucide-react'
+import { History, Settings, Mic, MessageSquare, Zap, FileText } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { useSettings } from '@/hooks/useSettings'
 
@@ -79,6 +78,25 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
             {label}
           </button>
         ))}
+
+        {/* AI Prompts */}
+        <p className="mt-4 mb-1 px-3 text-[9px] font-bold uppercase tracking-wider text-muted-foreground/40">
+          Prompts
+        </p>
+
+        <button
+          type="button"
+          onClick={() => onNavigate('ai-prompts')}
+          className={cn(
+            'flex items-center gap-2.5 rounded-lg px-3 py-[7px] text-[13px] font-medium transition-all duration-150',
+            currentPage === 'ai-prompts'
+              ? 'bg-primary text-white shadow-sm'
+              : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+          )}
+        >
+          <FileText className="h-[15px] w-[15px] shrink-0" />
+          AI Prompts
+        </button>
       </nav>
 
       {/* Footer */}

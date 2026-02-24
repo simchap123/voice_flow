@@ -1,8 +1,6 @@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useSettings } from '@/hooks/useSettings'
 import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
-import { LanguageSelect } from '@/components/settings/LanguageSelect'
-import { MicrophoneSelect } from '@/components/settings/MicrophoneSelect'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -16,7 +14,7 @@ export function DictationModePage() {
       <div className="page-enter p-6 space-y-3 max-w-[560px]">
         <div className="mb-2">
           <h2 className="text-[16px] font-bold tracking-tight">Dictation</h2>
-          <p className="text-[11px] text-muted-foreground/50">Hold-to-record and toggle recording configuration</p>
+          <p className="text-[11px] text-muted-foreground/50">Press a hotkey to record your voice. Speech is transcribed and typed into the active app.</p>
         </div>
 
         {/* Hold-to-Record */}
@@ -74,22 +72,6 @@ export function DictationModePage() {
               </div>
             </RadioGroup>
           </div>
-        </div>
-
-        {/* Audio Input */}
-        <div className="rounded-lg border border-border/30 bg-card/70 p-4 space-y-3">
-          <div>
-            <div className="text-[13px] font-semibold">Audio Input</div>
-            <div className="text-[10px] text-muted-foreground/50">Language and microphone settings</div>
-          </div>
-          <MicrophoneSelect
-            value={settings.audioInputDeviceId}
-            onChange={(v) => updateSetting('audioInputDeviceId', v)}
-          />
-          <LanguageSelect
-            value={settings.language}
-            onChange={(v) => updateSetting('language', v)}
-          />
         </div>
 
         {/* Options */}

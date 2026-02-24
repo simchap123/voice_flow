@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.5',
+    date: '2026-02-24',
+    highlights: [
+      'Settings reorganized — hotkeys shown as read-only badges with "Edit →" links to mode pages',
+      'Dedicated AI Prompts page — manage prompts from the sidebar instead of buried in settings',
+      'Audio Input (mic & language) moved from Dictation page to Settings > General',
+      '"What\'s New" moved from Account to Notifications > Updates for better discoverability',
+      'Removed 14 unused files — cleaner codebase, smaller CSS bundle',
+    ],
+  },
+  {
     version: '2.16.4',
     date: '2026-02-23',
     highlights: [
