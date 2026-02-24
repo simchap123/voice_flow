@@ -10,5 +10,5 @@ export interface STTProvider {
 export interface STTProviderConfig {
   type: STTProviderType
   apiKey?: string
-  localModelSize?: 'tiny' | 'base' | 'small' | 'medium'
+  localModelSize?: 'tiny' | 'base' | 'small' | 'medium' | 'large-v3-turbo'
 }

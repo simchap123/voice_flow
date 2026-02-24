@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.3',
+    date: '2026-02-23',
+    highlights: [
+      'Added Large Turbo model (~760 MB) — best accuracy with GPU acceleration',
+      'Model size selector now shows 5 options: Tiny, Base, Small, Medium, Large Turbo',
+      'New "Remove model" button — delete downloaded models to free space or switch sizes',
+      'Fixed download size labels to show accurate numbers',
+    ],
+  },
+  {
     version: '2.16.2',
     date: '2026-02-23',
     highlights: [

@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Download, Check, AlertCircle, Loader2, HardDrive } from 'lucide-react'
+import { Download, Check, AlertCircle, Loader2, HardDrive, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { getSTTProvider, getLocalWhisperProvider } from '@/lib/stt/provider-factory'
 import type { ProgressEvent } from '@/lib/stt/local-whisper'
 
-type ModelSize = 'tiny' | 'base' | 'small' | 'medium'
+type ModelSize = 'tiny' | 'base' | 'small' | 'medium' | 'large-v3-turbo'
 
 interface LocalModelManagerProps {
   modelSize: ModelSize
@@ -13,10 +13,11 @@ interface LocalModelManagerProps {
 }
 
 const MODEL_OPTIONS: { value: ModelSize; label: string; size: string; description: string }[] = [
-  { value: 'tiny', label: 'Tiny', size: '~75 MB', description: 'Fastest, lower accuracy' },
-  { value: 'base', label: 'Base', size: '~150 MB', description: 'Good balance (recommended)' },
-  { value: 'small', label: 'Small', size: '~500 MB', description: 'Higher accuracy, slower' },
-  { value: 'medium', label: 'Medium', size: '~1.5 GB', description: 'Best accuracy, slowest' },
+  { value: 'tiny', label: 'Tiny', size: '~96 MB', description: 'Fastest, lower accuracy' },
+  { value: 'base', label: 'Base', size: '~143 MB', description: 'Good balance (default)' },
+  { value: 'small', label: 'Small', size: '~300 MB', description: 'Best quality/size tradeoff' },
+  { value: 'medium', label: 'Medium', size: '~680 MB', description: 'High accuracy' },
+  { value: 'large-v3-turbo', label: 'Large Turbo', size: '~760 MB', description: 'Best accuracy, needs GPU' },
 ]
 
 export function LocalModelManager({ modelSize, onModelSizeChange }: LocalModelManagerProps) {
@@ -25,6 +26,7 @@ export function LocalModelManager({ modelSize, onModelSizeChange }: LocalModelMa
   const [progressFile, setProgressFile] = useState('')
   const [modelReady, setModelReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Ensure provider is created and check initial status
   useEffect(() => {
@@ -76,6 +78,23 @@ export function LocalModelManager({ modelSize, onModelSizeChange }: LocalModelMa
     } finally {
       unsubscribe()
       setDownloading(false)
+    }
+  }, [])
+
+  const handleDelete = useCallback(async () => {
+    const provider = getLocalWhisperProvider()
+    if (!provider) return
+
+    setDeleting(true)
+    setError(null)
+    try {
+      await provider.deleteModel()
+      setModelReady(false)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete model'
+      setError(message)
+    } finally {
+      setDeleting(false)
     }
   }, [])
 
@@ -136,9 +155,21 @@ export function LocalModelManager({ modelSize, onModelSizeChange }: LocalModelMa
           </p>
         </div>
       ) : modelReady ? (
-        <div className="flex items-center gap-1.5 text-sm text-green-500">
-          <Check className="h-4 w-4" />
-          Model ready
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-sm text-green-500">
+            <Check className="h-4 w-4" />
+            Model ready
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-xs text-muted-foreground hover:text-red-400 gap-1"
+          >
+            {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+            {deleting ? 'Removing...' : 'Remove model'}
+          </Button>
         </div>
       ) : (
         <Button variant="outline" size="sm" onClick={handleDownload} className="gap-1.5">

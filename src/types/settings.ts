@@ -15,7 +15,7 @@ export interface AppSettings {
 
   // STT provider
   sttProvider: STTProviderType
-  localModelSize: 'tiny' | 'base' | 'small' | 'medium'
+  localModelSize: 'tiny' | 'base' | 'small' | 'medium' | 'large-v3-turbo'
 
   // Cleanup provider
   cleanupProvider: CleanupProviderType

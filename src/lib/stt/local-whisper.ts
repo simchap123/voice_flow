@@ -1,7 +1,7 @@
 import { pipeline, type AutomaticSpeechRecognitionPipeline } from '@huggingface/transformers'
 import type { STTProvider } from './types'
 
-type ModelSize = 'tiny' | 'base' | 'small' | 'medium'
+type ModelSize = 'tiny' | 'base' | 'small' | 'medium' | 'large-v3-turbo'
 type ProgressCallback = (progress: ProgressEvent) => void
 
 export interface ProgressEvent {
@@ -17,6 +17,7 @@ const MODEL_IDS: Record<ModelSize, string> = {
   base: 'onnx-community/whisper-base',
   small: 'onnx-community/whisper-small',
   medium: 'onnx-community/whisper-medium',
+  'large-v3-turbo': 'onnx-community/whisper-large-v3-turbo',
 }
 
 export class LocalWhisperProvider implements STTProvider {
@@ -178,6 +179,35 @@ export class LocalWhisperProvider implements STTProvider {
 
   getLastError(): string | null {
     return this.lastLoadError
+  }
+
+  async deleteModel(): Promise<void> {
+    // Dispose the active pipeline
+    if (this.pipe) {
+      await this.pipe.dispose()
+      this.pipe = null
+      this.loadedModelSize = null
+    }
+
+    // Clear model files from browser Cache Storage (where transformers.js stores them)
+    try {
+      const cacheNames = await caches.keys()
+      for (const name of cacheNames) {
+        if (name.includes('transformers')) {
+          const cache = await caches.open(name)
+          const keys = await cache.keys()
+          const modelId = MODEL_IDS[this.modelSize]
+          for (const req of keys) {
+            if (req.url.includes(modelId.replace('/', '%2F')) || req.url.includes(modelId)) {
+              await cache.delete(req)
+            }
+          }
+        }
+      }
+      console.log(`[VoxGen] Deleted cached model for ${this.modelSize}`)
+    } catch (err) {
+      console.warn('[VoxGen] Could not clear model cache:', err)
+    }
   }
 
   private async checkWebGPUSupport(): Promise<boolean> {
