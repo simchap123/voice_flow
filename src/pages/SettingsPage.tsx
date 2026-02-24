@@ -391,37 +391,96 @@ export function SettingsPage() {
                 </div>
               )}
 
-              {/* Local model status — inline row */}
+              {/* Local model — size picker + status */}
               {currentSTT === 'local' && (
-                <div className="flex items-center gap-5 mt-3">
-                  <div className="w-[160px] shrink-0">
-                    <div className="text-[13px] font-medium text-muted-foreground">Model</div>
-                  </div>
-                  <div className="flex-1 flex items-center gap-2">
-                    {modelDownloading ? (
-                      <div className="flex items-center gap-2 flex-1">
-                        <div className="h-1.5 flex-1 max-w-[120px] overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full rounded-full bg-primary transition-all duration-300"
-                            style={{ width: `${modelProgress}%` }}
-                          />
-                        </div>
-                        <span className="text-[11px] text-muted-foreground/60 font-medium">{modelProgress}%</span>
+                <div className="mt-3 space-y-3">
+                  {/* Model size selector */}
+                  <div className="flex items-start gap-5">
+                    <div className="w-[160px] shrink-0 pt-1">
+                      <div className="text-[13px] font-medium text-muted-foreground">Model Size</div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex rounded-md border border-border/40 bg-muted/20 p-0.5">
+                        {([
+                          { value: 'tiny', label: 'Tiny', size: '96 MB' },
+                          { value: 'base', label: 'Base', size: '143 MB' },
+                          { value: 'small', label: 'Small', size: '300 MB' },
+                          { value: 'medium', label: 'Medium', size: '680 MB' },
+                          { value: 'large-v3-turbo', label: 'Large', size: '760 MB' },
+                        ] as const).map((opt) => (
+                          <button
+                            key={opt.value}
+                            onClick={() => updateSetting('localModelSize', opt.value)}
+                            disabled={modelDownloading}
+                            title={`~${opt.size} download`}
+                            className={`flex-1 rounded-[5px] px-2 py-1.5 text-[11px] font-medium transition-all duration-150 ${
+                              modelDownloading ? 'opacity-50 cursor-not-allowed' :
+                              settings.localModelSize === opt.value
+                                ? 'bg-card shadow-sm text-foreground border border-border/40'
+                                : 'text-muted-foreground/60 hover:text-foreground border border-transparent cursor-pointer'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
                       </div>
-                    ) : modelReady ? (
-                      <span className="flex items-center gap-1.5 text-[11px] text-green-600 font-medium">
-                        <Check className="w-3 h-3" />
-                        Model ready
-                      </span>
-                    ) : (
-                      <button
-                        onClick={startDownload}
-                        className="flex items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
-                      >
-                        <Download className="w-3 h-3" />
-                        Download model
-                      </button>
-                    )}
+                      <p className="mt-1 text-[10px] text-muted-foreground/40">
+                        {settings.localModelSize === 'tiny' && 'Fastest, lower accuracy (~96 MB)'}
+                        {settings.localModelSize === 'base' && 'Good balance (~143 MB)'}
+                        {settings.localModelSize === 'small' && 'Best quality/size tradeoff (~300 MB)'}
+                        {settings.localModelSize === 'medium' && 'High accuracy (~680 MB)'}
+                        {settings.localModelSize === 'large-v3-turbo' && 'Best accuracy, needs GPU (~760 MB)'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Model status */}
+                  <div className="flex items-center gap-5">
+                    <div className="w-[160px] shrink-0">
+                      <div className="text-[13px] font-medium text-muted-foreground">Status</div>
+                    </div>
+                    <div className="flex-1 flex items-center gap-2">
+                      {modelDownloading ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <div className="h-1.5 flex-1 max-w-[120px] overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full bg-primary transition-all duration-300"
+                              style={{ width: `${modelProgress}%` }}
+                            />
+                          </div>
+                          <span className="text-[11px] text-muted-foreground/60 font-medium">{modelProgress}%</span>
+                        </div>
+                      ) : modelReady ? (
+                        <>
+                          <span className="flex items-center gap-1.5 text-[11px] text-green-600 font-medium">
+                            <Check className="w-3 h-3" />
+                            Model ready
+                          </span>
+                          <button
+                            onClick={async () => {
+                              const { getLocalWhisperProvider } = await import('@/lib/stt/provider-factory')
+                              const provider = getLocalWhisperProvider()
+                              if (provider) {
+                                await provider.deleteModel()
+                                startDownload() // reset state by triggering re-check
+                                window.location.reload()
+                              }
+                            }}
+                            className="text-[11px] text-muted-foreground/40 hover:text-red-400 transition-colors underline"
+                          >
+                            Remove
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={startDownload}
+                          className="flex items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                        >
+                          <Download className="w-3 h-3" />
+                          Download model
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

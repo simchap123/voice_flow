@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.4',
+    date: '2026-02-23',
+    highlights: [
+      'Fixed: Model size selector now visible in Settings when Local STT is selected',
+      'Choose from 5 sizes (Tiny/Base/Small/Medium/Large) directly in the General tab',
+      'Remove model button available inline — no need to dig into advanced settings',
+    ],
+  },
+  {
     version: '2.16.3',
     date: '2026-02-23',
     highlights: [
