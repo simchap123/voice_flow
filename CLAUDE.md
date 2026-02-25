@@ -111,4 +111,4 @@ gh release create vX.Y.Z --title "vX.Y.Z - [Title]" --notes "[Release notes]" \
 - `uiohook-napi` for global keyboard hooks
 - `@huggingface/transformers` for local whisper (experimental)
 
-## Current Version: v2.16.5
+## Current Version: v2.16.6

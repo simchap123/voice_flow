@@ -22,6 +22,14 @@ import { getCleanupProvider } from './provider-factory'
 import { getGenerationPrompt, getMaxTokensForLength, getRefinementPrompt } from './generation-templates'
 import type { CleanupProviderType, GenerationMode, OutputLength } from './types'
 
+/**
+ * Wrap text in <transcript> tags so the AI treats it as data, not as instructions.
+ * This is the single most important defense against the AI "answering" dictated questions.
+ */
+function wrapTranscript(text: string): string {
+  return `<transcript>${text}</transcript>`
+}
+
 export interface PipelineOptions {
   // Provider settings
   cleanupProvider: CleanupProviderType
@@ -149,7 +157,7 @@ export async function runCleanupPipeline(
       contextPrefix += `[Known terms: ${context.customVocabulary.join(', ')}]\n`
     }
 
-    const userMsg = contextPrefix ? contextPrefix + '\n' + text : text
+    const userMsg = contextPrefix ? contextPrefix + '\n' + wrapTranscript(text) : wrapTranscript(text)
 
     if (customPromptInstructions && provider.cleanupWithPrompt) {
       // Custom prompt active — use it as the system prompt
@@ -162,9 +170,9 @@ export async function runCleanupPipeline(
       if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
       text = await provider.generateWithTemplate('code', instructions, outputLength)
     } else if (trigger.detected && trigger.triggerType) {
-      let instructions = contextPrefix ? contextPrefix + '\n' + trigger.contentAfterTrigger : trigger.contentAfterTrigger
-      if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
-      text = await provider.generateWithTemplate(trigger.triggerType, instructions, outputLength)
+      let triggerContent = contextPrefix ? contextPrefix + '\n' + wrapTranscript(trigger.contentAfterTrigger) : wrapTranscript(trigger.contentAfterTrigger)
+      if (promptRefinementEnabled) triggerContent = await provider.refinePrompt(triggerContent)
+      text = await provider.generateWithTemplate(trigger.triggerType, triggerContent, outputLength)
     } else {
       let instructions = userMsg
       if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
@@ -173,7 +181,7 @@ export async function runCleanupPipeline(
   } else if (trigger.detected && trigger.triggerType && text.trim()) {
     // Keyword trigger in dictation mode — generate content
     stages.push('ai-generate')
-    let instructions = trigger.contentAfterTrigger
+    let instructions = wrapTranscript(trigger.contentAfterTrigger)
     if (promptRefinementEnabled) instructions = await provider.refinePrompt(instructions)
     text = await provider.generateWithTemplate(trigger.triggerType, instructions, outputLength)
   } else if (cleanupEnabled && cleanupProvider !== 'none' && text.trim()) {
@@ -184,7 +192,7 @@ export async function runCleanupPipeline(
       const sysPrompt = useSystemInstructions
         ? buildCleanupPrompt(customPromptInstructions)
         : customPromptInstructions
-      text = await provider.cleanupWithPrompt(sysPrompt, text)
+      text = await provider.cleanupWithPrompt(sysPrompt, wrapTranscript(text))
     } else {
       text = await provider.cleanup(text)
     }

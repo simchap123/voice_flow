@@ -14,6 +14,9 @@ const THINKING_TAG_PATTERNS = [
   /<internal>[\s\S]*?<\/internal>/gi,
 ]
 
+// Some models echo back the transcript tags we sent
+const TRANSCRIPT_TAG_PATTERN = /<\/?transcript>/gi
+
 // Some models wrap output in markdown code fences when they shouldn't
 const UNWANTED_CODE_FENCE = /^```(?:\w*)\n([\s\S]*?)```$/
 
@@ -27,6 +30,9 @@ export function filterOutput(text: string): string {
   for (const pattern of THINKING_TAG_PATTERNS) {
     filtered = filtered.replace(pattern, '')
   }
+
+  // Strip echoed transcript tags
+  filtered = filtered.replace(TRANSCRIPT_TAG_PATTERN, '')
 
   // Strip wrapping markdown code fences (only if they wrap the entire output)
   const fenceMatch = filtered.trim().match(UNWANTED_CODE_FENCE)

@@ -1,7 +1,6 @@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useSettings } from '@/hooks/useSettings'
 import { HotkeyRecorder } from '@/components/settings/HotkeyRecorder'
-import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { toast } from '@/hooks/useToast'
@@ -71,21 +70,6 @@ export function DictationModePage() {
                 <Label htmlFor="toggle-double" className="text-[12px] font-normal cursor-pointer">Double-tap</Label>
               </div>
             </RadioGroup>
-          </div>
-        </div>
-
-        {/* Options */}
-        <div className="rounded-lg border border-border/30 bg-card/70 p-4">
-          <div className="mb-3">
-            <div className="text-[13px] font-semibold">Options</div>
-            <div className="text-[10px] text-muted-foreground/50">Dictation behavior</div>
-          </div>
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <div className="text-[12px] font-medium">Code Mode</div>
-              <div className="text-[10px] text-muted-foreground/50">Convert spoken words to code syntax</div>
-            </div>
-            <Switch checked={settings.codeMode} onCheckedChange={(v) => updateSetting('codeMode', v)} />
           </div>
         </div>
       </div>

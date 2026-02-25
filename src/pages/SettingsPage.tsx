@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useSettings } from '@/hooks/useSettings'
-import { HotkeyBadge } from '@/components/settings/hotkey-badge'
+import { HotkeyRow } from '@/components/settings/hotkey-row'
 import { MicrophoneSelect } from '@/components/settings/MicrophoneSelect'
 import { LanguageSelect } from '@/components/settings/LanguageSelect'
 import { ProviderApiKeyInput } from '@/components/settings/ProviderApiKeyInput'
@@ -11,9 +11,16 @@ import { Mic, Zap, User, Sparkles, Bell, Key, X, RefreshCw, Check, Download, Bug
 import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/useToast'
 import type { STTProviderType } from '@/lib/stt/types'
+import type { OutputLength } from '@/lib/cleanup/types'
 import { useModelDownload } from '@/hooks/useModelDownload'
 
 const ADMIN_EMAIL = 'spentelnik@gmail.com'
+
+const OUTPUT_LENGTHS: { value: OutputLength; label: string; description: string }[] = [
+  { value: 'concise', label: 'Concise', description: 'Brief and to the point' },
+  { value: 'medium', label: 'Medium', description: 'Balanced level of detail' },
+  { value: 'detailed', label: 'Detailed', description: 'Thorough with examples' },
+]
 
 // ── DEV TOOLS — Only visible to admin ──
 function DevTools() {
@@ -154,11 +161,7 @@ const STT_OPTIONS_BASE: { value: STTProviderType; label: string }[] = [
   { value: 'local', label: 'Local' },
 ]
 
-interface SettingsPageProps {
-  onNavigate: (page: string) => void
-}
-
-export function SettingsPage({ onNavigate }: SettingsPageProps) {
+export function SettingsPage() {
   const { settings, updateSetting, saveApiKey, isManagedMode } = useSettings()
   const [tab, setTab] = useState<Tab>('general')
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false)
@@ -275,59 +278,28 @@ export function SettingsPage({ onNavigate }: SettingsPageProps) {
             <div className="settings-section-enter py-5 border-b border-border/20" style={{ animationDelay: '0s' }}>
               <div className="mb-4">
                 <div className="text-[14px] font-semibold">Recording</div>
-                <div className="text-[12px] text-muted-foreground/50">Hotkey summary</div>
+                <div className="text-[12px] text-muted-foreground/50">Configure hotkeys and trigger methods</div>
               </div>
               <div className="space-y-0">
-                <div className="flex items-start gap-5 py-3">
-                  <div className="w-[160px] shrink-0">
-                    <div className="text-[13px] font-medium text-muted-foreground flex items-center gap-2">
-                      <Mic className="w-4 h-4 text-muted-foreground/50" />
-                      Hold to record
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <HotkeyBadge
-                      label="Hold to record"
-                      hotkey={settings.holdHotkey}
-                      editPage="dictation"
-                      onNavigate={onNavigate}
-                    />
-                  </div>
-                </div>
+                <HotkeyRow
+                  label="Hold (Dictation)"
+                  hotkeyKey="holdHotkey"
+                  icon={Mic}
+                />
                 <div className="border-t border-border/10" />
-                <div className="flex items-start gap-5 py-3">
-                  <div className="w-[160px] shrink-0">
-                    <div className="text-[13px] font-medium text-muted-foreground flex items-center gap-2">
-                      <Mic className="w-4 h-4 text-muted-foreground/50" />
-                      Toggle Recording
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <HotkeyBadge
-                      label="Toggle Recording"
-                      hotkey={settings.toggleHotkey}
-                      editPage="dictation"
-                      onNavigate={onNavigate}
-                    />
-                  </div>
-                </div>
+                <HotkeyRow
+                  label="Toggle (Dictation)"
+                  hotkeyKey="toggleHotkey"
+                  triggerMethodKey="toggleTriggerMethod"
+                  icon={Mic}
+                />
                 <div className="border-t border-border/10" />
-                <div className="flex items-start gap-5 py-3">
-                  <div className="w-[160px] shrink-0">
-                    <div className="text-[13px] font-medium text-muted-foreground flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-muted-foreground/50" />
-                      AI Prompt
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <HotkeyBadge
-                      label="AI Prompt"
-                      hotkey={settings.promptHotkey}
-                      editPage="ai-prompt"
-                      onNavigate={onNavigate}
-                    />
-                  </div>
-                </div>
+                <HotkeyRow
+                  label="AI Prompt"
+                  hotkeyKey="promptHotkey"
+                  triggerMethodKey="promptTriggerMethod"
+                  icon={Zap}
+                />
               </div>
             </div>
 
@@ -521,27 +493,13 @@ export function SettingsPage({ onNavigate }: SettingsPageProps) {
               )}
             </div>
 
-            {/* Preferences */}
+            {/* Text Processing */}
             <div className="settings-section-enter py-5" style={{ animationDelay: '0.18s' }}>
               <div className="mb-4">
-                <div className="text-[14px] font-semibold">Preferences</div>
-                <div className="text-[12px] text-muted-foreground/50">Behavior settings</div>
+                <div className="text-[14px] font-semibold">Text Processing</div>
+                <div className="text-[12px] text-muted-foreground/50">Control how transcriptions are processed</div>
               </div>
               <div className="space-y-0">
-                <div className="flex items-center gap-5 py-3">
-                  <div className="w-[160px] shrink-0">
-                    <div className="text-[13px] font-medium text-muted-foreground">Auto-paste</div>
-                    <div className="text-[10px] text-muted-foreground/40">Type into focused app</div>
-                  </div>
-                  <div className="flex-1 flex items-center justify-between">
-                    <span className="text-[12px] text-muted-foreground/60">{(settings.autoCopy ?? true) ? 'Enabled' : 'Disabled'}</span>
-                    <Switch
-                      checked={settings.autoCopy ?? true}
-                      onCheckedChange={(v) => updateSetting('autoCopy', v)}
-                    />
-                  </div>
-                </div>
-                <div className="border-t border-border/10" />
                 <div className="flex items-center gap-5 py-3">
                   <div className="w-[160px] shrink-0">
                     <div className="text-[13px] font-medium text-muted-foreground">AI Cleanup</div>
@@ -552,6 +510,137 @@ export function SettingsPage({ onNavigate }: SettingsPageProps) {
                     <Switch
                       checked={settings.cleanupEnabled}
                       onCheckedChange={(v) => updateSetting('cleanupEnabled', v)}
+                    />
+                  </div>
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Remove filler words</div>
+                    <div className="text-[10px] text-muted-foreground/40">Strips um, uh, er, ah from transcription</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className="text-[12px] text-muted-foreground/60">{settings.fillerWordRemoval ? 'Enabled' : 'Disabled'}</span>
+                    <Switch
+                      checked={settings.fillerWordRemoval}
+                      onCheckedChange={(v) => updateSetting('fillerWordRemoval', v)}
+                    />
+                  </div>
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Code mode</div>
+                    <div className="text-[10px] text-muted-foreground/40">Optimizes for code dictation</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className="text-[12px] text-muted-foreground/60">{settings.codeMode ? 'Enabled' : 'Disabled'}</span>
+                    <Switch
+                      checked={settings.codeMode}
+                      onCheckedChange={(v) => updateSetting('codeMode', v)}
+                    />
+                  </div>
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Auto-copy to clipboard</div>
+                    <div className="text-[10px] text-muted-foreground/40">Type into focused app</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className="text-[12px] text-muted-foreground/60">{(settings.autoCopy ?? true) ? 'Enabled' : 'Disabled'}</span>
+                    <Switch
+                      checked={settings.autoCopy ?? true}
+                      onCheckedChange={(v) => updateSetting('autoCopy', v)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Generation */}
+            <div className="settings-section-enter py-5" style={{ animationDelay: '0.24s' }}>
+              <div className="mb-4">
+                <div className="text-[14px] font-semibold">AI Generation</div>
+                <div className="text-[12px] text-muted-foreground/50">Content generation behavior</div>
+              </div>
+              <div className="space-y-0">
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Keyword triggers</div>
+                    <div className="text-[10px] text-muted-foreground/40">Detect "write me an email about..." to auto-generate</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className="text-[12px] text-muted-foreground/60">{settings.keywordTriggersEnabled ? 'Enabled' : 'Disabled'}</span>
+                    <Switch
+                      checked={settings.keywordTriggersEnabled}
+                      onCheckedChange={(v) => updateSetting('keywordTriggersEnabled', v)}
+                    />
+                  </div>
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Prompt refinement</div>
+                    <div className="text-[10px] text-muted-foreground/40">AI cleans up spoken instructions before generating</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className="text-[12px] text-muted-foreground/60">{settings.promptRefinementEnabled ? 'Enabled' : 'Disabled'}</span>
+                    <Switch
+                      checked={settings.promptRefinementEnabled}
+                      onCheckedChange={(v) => updateSetting('promptRefinementEnabled', v)}
+                    />
+                  </div>
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Output length</div>
+                    <div className="text-[10px] text-muted-foreground/40">AI response detail level</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex rounded-md border border-border/40 bg-muted/20 p-0.5">
+                      {OUTPUT_LENGTHS.map((l) => (
+                        <button
+                          key={l.value}
+                          onClick={() => updateSetting('outputLength', l.value)}
+                          className={`flex-1 rounded-[5px] px-3 py-1.5 text-[11px] font-medium transition-all duration-150 ${
+                            settings.outputLength === l.value
+                              ? 'bg-card shadow-sm text-foreground border border-border/40'
+                              : 'text-muted-foreground/60 hover:text-foreground border border-transparent cursor-pointer'
+                          }`}
+                        >
+                          {l.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Clipboard context</div>
+                    <div className="text-[10px] text-muted-foreground/40">Reads clipboard to fix names and terms</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className="text-[12px] text-muted-foreground/60">{(settings.useClipboardContext ?? true) ? 'Enabled' : 'Disabled'}</span>
+                    <Switch
+                      checked={settings.useClipboardContext ?? true}
+                      onCheckedChange={(v) => updateSetting('useClipboardContext', v)}
+                    />
+                  </div>
+                </div>
+                <div className="border-t border-border/10" />
+                <div className="flex items-center gap-5 py-3">
+                  <div className="w-[160px] shrink-0">
+                    <div className="text-[13px] font-medium text-muted-foreground">Active window context</div>
+                    <div className="text-[10px] text-muted-foreground/40">Detects active app for better formatting</div>
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className="text-[12px] text-muted-foreground/60">{(settings.useWindowContext ?? true) ? 'Enabled' : 'Disabled'}</span>
+                    <Switch
+                      checked={settings.useWindowContext ?? true}
+                      onCheckedChange={(v) => updateSetting('useWindowContext', v)}
                     />
                   </div>
                 </div>

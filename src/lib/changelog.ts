@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.6',
+    date: '2026-02-25',
+    highlights: [
+      'Fixed: AI cleanup no longer answers questions or responds to dictated text — treats all speech as transcript to clean',
+      'All prompts rewritten with structural <transcript> tags, few-shot examples, and positive framing',
+      'Cleanup temperature lowered from 0.3 to 0.1 for more deterministic transcript cleaning',
+      'Server-side managed mode prompts updated with same fixes',
+    ],
+  },
+  {
     version: '2.16.5',
     date: '2026-02-24',
     highlights: [

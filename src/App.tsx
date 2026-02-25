@@ -51,7 +51,7 @@ function MainApp() {
   const renderPage = () => {
     switch (currentPage) {
       case 'history': return <HistoryPage />
-      case 'settings': return <SettingsPage onNavigate={setCurrentPage} />
+      case 'settings': return <SettingsPage />
       case 'dictation': return <DictationModePage />
       case 'ai-prompt': return <AIPromptModePage onNavigate={setCurrentPage} />
       case 'ai-prompts': return <AIPromptsPage />
