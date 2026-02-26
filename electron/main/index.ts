@@ -1,6 +1,7 @@
-import { app, BrowserWindow, globalShortcut, session } from 'electron'
+import { app, BrowserWindow, dialog, globalShortcut, session } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { writeFileSync, mkdirSync } from 'node:fs'
 import { createMainWindow, createOverlayWindow, getMainWindow, getOverlayWindow } from './windows'
 import { registerHotkeys, unregisterAllHotkeys } from './hotkeys'
 import { createTray, destroyTray } from './tray'
@@ -9,6 +10,28 @@ import { initStore, getSetting } from './store'
 import { checkLicenseOnStartup, validateByEmail } from './license'
 import { initAutoUpdater } from './updater'
 import { trackAppLaunch, setupErrorReporting } from './event-tracker'
+
+// --- Global crash handlers: log + show error dialog so crashes are never silent ---
+function logCrash(label: string, err: unknown) {
+  const message = err instanceof Error ? err.stack || err.message : String(err)
+  const logLine = `[${new Date().toISOString()}] ${label}: ${message}\n`
+  try {
+    const logDir = app.getPath('userData')
+    mkdirSync(logDir, { recursive: true })
+    writeFileSync(path.join(logDir, 'crash.log'), logLine, { flag: 'a' })
+  } catch { /* best effort */ }
+  console.error(`[VoxGen] ${label}:`, message)
+}
+
+process.on('uncaughtException', (err) => {
+  logCrash('Uncaught exception', err)
+  dialog.showErrorBox('VoxGen Error', `An unexpected error occurred:\n\n${err.message}\n\nThe app will now close. Check crash.log in %APPDATA%\\VoxGen for details.`)
+  app.exit(1)
+})
+
+process.on('unhandledRejection', (reason) => {
+  logCrash('Unhandled rejection', reason)
+})
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -69,58 +92,78 @@ process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
   : process.env.DIST
 
 app.whenReady().then(async () => {
-  // Auto-grant microphone permission so overlay window doesn't need user interaction
-  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
-    if (permission === 'media') {
-      callback(true)
-    } else {
-      callback(false)
+  try {
+    // Auto-grant microphone permission so overlay window doesn't need user interaction
+    session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+      if (permission === 'media') {
+        callback(true)
+      } else {
+        callback(false)
+      }
+    })
+
+    console.log('[VoxGen] Initializing store...')
+    initStore()
+    console.log('[VoxGen] Registering IPC handlers...')
+    registerIpcHandlers()
+
+    console.log('[VoxGen] Creating main window...')
+    createMainWindow()
+    console.log('[VoxGen] Creating overlay window...')
+    createOverlayWindow()
+    console.log('[VoxGen] Creating tray...')
+    createTray()
+    console.log('[VoxGen] Registering hotkeys...')
+    registerHotkeys()
+
+    console.log('[VoxGen] Core initialization complete.')
+
+    // Check license validity on startup (non-blocking)
+    checkLicenseOnStartup().catch(err => {
+      console.warn('[VoxGen] License check on startup failed:', err.message)
+    })
+
+    // Check for updates (non-blocking)
+    initAutoUpdater()
+
+    // Setup error reporting (non-blocking)
+    setupErrorReporting()
+
+    // Track app launch (non-blocking, fire-and-forget)
+    const isFirstLaunch = getSetting('trialStartedAt') > Date.now() - 10000 // within 10s = first launch
+    trackAppLaunch(isFirstLaunch)
+
+    // Windows: handle deep link on cold start (app wasn't running when link clicked)
+    const deepLinkArg = process.argv.find(arg => arg.startsWith('voxgen://'))
+    if (deepLinkArg) {
+      // Wait a moment for windows to be ready, then handle
+      setTimeout(() => handleDeepLink(deepLinkArg), 1500)
     }
-  })
 
-  initStore()
-  registerIpcHandlers()
+    // macOS: handle deep link via open-url event
+    app.on('open-url', (_event, url) => {
+      if (url.startsWith('voxgen://')) {
+        handleDeepLink(url)
+      }
+    })
 
-  createMainWindow()
-  createOverlayWindow()
-  createTray()
-  registerHotkeys()
-
-  // Check license validity on startup (non-blocking)
-  checkLicenseOnStartup().catch(err => {
-    console.warn('[VoxGen] License check on startup failed:', err.message)
-  })
-
-  // Check for updates (non-blocking)
-  initAutoUpdater()
-
-  // Setup error reporting (non-blocking)
-  setupErrorReporting()
-
-  // Track app launch (non-blocking, fire-and-forget)
-  const isFirstLaunch = getSetting('trialStartedAt') > Date.now() - 10000 // within 10s = first launch
-  trackAppLaunch(isFirstLaunch)
-
-  // Windows: handle deep link on cold start (app wasn't running when link clicked)
-  const deepLinkArg = process.argv.find(arg => arg.startsWith('voxgen://'))
-  if (deepLinkArg) {
-    // Wait a moment for windows to be ready, then handle
-    setTimeout(() => handleDeepLink(deepLinkArg), 1500)
+    app.on('activate', () => {
+      const mainWin = getMainWindow()
+      if (!mainWin || mainWin.isDestroyed()) {
+        createMainWindow()
+      }
+    })
+  } catch (err: any) {
+    logCrash('App initialization failed', err)
+    dialog.showErrorBox(
+      'VoxGen Failed to Start',
+      `Initialization error:\n\n${err.message}\n\nCheck crash.log in %APPDATA%\\VoxGen for details.`
+    )
+    app.exit(1)
   }
-
-  // macOS: handle deep link via open-url event
-  app.on('open-url', (_event, url) => {
-    if (url.startsWith('voxgen://')) {
-      handleDeepLink(url)
-    }
-  })
-
-  app.on('activate', () => {
-    const mainWin = getMainWindow()
-    if (!mainWin || mainWin.isDestroyed()) {
-      createMainWindow()
-    }
-  })
+}).catch((err: any) => {
+  logCrash('app.whenReady() failed', err)
+  app.exit(1)
 })
 
 app.on('second-instance', (_event, argv) => {

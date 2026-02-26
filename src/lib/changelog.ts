@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.9',
+    date: '2026-02-26',
+    highlights: [
+      'Added crash diagnostics: app now shows an error dialog instead of silently closing on startup failures',
+      'Added crash.log file in %APPDATA%\\VoxGen for debugging startup issues',
+      'Global uncaught exception and unhandled rejection handlers for better error visibility',
+    ],
+  },
+  {
     version: '2.16.8',
     date: '2026-02-26',
     highlights: [
