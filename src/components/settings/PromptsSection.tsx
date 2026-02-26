@@ -88,13 +88,6 @@ export function PromptsSection() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight">AI Prompts</h2>
-        <p className="text-[12px] text-muted-foreground/60">
-          Choose how the AI cleans up your dictation. The active prompt replaces the default cleanup instructions.
-        </p>
-      </div>
-
       {/* Prompt list */}
       <div className="space-y-2.5">
         {allPrompts.map((prompt) => {

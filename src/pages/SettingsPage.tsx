@@ -494,7 +494,7 @@ export function SettingsPage() {
             </div>
 
             {/* Text Processing */}
-            <div className="settings-section-enter py-5" style={{ animationDelay: '0.18s' }}>
+            <div className="settings-section-enter py-5 border-b border-border/20" style={{ animationDelay: '0.18s' }}>
               <div className="mb-4">
                 <div className="text-[14px] font-semibold">Text Processing</div>
                 <div className="text-[12px] text-muted-foreground/50">Control how transcriptions are processed</div>
@@ -571,9 +571,9 @@ export function SettingsPage() {
                     <div className="text-[10px] text-muted-foreground/40">Detect "write me an email about..." to auto-generate</div>
                   </div>
                   <div className="flex-1 flex items-center justify-between">
-                    <span className="text-[12px] text-muted-foreground/60">{settings.keywordTriggersEnabled ? 'Enabled' : 'Disabled'}</span>
+                    <span className="text-[12px] text-muted-foreground/60">{(settings.keywordTriggersEnabled ?? true) ? 'Enabled' : 'Disabled'}</span>
                     <Switch
-                      checked={settings.keywordTriggersEnabled}
+                      checked={settings.keywordTriggersEnabled ?? true}
                       onCheckedChange={(v) => updateSetting('keywordTriggersEnabled', v)}
                     />
                   </div>
@@ -606,7 +606,7 @@ export function SettingsPage() {
                           onClick={() => updateSetting('outputLength', l.value)}
                           className={`flex-1 rounded-[5px] px-3 py-1.5 text-[11px] font-medium transition-all duration-150 ${
                             settings.outputLength === l.value
-                              ? 'bg-card shadow-sm text-foreground border border-border/40'
+                              ? 'bg-card shadow-sm text-foreground border border-border/40 cursor-pointer'
                               : 'text-muted-foreground/60 hover:text-foreground border border-transparent cursor-pointer'
                           }`}
                         >
