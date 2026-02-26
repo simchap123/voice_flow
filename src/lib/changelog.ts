@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.8',
+    date: '2026-02-26',
+    highlights: [
+      'Fixed duplicate "AI Prompts" heading on prompts page',
+      'Added missing section separator between Text Processing and AI Generation in Settings',
+      'Improved default handling for keyword triggers setting on upgrades',
+    ],
+  },
+  {
     version: '2.16.7',
     date: '2026-02-25',
     highlights: [
