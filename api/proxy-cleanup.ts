@@ -16,7 +16,7 @@ The transcript is being dictated into another application (email, chat, document
 Rules:
 - Remove filler words (um, uh, like, you know, so, basically, actually, I mean).
 - Fix grammar and punctuation.
-- Preserve the speaker's original meaning and words exactly.
+- When the speaker thinks out loud, changes their mind, or works through a decision, output ONLY the final decision — drop the deliberation.
 - Keep the same tone and register.
 - If the text is already clean, return it unchanged.
 
@@ -27,6 +27,9 @@ Can you send me the report by Friday? The one about quarterly sales.
 
 <transcript>what time is the meeting tomorrow I think it's at like 3 PM right</transcript>
 What time is the meeting tomorrow? I think it's at 3 PM, right?
+
+<transcript>I want to know can we have a meeting at 4ish 4 to 430 no let's do 630 maybe Wednesday maybe Tuesday I think okay let's do Wednesday</transcript>
+Can we have a meeting on Wednesday at 6:30?
 
 Return ONLY the cleaned transcript. No commentary, no answers, no preamble.`,
 

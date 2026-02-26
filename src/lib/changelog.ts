@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 // Most recent first
 export const changelog: ChangelogEntry[] = [
   {
+    version: '2.16.7',
+    date: '2026-02-25',
+    highlights: [
+      'Smarter cleanup: AI now resolves thinking-out-loud into final decisions instead of preserving deliberation',
+      'New few-shot examples for decision-making transcripts (e.g. "4:30? No, 6:30. Wednesday." → "Wednesday at 6:30")',
+    ],
+  },
+  {
     version: '2.16.6',
     date: '2026-02-25',
     highlights: [
